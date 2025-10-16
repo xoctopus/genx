@@ -57,31 +57,3 @@ func (ss *snippets) Fragments(ctx context.Context) iter.Seq[string] {
 		}
 	}
 }
-
-// type Writer interface {
-// 	Render(Snippet)
-// }
-//
-// func NewWriter(w io.Writer) Writer {
-// 	return &writer{
-// 		writer:  w,
-// 		tracker: dumper.NewImportTracker(),
-// 	}
-// }
-//
-// type writer struct {
-// 	writer  io.Writer
-// 	tracker dumper.ImportTracker
-// }
-//
-// func (w *writer) Render(s Snippet) {
-// 	if s == nil || s.IsNil() {
-// 		return
-// 	}
-//
-// 	if !s.IsNil() {
-// 		for code := range s.Fragments(dumper.Context.With(context.Background(), w.tracker)) {
-// 			_, _ = io.WriteString(w.writer, code)
-// 		}
-// 	}
-// }

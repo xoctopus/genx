@@ -108,8 +108,9 @@ view-cover: cover
 
 fmt: dep clean
 	@echo "==> format code"
-	@goimports-reviser -rm-unused -set-alias -output write \
+	@goimports-reviser -rm-unused \
 		-imports-order 'std,general,company,project' \
+		-project-name ${MOD} \
 		-excludes '.git/,.xgo/,*.pb.go,*_generated.go' ./...
 
 lint: dep

@@ -1,5 +1,7 @@
 package testdata
 
+// Gender enum of genders
+// +genx:test_genx
 type Gender int8
 
 const (

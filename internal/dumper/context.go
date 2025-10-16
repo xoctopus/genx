@@ -7,29 +7,21 @@ import (
 	"github.com/xoctopus/x/contextx"
 )
 
-var (
-	trackerCtx = contextx.NewT[ImportTracker]()
-	selfCtx    = contextx.NewT[string]()
-)
+var ctx = contextx.NewT[ImportTracker]()
 
-func TrackerFromContext(ctx context.Context) ImportTracker {
-	return trackerCtx.MustFrom(ctx)
+func TrackerFromContext(child context.Context) ImportTracker {
+	return ctx.MustFrom(child)
 }
 
-func WithTrackerContext(ctx context.Context) context.Context {
-	if _, ok := trackerCtx.From(ctx); ok {
-		return ctx
+func WithTrackerContext(parent context.Context, entry string) context.Context {
+	if _, ok := ctx.From(parent); ok {
+		return parent
 	}
 
-	i := NewImportTracker(SelfFromContext(ctx))
-	return trackerCtx.With(namer.WithContext(ctx, i), i)
+	i := NewImportTracker(entry)
+	return ctx.With(namer.WithContext(parent, i), i)
 }
 
-func SelfFromContext(ctx context.Context) string {
-	v, _ := selfCtx.From(ctx)
-	return v
-}
-
-func WithSelfContext(ctx context.Context, path string) context.Context {
-	return selfCtx.With(ctx, path)
+func Track(child context.Context, path string) {
+	ctx.MustFrom(child).Track(path)
 }

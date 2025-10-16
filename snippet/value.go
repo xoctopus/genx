@@ -135,13 +135,6 @@ func Value(ctx context.Context, x any) Snippet {
 	default: // basics or invalid
 		var s Snippet
 		switch kind {
-		// case reflect.Int32:
-		// 	s = Block(fmt.Sprintf("%d", v.Int()))
-		// 	if b, ok := v.Interface().(rune); ok {
-		// 		if r := strconv.QuoteRune(b); len(r) >= 3 {
-		// 			s = Block(r)
-		// 		}
-		// 	}
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			s = Block(fmt.Sprintf("%d", v.Int()))
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
@@ -162,16 +155,9 @@ func Value(ctx context.Context, x any) Snippet {
 			return Block("nil")
 		}
 
-		// must.BeTrueF(
-		// 	reflectx.IsBasic(v.Kind()),
-		// 	"unexpected input value: %s", v.Type(),
-		// )
 		if v.Type().PkgPath() == "" {
 			return s
 		}
-		return Compose(
-			IdentRT(ctx, v.Type()),
-			Block("("), s, Block(")"),
-		)
+		return Compose(IdentRT(ctx, v.Type()), Block("("), s, Block(")"))
 	}
 }

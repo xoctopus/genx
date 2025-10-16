@@ -6,7 +6,6 @@ import (
 	"go/types"
 	"iter"
 
-	"github.com/pkg/errors"
 	"github.com/xoctopus/typex/namer"
 	"github.com/xoctopus/typex/pkgutil"
 	"github.com/xoctopus/x/misc/must"
@@ -40,22 +39,24 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 
 	r := &exposer{}
 	switch x := target.(type) {
-	case *types.TypeName:
-		// We cannot handle *types.TypeName in Expose, because since Go added generics,
-		// we can no longer perform type inference through package resolution.
-		panic(errors.Errorf("*types.TypeName is not acceptable by Expose, pls use `Ident`"))
-	case *types.Func:
-		s := x.Type().(*types.Signature)
-		if targc := s.TypeParams().Len(); targc != 0 {
+	case *types.Func, *types.TypeName:
+		var params *types.TypeParamList
+		if _, ok := x.(*types.Func); ok {
+			params = x.Type().(*types.Signature).TypeParams()
+		} else {
+			params = x.Type().(*types.Named).TypeParams()
+		}
+		if targc := params.Len(); targc != 0 {
 			must.BeTrueF(
 				targc == len(targs),
 				"expected %d type parameter(s) for %s but got %d",
 				targc, x.Name(), len(targs),
 			)
 			for i, targ := range targs {
-				if targ == nil || targ.IsNil() {
-					continue
-				}
+				must.BeTrueF(
+					targ != nil && !targ.IsNil(),
+					"got invalid type arg snippet at %d", i,
+				)
 				ta, ok := targ.(*ident)
 				must.BeTrueF(
 					ok,
@@ -64,6 +65,7 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 				)
 				r.targs = append(r.targs, ta)
 			}
+			// TODO should here need check the instantiation must can be succeeded by targs...
 		}
 		r.path = x.Pkg().Path()
 		r.name = x.Name()
@@ -72,8 +74,12 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 		r.name = x.Name()
 	}
 
-	dumper.TrackerFromContext(ctx).Track(path)
+	dumper.Track(ctx, path)
 	return r
+}
+
+func ExposeObject(ctx context.Context, o types.Object, targs ...Snippet) Snippet {
+	return Expose(ctx, o.Pkg().Path(), o.Name(), targs...)
 }
 
 type exposer struct {

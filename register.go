@@ -8,11 +8,11 @@ import (
 
 var generators = mapx.NewXmap[string, Generator]()
 
-func RegisterGenerator(g Generator) {
+func Register(g Generator) {
 	generators.LoadOrStore(g.Identifier(), g)
 }
 
-func GetGenerators(identifiers ...string) (gs []Generator) {
+func Get(identifiers ...string) (gs []Generator) {
 	defer func() {
 		sort.Slice(gs, func(i, j int) bool {
 			return gs[i].Identifier() < gs[j].Identifier()

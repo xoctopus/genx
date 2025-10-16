@@ -10,13 +10,11 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"testing"
 
 	"github.com/pkg/errors"
 	"github.com/xoctopus/enumx"
 	"github.com/xoctopus/x/ptrx"
 	_ "github.com/xoctopus/x/ptrx"
-	. "github.com/xoctopus/x/testx"
 
 	"github.com/xoctopus/genx/internal/dumper"
 	. "github.com/xoctopus/genx/snippet"
@@ -59,13 +57,14 @@ func ExampleComments() {
 }
 
 func ExampleBlock() {
+	x := 1
 	Print(
 		context.Background(),
 		Document("F", "this is a document for F."),
 		NewLine(1),
 		Block("func F() int {"),
 		NewLine(1),
-		Indent(1), Block("x := 1"),
+		Indent(1), BlockF("x := %d", x),
 		NewLine(1),
 		Indent(1), Block("return x"),
 		NewLine(1),
@@ -82,7 +81,7 @@ func ExampleBlock() {
 }
 
 func ExampleIdentFor() {
-	ctx := dumper.WithTrackerContext(context.Background())
+	ctx := dumper.WithTrackerContext(context.Background(), "demo")
 
 	body := Snippets(
 		NewLine(1),
@@ -125,7 +124,7 @@ func ExampleIdentFor() {
 }
 
 func ExampleExpose() {
-	ctx := dumper.WithTrackerContext(context.Background())
+	ctx := dumper.WithTrackerContext(context.Background(), "demo")
 
 	body := Snippets(
 		NewLine(1),
@@ -177,20 +176,7 @@ func ExampleExpose() {
 var template []byte
 
 func ExampleTemplate() {
-	cwd, _ := os.Getwd()
-	output, _ := os.OpenFile(
-		filepath.Join(cwd, "..", "testdata", "gender_genx.go"),
-		os.O_WRONLY|os.O_CREATE,
-		0644,
-	)
-	defer func() {
-		_ = output.Sync()
-		_ = output.Close()
-	}()
-
-	ctx := dumper.WithTrackerContext(
-		dumper.WithSelfContext(context.Background(), "github.com/xoctopus/genx/testdata"),
-	)
+	ctx := dumper.WithTrackerContext(context.Background(), "github.com/xoctopus/genx/testdata")
 
 	tpl := Template(
 		bytes.NewReader(template),
@@ -235,21 +221,31 @@ func ExampleTemplate() {
 		Arg(ctx, "Nil", nil),
 	)
 
+	b := bytes.NewBuffer(nil)
+
 	Write(
 		ctx,
-		output,
+		b,
 		Poster("testdata", "genx:test_template"),
 		Imports(ctx, "github.com/xoctopus/genx"),
 		tpl,
 	)
 
+	cwd, _ := os.Getwd()
+	output, _ := os.OpenFile(
+		filepath.Join(cwd, "..", "testdata", "gender_genx_tpl_test_enum.go"),
+		os.O_WRONLY|os.O_CREATE,
+		0644,
+	)
+	_, _ = io.Copy(output, b)
+	_ = output.Sync()
+	_ = output.Close()
+
 	// Output:
 }
 
 func ExampleValue() {
-	ctx := dumper.WithTrackerContext(
-		dumper.WithSelfContext(context.Background(), "github.com/xoctopus/genx/snippet_test"),
-	)
+	ctx := dumper.WithTrackerContext(context.Background(), "github.com/xoctopus/genx/snippet_test")
 
 	body := Snippets(
 		NewLine(1),
@@ -330,18 +326,4 @@ func ExampleValue() {
 	// map[interface {}]int{nil: 0, nil: 1, "1": 2, "3": 3, "5": 4, testdata.String("2"): 5, testdata.String("4"): 6, testdata.String("6"): 7}
 	// []map[interface {}]interface {}{map[interface {}]interface {}{2: 0, ptrx.Ptr[testdata.String](testdata.String("3")): 1, "1": 2, testdata.String("0"): 3}}
 	// []interface {}{nil, true, false, (1+0i), (1+0i)}
-}
-
-func TestSnippet(t *testing.T) {
-	ctx := dumper.WithTrackerContext(context.Background())
-
-	t.Run("RefuseExposeNamedType", func(t *testing.T) {
-		ExpectPanic(
-			t,
-			func() {
-				Expose(ctx, "github.com/xoctopus/genx/testdata", "Gender")
-			},
-			ErrorContains("*types.TypeName is not acceptable"),
-		)
-	})
 }

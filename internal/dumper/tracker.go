@@ -37,13 +37,15 @@ type ImportTracker interface {
 	Range(func(Import))
 	// Init adjust imported package alias
 	Init()
+	// Entry returns tracker's entry
+	Entry() string
 }
 
-func NewImportTracker(self string) ImportTracker {
+func NewImportTracker(entry string) ImportTracker {
 	i := &tracker{
 		imports: make(map[string]*Import),
 		names:   make(map[string][]*Import),
-		self:    self,
+		entry:   entry,
 	}
 	return i
 }
@@ -51,7 +53,7 @@ func NewImportTracker(self string) ImportTracker {
 type tracker struct {
 	imports     map[string]*Import
 	names       map[string][]*Import
-	self        string
+	entry       string
 	once        sync.Once
 	initialized atomic.Bool
 }
@@ -87,7 +89,7 @@ func (t *tracker) Package(path string) string {
 
 	imp, ok := t.imports[path]
 	must.BeTrueF(ok, "imported package %s not be tracked", path)
-	if path == t.self {
+	if path == t.entry {
 		return ""
 	}
 	return imp.alias
@@ -99,7 +101,7 @@ func (t *tracker) Range(f func(Import)) {
 		"cannot range imports before tracker initialization",
 	)
 	for _, i := range t.imports {
-		if i.path == t.self {
+		if i.path == t.entry {
 			continue
 		}
 		f(*i)
@@ -116,6 +118,10 @@ func (t *tracker) Init() {
 		}
 		t.initialized.Store(true)
 	})
+}
+
+func (t *tracker) Entry() string {
+	return t.entry
 }
 
 type Import struct {

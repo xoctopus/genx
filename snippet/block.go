@@ -2,11 +2,16 @@ package snippet
 
 import (
 	"context"
+	"fmt"
 	"iter"
 )
 
 func Block(v string) Snippet {
 	return block(v)
+}
+
+func BlockF(v string, args ...any) Snippet {
+	return Block(fmt.Sprintf(v, args...))
 }
 
 type block string
