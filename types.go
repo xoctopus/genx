@@ -170,7 +170,7 @@ func (x *genc) genpkg(ctx context.Context, g Generator) error {
 			curr: x.curr,
 			file: newgenf(x.curr, g.Identifier()),
 			ctx: sync.OnceValue(func() context.Context {
-				return dumper.WithTrackerContext(ctx, x.curr.Unwrap().Path())
+				return dumper.WithTrackerContext(ctx, x.curr.Unwrap().Path(), x.curr.GoModule().Path)
 			}),
 		}
 		if err := xf.gen(x.New(g), t.Type()); err != nil {
@@ -239,7 +239,7 @@ func (x *genf) write(ctx context.Context, filename string) error {
 	for code := range snippet.Snippets(
 		snippet.NewLine(1),
 		snippet.Poster(x.pkg.Unwrap().Name(), x.name),
-		snippet.Imports(ctx, x.pkg.GoModule().Path),
+		snippet.Imports(ctx),
 	).Fragments(ctx) {
 		body.WriteString(code)
 	}
