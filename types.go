@@ -118,9 +118,8 @@ func (x *genc) exec(ctx context.Context, p pkgx.Package, generators ...Generator
 			continue
 		}
 
-		key := "genx:" + g.Identifier()
 		skip := false
-		for _, v := range tags[key] {
+		for _, v := range tags["genx:"+g.Identifier()] {
 			if v == "false" {
 				skip = true
 				break

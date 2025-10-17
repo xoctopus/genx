@@ -63,7 +63,7 @@ func (s *segment) IsNil() bool {
 
 func (s *segment) Fragments(ctx context.Context) iter.Seq[string] {
 	return func(yield func(string) bool) {
-		lineno := -1
+		lineno := 0
 		for _, line := range s.text {
 			lineno++
 			var (
@@ -110,8 +110,8 @@ func (s *segment) Fragments(ctx context.Context) iter.Seq[string] {
 				arg, ok := s.args[macro]
 				must.BeTrueF(
 					ok && arg != nil && !arg.snippet.IsNil(),
-					"template argument %s not found or nil at line:%d:col",
-					macro, lineno, column,
+					"template argument %s not found or nil at line:%d:col:%d",
+					macro, lineno+s.offset, column,
 				)
 				for code := range arg.snippet.Fragments(ctx) {
 					newline = append(newline, []rune(code)...)
