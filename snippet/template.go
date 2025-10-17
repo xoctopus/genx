@@ -125,9 +125,7 @@ func (s *segment) Fragments(ctx context.Context) iter.Seq[string] {
 			if newline[len(newline)-1] != '\n' {
 				newline = append(newline, '\n')
 			}
-			if !yield(string(newline)) {
-				return
-			}
+			yield(string(newline))
 		}
 	}
 }
@@ -203,17 +201,15 @@ func (t *template) IsNil() bool {
 }
 
 func (t *template) Fragments(ctx context.Context) iter.Seq[string] {
+	ss := make([]Snippet, 0, len(t.segments))
+	for _, s := range t.segments {
+		s.args = t.args
+		ss = append(ss, s)
+	}
+	// ss = append(ss, Block("\n"))
 	return func(yield func(string) bool) {
-		for _, s := range t.segments {
-			s.args = t.args
-			for line := range s.Fragments(ctx) {
-				if !yield(line) {
-					return
-				}
-			}
-			if !yield("\n") {
-				return
-			}
+		for s := range Snippets(NewLine(1), ss...).Fragments(ctx) {
+			yield(s)
 		}
 	}
 }

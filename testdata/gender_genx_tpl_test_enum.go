@@ -90,7 +90,7 @@ func (v Gender) Value() (driver.Value, error) {
 // Scan implements sql.Scanner
 func (v *Gender) Scan(src any) error {
 	offset := 0
-	if offsetter, ok := any(v).(interface { Offset() int }); ok {
+	if offsetter, ok := any(v).(interface{ Offset() int }); ok {
 		offset = offsetter.Offset()
 	}
 	i, err := enumx.Scan(src, offset)
@@ -100,4 +100,3 @@ func (v *Gender) Scan(src any) error {
 	*v = Gender(i)
 	return nil
 }
-
