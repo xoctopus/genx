@@ -78,14 +78,10 @@ func (c *comment) Fragments(ctx context.Context) iter.Seq[string] {
 			} else {
 				line = "// " + line
 			}
-			if !yield(line) {
-				return
-			}
 			if i < len(c.lines)-1 {
-				if !yield("\n") {
-					return
-				}
+				line += "\n"
 			}
+			yield(line)
 		}
 	}
 }

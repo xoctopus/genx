@@ -1,13 +1,10 @@
-@def Type
-@def AssertEnum
---Assertion
-var _ #AssertEnum# = (*#Type#)(nil)
+-- here is an empty segment, will be skipped
 
 @def Type
 @def NameToValueCases
 @def fmt.Sscanf
 @def UnknownValue
-@def github.com/xoctopus/enumx.ParseErrorFor
+@def github.com/pkg/errors.New
 --Parse
 // Parse#Type# parse #Type# from key
 func Parse#Type#(key string) (#Type#, error) {
@@ -18,7 +15,7 @@ func Parse#Type#(key string) (#Type#, error) {
 		if _, err := #fmt.Sscanf#(key, "UNKNOWN_%d", &v); err != nil {
 			return v, nil
 		}
-		return #UnknownValue#, #github.com/xoctopus/enumx.ParseErrorFor#(key)
+		return #UnknownValue#, #github.com/pkg/errors.New#("failed to parse #macro in string will be ignored#  ")
 	}
 }
 

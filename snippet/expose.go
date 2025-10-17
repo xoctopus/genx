@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/types"
 	"iter"
+	"strings"
 
 	"github.com/xoctopus/typex/namer"
 	"github.com/xoctopus/typex/pkgutil"
@@ -74,7 +75,7 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 		r.name = x.Name()
 	}
 
-	dumper.Track(ctx, path)
+	dumper.TrackerFromContext(ctx).Track(path)
 	return r
 }
 
@@ -94,37 +95,27 @@ func (r *exposer) IsNil() bool {
 
 func (r *exposer) Fragments(ctx context.Context) iter.Seq[string] {
 	return func(yield func(string) bool) {
+		b := &strings.Builder{}
+
 		path := namer.MustFromContext(ctx).Package(r.path)
-		if !yield(path) {
-			return
-		}
+		b.WriteString(path)
 		if path != "" {
-			if !yield(".") {
-				return
-			}
+			b.WriteString(".")
 		}
-		if !yield(r.name) {
-			return
-		}
+		b.WriteString(r.name)
 		if len(r.targs) > 0 {
-			if !yield("[") {
-				return
-			}
+			b.WriteString("[")
 			for i, arg := range r.targs {
 				if i > 0 {
-					if !yield(", ") {
-						return
-					}
+					b.WriteString(", ")
 				}
 				for s := range arg.Fragments(ctx) {
-					if !yield(s) {
-						return
-					}
+					b.WriteString(s)
 				}
 			}
-			if !yield("]") {
-				return
-			}
+			b.WriteString("]")
 		}
+
+		yield(b.String())
 	}
 }

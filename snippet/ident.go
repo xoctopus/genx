@@ -20,7 +20,7 @@ func IdentOf[T any](ctx context.Context, v T) Snippet {
 }
 
 func Ident(ctx context.Context, t typex.Type) Snippet {
-	dumper.Track(ctx, t.PkgPath())
+	dumper.TrackerFromContext(ctx).Track(t.PkgPath())
 	return &ident{t: t}
 }
 
@@ -42,8 +42,6 @@ func (v *ident) IsNil() bool {
 
 func (v *ident) Fragments(ctx context.Context) iter.Seq[string] {
 	return func(yield func(string) bool) {
-		if !yield(v.t.TypeLit(ctx)) {
-			return
-		}
+		yield(v.t.TypeLit(ctx))
 	}
 }

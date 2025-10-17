@@ -10,10 +10,6 @@ type Snippet interface {
 	Fragments(ctx context.Context) iter.Seq[string]
 }
 
-type Tracker interface {
-	Track() string
-}
-
 func Snippets(sep Snippet, ss ...Snippet) Snippet {
 	return &snippets{
 		sep: sep,

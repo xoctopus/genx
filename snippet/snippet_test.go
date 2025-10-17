@@ -13,6 +13,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/xoctopus/enumx"
+	"github.com/xoctopus/typex/pkgutil"
 	"github.com/xoctopus/x/ptrx"
 	_ "github.com/xoctopus/x/ptrx"
 
@@ -57,14 +58,13 @@ func ExampleComments() {
 }
 
 func ExampleBlock() {
-	x := 1
 	Print(
 		context.Background(),
 		Document("F", "this is a document for F."),
 		NewLine(1),
-		Block("func F() int {"),
+		Block("func F() string {"),
 		NewLine(1),
-		Indent(1), BlockF("x := %d", x),
+		Indent(1), BlockF("x := "), BlockRaw("abc"),
 		NewLine(1),
 		Indent(1), Block("return x"),
 		NewLine(1),
@@ -73,15 +73,15 @@ func ExampleBlock() {
 
 	// Output:
 	// // F this is a document for F.
-	// func F() int {
-	// 	x := 1
+	// func F() string {
+	// 	x := "abc"
 	// 	return x
 	// }
 	//
 }
 
 func ExampleIdentFor() {
-	ctx := dumper.WithTrackerContext(context.Background(), "demo")
+	ctx := dumper.WithTrackerContext(context.Background(), "demo", "demo")
 
 	body := Snippets(
 		NewLine(1),
@@ -98,7 +98,7 @@ func ExampleIdentFor() {
 	Print(
 		ctx,
 		Poster("demo", "genx:test_ident"),
-		Imports(ctx, ""),
+		Imports(ctx),
 		body,
 	)
 
@@ -124,7 +124,10 @@ func ExampleIdentFor() {
 }
 
 func ExampleExpose() {
-	ctx := dumper.WithTrackerContext(context.Background(), "demo")
+	ctx := dumper.WithTrackerContext(context.Background(), "demo", "demo")
+
+	t1 := pkgutil.MustLookupByPath[*types.Named]("github.com/xoctopus/genx/testdata", "T")
+	t2 := pkgutil.MustLookupByPath[*types.Named]("github.com/xoctopus/genx/testdata", "TT")
 
 	body := Snippets(
 		NewLine(1),
@@ -133,6 +136,8 @@ func ExampleExpose() {
 		Expose(ctx, "github.com/xoctopus/genx/testdata", "DEMO_ENUM_A"),
 		Expose(ctx, "github.com/xoctopus/genx/testdata", "Var"),
 		Expose(ctx, "github.com/xoctopus/genx/testdata", "VarFuncT"),
+		ExposeObject(ctx, t1.Obj(), IdentFor[int](ctx)),
+		ExposeObject(ctx, t2.Obj(), IdentFor[int](ctx), IdentFor[string](ctx)),
 		// imported: std
 		Expose(ctx, "fmt", "Sscanf"),
 		Expose(ctx, "io", "ReadAll"),
@@ -144,7 +149,7 @@ func ExampleExpose() {
 	Print(
 		ctx,
 		Poster("demo", "genx:test_ident"),
-		Imports(ctx, "github.com/xoctopus/genx"),
+		Imports(ctx),
 		body,
 	)
 
@@ -157,15 +162,16 @@ func ExampleExpose() {
 	// 	"io"
 	//
 	// 	"github.com/pkg/errors"
-	// 	"github.com/xoctopus/x/ptrx"
-	//
 	// 	"github.com/xoctopus/genx/testdata"
+	// 	"github.com/xoctopus/x/ptrx"
 	// )
 	//
 	// testdata.FuncT[string]
 	// testdata.DEMO_ENUM_A
 	// testdata.Var
 	// testdata.VarFuncT
+	// testdata.T[int]
+	// testdata.TT[int, string]
 	// fmt.Sscanf
 	// io.ReadAll
 	// errors.New
@@ -176,11 +182,15 @@ func ExampleExpose() {
 var template []byte
 
 func ExampleTemplate() {
-	ctx := dumper.WithTrackerContext(context.Background(), "github.com/xoctopus/genx/testdata")
+	ctx := dumper.WithTrackerContext(
+		context.Background(),
+		"github.com/xoctopus/genx/testdata",
+		"github.com/xoctopus/genx",
+	)
 
 	tpl := Template(
 		bytes.NewReader(template),
-		ArgFor[enumx.Enum[testdata.Gender]](ctx, "AssertEnum"),
+		// ArgFor[enumx.Enum[testdata.Gender]](ctx, "AssertEnum"),
 		ArgFor[testdata.Gender](ctx, "Type"),
 		ArgExpose(ctx, "fmt", "Sprintf"),
 		Arg(ctx, "NameToValueCases", Snippets(
@@ -192,6 +202,7 @@ func ExampleTemplate() {
 		)),
 		ArgExpose(ctx, "github.com/xoctopus/genx/testdata", "GENDER_UNKNOWN").
 			WithName("UnknownValue"),
+		ArgExpose(ctx, "github.com/pkg/errors", "New"),
 		Arg(ctx, "Values", Snippets(
 			NewLine(1),
 			Compose(Indent(2), Expose(ctx, "github.com/xoctopus/genx/testdata", "GENDER__MALE"), Block(",")),
@@ -227,7 +238,7 @@ func ExampleTemplate() {
 		ctx,
 		b,
 		Poster("testdata", "genx:test_template"),
-		Imports(ctx, "github.com/xoctopus/genx"),
+		Imports(ctx),
 		tpl,
 	)
 
@@ -245,7 +256,11 @@ func ExampleTemplate() {
 }
 
 func ExampleValue() {
-	ctx := dumper.WithTrackerContext(context.Background(), "github.com/xoctopus/genx/snippet_test")
+	ctx := dumper.WithTrackerContext(
+		context.Background(),
+		"github.com/xoctopus/genx/snippet_test",
+		"github.com/xoctopus/genx",
+	)
 
 	body := Snippets(
 		NewLine(1),
@@ -283,6 +298,7 @@ func ExampleValue() {
 			ptrx.Ptr(testdata.String("3")): 1, // pointer              1
 		}}),
 		Value(ctx, []any{nil, true, false, complex64(1), complex128(1)}),
+		Value(ctx, nil),
 	)
 
 	x := map[any]int{
@@ -298,7 +314,7 @@ func ExampleValue() {
 	Print(
 		ctx,
 		Poster("demo", "genx:test_value"),
-		Imports(ctx, "github.com/xoctopus/genx"),
+		Imports(ctx),
 		body,
 	)
 
@@ -326,4 +342,5 @@ func ExampleValue() {
 	// map[interface {}]int{nil: 0, nil: 1, "1": 2, "3": 3, "5": 4, testdata.String("2"): 5, testdata.String("4"): 6, testdata.String("6"): 7}
 	// []map[interface {}]interface {}{map[interface {}]interface {}{2: 0, ptrx.Ptr[testdata.String](testdata.String("3")): 1, "1": 2, testdata.String("0"): 3}}
 	// []interface {}{nil, true, false, (1+0i), (1+0i)}
+	// nil
 }

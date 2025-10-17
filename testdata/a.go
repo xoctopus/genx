@@ -24,6 +24,11 @@ const (
 
 type T[A any] struct{ v A }
 
+type TT[T1 any, T2 any] struct {
+	t1 T1
+	t2 T2
+}
+
 func Func2() {
 Loop:
 	for i := range 100 {
@@ -38,6 +43,7 @@ func FuncT[T any]() {}
 type Struct struct {
 	A any
 	B any
+	c any
 }
 
 func (s *Struct) Func() {}

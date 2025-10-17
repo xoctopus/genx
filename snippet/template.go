@@ -83,21 +83,20 @@ func (s *segment) Fragments(ctx context.Context) iter.Seq[string] {
 				case '"':
 					raw = !raw // quoted text won't be replaced
 				case '#':
-					if raw {
-						continue
+					if !raw {
+						quoted = !quoted
+						if quoted {
+							must.BeTrue(index == -1)
+							index = i
+							continue
+						}
+						must.BeTrue(index >= 0)
+						macro = string(runes[index+1 : i])
+						if strings.TrimSpace(line) == "#"+macro+"#" {
+							whole = true
+						}
+						goto FinishMacro
 					}
-					quoted = !quoted
-					if quoted {
-						must.BeTrue(index == -1)
-						index = i
-						continue
-					}
-					must.BeTrue(index >= 0)
-					macro = string(runes[index+1 : i])
-					if strings.TrimSpace(line) == "#"+macro+"#" {
-						whole = true
-					}
-					goto FinishMacro
 				}
 				if !quoted {
 					newline = append(newline, c)

@@ -6,10 +6,9 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/xoctopus/enumx"
 )
-
-var _ enumx.Enum[Gender] = (*Gender)(nil)
 
 // ParseGender parse Gender from key
 func ParseGender(key string) (Gender, error) {
@@ -23,7 +22,7 @@ func ParseGender(key string) (Gender, error) {
 		if _, err := fmt.Sscanf(key, "UNKNOWN_%d", &v); err != nil {
 			return v, nil
 		}
-		return GENDER_UNKNOWN, enumx.ParseErrorFor[Gender](key)
+		return GENDER_UNKNOWN, errors.New("failed to parse #macro in string will be ignored#  ")
 	}
 }
 
@@ -101,4 +100,3 @@ func (v *Gender) Scan(src any) error {
 	*v = Gender(i)
 	return nil
 }
-
