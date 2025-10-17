@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	"github.com/xoctopus/enumx"
 )
 
 // ParseGender parse Gender from key
@@ -81,7 +80,7 @@ func (v *Gender) UnmarshalText(data []byte) error {
 // Value implements driver.Valuer
 func (v Gender) Value() (driver.Value, error) {
 	offset := 0
-	if drv, ok := any(v).(enumx.DriverValueOffset); ok {
+	if drv, ok := any(v).(interface{ Offset() int }); ok {
 		offset = drv.Offset()
 	}
 	return int64(v) + int64(offset), nil
@@ -93,7 +92,7 @@ func (v *Gender) Scan(src any) error {
 	if offsetter, ok := any(v).(interface{ Offset() int }); ok {
 		offset = offsetter.Offset()
 	}
-	i, err := enumx.Scan(src, offset)
+	i, err := Scan(src, offset)
 	if err != nil {
 		return err
 	}

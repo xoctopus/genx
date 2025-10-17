@@ -83,27 +83,26 @@ func (v *#Type#) UnmarshalText(data []byte) error {
 
 @def Type
 @def database/sql/driver.Value
-@def github.com/xoctopus/enumx.DriverValueOffset
 --Value
 // Value implements driver.Valuer
 func (v #Type#) Value() (#database/sql/driver.Value#, error) {
 	offset := 0
-	if drv, ok := any(v).(#github.com/xoctopus/enumx.DriverValueOffset#); ok {
+	if drv, ok := any(v).(interface{ Offset() int }); ok {
 		offset = drv.Offset()
 	}
 	return int64(v) + int64(offset), nil
 }
 
 @def Type
-@def github.com/xoctopus/enumx.Scan
+@def EnumScanBrick
 --Scan
 // Scan implements sql.Scanner
 func (v *#Type#) Scan(src any) error {
 	offset := 0
-	if offsetter, ok := any(v).(interface { Offset() int }); ok {
+	if offsetter, ok := any(v).(interface{ Offset() int }); ok {
 		offset = offsetter.Offset()
 	}
-	i, err := #github.com/xoctopus/enumx.Scan#(src, offset)
+	i, err := #EnumScanBrick#(src, offset)
 	if err != nil {
 		return err
 	}

@@ -12,7 +12,6 @@ import (
 	"reflect"
 
 	"github.com/pkg/errors"
-	"github.com/xoctopus/enumx"
 	"github.com/xoctopus/typex/pkgutil"
 	"github.com/xoctopus/x/ptrx"
 	_ "github.com/xoctopus/x/ptrx"
@@ -190,7 +189,6 @@ func ExampleTemplate() {
 
 	tpl := Template(
 		bytes.NewReader(template),
-		// ArgFor[enumx.Enum[testdata.Gender]](ctx, "AssertEnum"),
 		ArgFor[testdata.Gender](ctx, "Type"),
 		ArgExpose(ctx, "fmt", "Sprintf"),
 		Arg(ctx, "NameToValueCases", Snippets(
@@ -208,11 +206,9 @@ func ExampleTemplate() {
 			Compose(Indent(2), Expose(ctx, "github.com/xoctopus/genx/testdata", "GENDER__MALE"), Block(",")),
 			Compose(Indent(2), Expose(ctx, "github.com/xoctopus/genx/testdata", "GENDER__FEMALE"), Block(",")),
 		)),
-		ArgExpose(ctx, "github.com/xoctopus/enumx", "ParseErrorFor", IdentFor[testdata.Gender](ctx)),
-		ArgExpose(ctx, "github.com/xoctopus/enumx", "Scan"),
+		ArgExpose(ctx, "github.com/xoctopus/genx/testdata", "Scan").WithName("EnumScanBrick"),
 		ArgExpose(ctx, "bytes", "ToUpper"),
 		ArgExpose(ctx, "fmt", "Sscanf"),
-		ArgT[enumx.DriverValueOffset](ctx),
 		ArgT[driver.Value](ctx),
 		Arg(ctx, "ValueToDescCases", Snippets(
 			NewLine(1),
@@ -245,7 +241,7 @@ func ExampleTemplate() {
 	cwd, _ := os.Getwd()
 	output, _ := os.OpenFile(
 		filepath.Join(cwd, "..", "testdata", "gender_genx_tpl_test_enum.go"),
-		os.O_WRONLY|os.O_CREATE,
+		os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
 		0644,
 	)
 	_, _ = io.Copy(output, b)
