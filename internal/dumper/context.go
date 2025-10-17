@@ -13,15 +13,11 @@ func TrackerFromContext(child context.Context) ImportTracker {
 	return ctx.MustFrom(child)
 }
 
-func WithTrackerContext(parent context.Context, entry string) context.Context {
+func WithTrackerContext(parent context.Context, path, module string) context.Context {
 	if _, ok := ctx.From(parent); ok {
 		return parent
 	}
 
-	i := NewImportTracker(entry)
+	i := NewImportTracker(path, module)
 	return ctx.With(namer.WithContext(parent, i), i)
-}
-
-func Track(child context.Context, path string) {
-	ctx.MustFrom(child).Track(path)
 }
