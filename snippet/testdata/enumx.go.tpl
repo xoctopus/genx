@@ -95,13 +95,12 @@ func (v #Type#) Value() (#database/sql/driver.Value#, error) {
 }
 
 @def Type
-@def github.com/xoctopus/enumx.DriverValueOffset
 @def github.com/xoctopus/enumx.Scan
 --Scan
 // Scan implements sql.Scanner
 func (v *#Type#) Scan(src any) error {
 	offset := 0
-	if offsetter, ok := any(v).(#github.com/xoctopus/enumx.DriverValueOffset#); ok {
+	if offsetter, ok := any(v).(interface { Offset() int }); ok {
 		offset = offsetter.Offset()
 	}
 	i, err := #github.com/xoctopus/enumx.Scan#(src, offset)

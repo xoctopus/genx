@@ -1,9 +1,7 @@
-package testdata
+package ignored
 
 // Gender enum of genders
 // +genx:test_genx
-// +genx:test_genx_e
-// +genx:test_genx_t
 type Gender int8
 
 const (

@@ -78,7 +78,7 @@ type genc struct {
 }
 
 func (x *genc) IsZero() bool {
-	return false
+	return x.ctx == nil || x.file == nil || x.curr == nil
 }
 
 func (x *genc) Package() pkgx.Package {
@@ -176,6 +176,9 @@ func (x *genc) genpkg(ctx context.Context, g Generator) error {
 		if err := xf.gen(x.New(g), t.Type()); err != nil {
 			return err
 		}
+		if xf.file.IsNil() {
+			continue
+		}
 		generated.Store(
 			stringsx.LowerSnakeCase(t.TypeName())+"_genx_"+g.Identifier()+".go",
 			xf,
@@ -264,21 +267,28 @@ func (x *genf) write(ctx context.Context, filename string) error {
 	)
 
 	var serr scanner.ErrorList
-	if err != nil && !errors.As(err, &serr) && serr.Len() > 0 {
+	if err != nil && errors.As(err, &serr) && serr.Len() > 0 {
 		e := serr[0]
 		line, column := e.Pos.Line, e.Pos.Column-1
 
+		b := &strings.Builder{}
+
 		for i := line - 10; i < line; i++ {
 			if i > 0 {
-				fmt.Printf("%4d: %s\n", i+1, string(text[i]))
+				_, _ = fmt.Fprintf(b, "%4d:", i+1)
+				if len(text[i]) > 0 {
+					_, _ = fmt.Fprintf(b, " %s\n", text[i])
+				} else {
+					_, _ = fmt.Fprintf(b, "\n")
+				}
 			}
 		}
-		fmt.Println(text[line])
 		if column < 0 {
 			column = 0
 		}
-		fmt.Printf("      %s↑\n", strings.Repeat(" ", column))
-		fmt.Println(e.Msg)
+		_, _ = fmt.Fprintf(b, "      %s↑\n", strings.Repeat(" ", column))
+		_, _ = fmt.Fprintln(b, e.Msg)
+		fmt.Print(b.String())
 		return err
 	}
 
