@@ -24,7 +24,7 @@ import (
 	"github.com/xoctopus/x/syncx"
 
 	"github.com/xoctopus/genx/internal/dumper"
-	"github.com/xoctopus/genx/snippet"
+	"github.com/xoctopus/genx/pkg/snippet"
 )
 
 type GeneratorNewer interface {
@@ -150,10 +150,16 @@ func (x *genc) genpkg(ctx context.Context, g Generator) error {
 	for t := range x.curr.TypeNames().Elements() {
 		pos := t.Node().Pos()
 		filename := x.curr.FileSet().File(pos).Position(pos).Filename
+
+		skip := false
 		for suffix := range x.gens {
 			if strings.HasSuffix(filename, suffix) {
-				continue
+				skip = true
+				break
 			}
+		}
+		if skip {
+			continue
 		}
 
 		tags := t.Doc().Tags()

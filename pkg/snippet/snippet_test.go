@@ -17,7 +17,7 @@ import (
 	_ "github.com/xoctopus/x/ptrx"
 
 	"github.com/xoctopus/genx/internal/dumper"
-	. "github.com/xoctopus/genx/snippet"
+	. "github.com/xoctopus/genx/pkg/snippet"
 	"github.com/xoctopus/genx/testdata"
 )
 

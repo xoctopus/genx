@@ -6,7 +6,7 @@ import (
 
 	. "github.com/xoctopus/x/testx"
 
-	"github.com/xoctopus/genx"
+	"github.com/xoctopus/genx/pkg/genx"
 )
 
 type g struct {

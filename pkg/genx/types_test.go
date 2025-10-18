@@ -8,8 +8,8 @@ import (
 	"github.com/xoctopus/pkgx"
 	"github.com/xoctopus/x/misc/must"
 
-	"github.com/xoctopus/genx"
-	s "github.com/xoctopus/genx/snippet"
+	"github.com/xoctopus/genx/pkg/genx"
+	s "github.com/xoctopus/genx/pkg/snippet"
 )
 
 type TestGenerator struct {
