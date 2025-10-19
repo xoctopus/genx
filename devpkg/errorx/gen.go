@@ -5,8 +5,6 @@ import (
 	_ "embed"
 	"go/types"
 
-	"github.com/xoctopus/x/stringsx"
-
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
@@ -47,16 +45,14 @@ func (x *g) generate(c genx.Context, e *Error) {
 	args := []*s.TArg{
 		// @def CodeType
 		s.Arg(ctx, "CodeType", ident),
-		// @def MessagesVar
-		s.Arg(ctx, "MessagesVar", s.Block(stringsx.LowerCamelCase(e.name)+"Messages")),
+		// @def errors.As
+		s.ArgExpose(ctx, "errors", "As"),
 		// @def fmt.Sprintf
 		s.ArgExpose(ctx, "fmt", "Sprintf"),
-		// @def github.com/pkg/errors.As
-		s.ArgExpose(ctx, "github.com/pkg/errors", "WithStack"),
-		// @def github.com/pkg/errors.WithStack
-		s.ArgExpose(ctx, "github.com/pkg/errors", "As"),
-		// @def MessagesKeyValue
-		s.Arg(ctx, "MessageKeyValues", e.MessageKeyValues(ctx)),
+		// @def CodeMessageCases
+		s.Arg(ctx, "CodeMessageCases", e.CodeMessageCases(ctx)),
+		// @def UnknownCodeFormat
+		s.Arg(ctx, "UnknownCodeFormat", s.BlockRaw("["+e.def+":%d] unknown")),
 	}
 
 	c.Render(s.Template(bytes.NewReader(template), args...))

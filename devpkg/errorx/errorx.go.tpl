@@ -1,81 +1,84 @@
 
 @def CodeType
-@def MessagesVar
-@def MessageKeyValues
--- Message
-var #MessagesVar# = map[#CodeType#]string{
-    #MessageKeyValues#
+@def CodeMessageCases
+@def UnknownCodeFormat
+-- CodeMessage
+func (e #CodeType#) Message() string {
+	switch e {
+	default:
+		return fmt.Sprintf(#UnknownCodeFormat#, e)
+	#CodeMessageCases#
+	}
 }
 
 @def CodeType
-@def MessagesVar
-@def github.com/pkg/errors.WithStack
 -- NewError
 func New#CodeType#Error(code #CodeType#) error {
-	return #github.com/pkg/errors.WithStack#(&#CodeType#Error{
+	return &#CodeType#Error{
 		code: code,
-		msg:  #MessagesVar#[code],
-	})
+	}
 }
 
 
 @def CodeType
-@def MessagesVar
-@def fmt.Sprintf
-@def github.com/pkg/errors.WithStack
 -- NewErrorf
-func New#CodeType#Errorf(code #CodeType#, format string, args ...any) error {
-	return #github.com/pkg/errors.WithStack#(&#CodeType#Error{
+func New#CodeType#Errorf(code #CodeType#, msg string, args ...any) error {
+	return &#CodeType#Error{
 		code: code,
-		msg:  #fmt.Sprintf#(#MessagesVar#[code]+" "+format, args...),
-	})
+		msg:  msg,
+		args: args,
+	}
 }
 
 @def CodeType
-@def MessagesVar
-@def fmt.Sprintf
-@def github.com/pkg/errors.WithStack
 -- NewErrorWrap
 func New#CodeType#ErrorWrap(code #CodeType#, cause error) error {
 	if cause == nil {
 		return nil
 	}
-	return #github.com/pkg/errors.WithStack#(&#CodeType#Error{
-		code: code,
-		msg:  #fmt.Sprintf#(#MessagesVar#[code]+" [cause: %+v]", cause),
-	})
+	return &#CodeType#Error{
+		code:  code,
+		args:  []any{cause},
+		cause: cause,
+	}
 }
 
 
 @def CodeType
-@def MessagesVar
-@def fmt.Sprintf
-@def github.com/pkg/errors.WithStack
 -- NewErrorWrapf
-func New#CodeType#ErrorWrapf(code #CodeType#, cause error, format string, args ...any) error {
+func New#CodeType#ErrorWrapf(code #CodeType#, cause error, msg string, args ...any) error {
 	if cause == nil {
 		return nil
 	}
-	return #github.com/pkg/errors.WithStack#(&#CodeType#Error{
-		code: code,
-		msg: #fmt.Sprintf#(
-			#MessagesVar#[code]+" [cause: %+v] "+format,
-			append([]any{cause}, args...)...,
-		),
-	})
+	return &#CodeType#Error{
+		code:  code,
+		msg:   msg,
+		args:  append(args, cause),
+		cause: cause,
+	}
 }
 
 @def CodeType
 -- ErrorDefine
 type #CodeType#Error struct {
-	code #CodeType#
-	msg  string
+	code  #CodeType#
+	msg   string
+	args  []any
+	cause error
 }
 
 @def CodeType
+@def fmt.Sprintf
 -- CodeType_Error
 func (e *#CodeType#Error) Error() string {
-	return e.msg
+	msg := e.code.Message()
+	if len(e.msg) > 0 {
+		msg += ". " + e.msg
+	}
+	if e.cause != nil {
+		msg += ". [cause: %+v]"
+	}
+	return #fmt.Sprintf#(msg, e.args...)
 }
 
 @def CodeType
@@ -85,9 +88,15 @@ func (e *#CodeType#Error) Code() #CodeType# {
 }
 
 @def CodeType
-@def github.com/pkg/errors.As
+@def errors.As
 -- CodeType_Is
 func (e *#CodeType#Error) Is(err error) bool {
 	var target *#CodeType#Error
-	return #github.com/pkg/errors.As#(err, &target) && target.code == e.code
+	return #errors.As#(err, &target) && target.code == e.code
+}
+
+@def CodeType
+-- CodeType_Unwrap
+func (e *#CodeType#Error) Unwrap() error {
+	return e.cause
 }

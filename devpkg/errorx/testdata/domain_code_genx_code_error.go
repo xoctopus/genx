@@ -2,62 +2,78 @@
 package testdata
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
-var domainCodeMessages = map[DomainCode]string{
-	DOMAIN_CODE_UNDEFINED:  "[DOMAIN_NAME:0] undefined",
-	DOMAIN_CODE__PARSE:     "[DOMAIN_NAME:1] parse failed",
-	DOMAIN_CODE__HANDLE:    "[DOMAIN_NAME:2] handle failed",
-	DOMAIN_CODE__PARAMETER: "[DOMAIN_NAME:3] invalid parameter",
+func (e DomainCode) Message() string {
+	switch e {
+	default:
+		return fmt.Sprintf("[DOMAIN_NAME:%d] unknown", e)
+	case DOMAIN_CODE_UNDEFINED:
+		return "[DOMAIN_NAME:0] undefined"
+	case DOMAIN_CODE__PARSE:
+		return "[DOMAIN_NAME:1] parse failed"
+	case DOMAIN_CODE__HANDLE:
+		return "[DOMAIN_NAME:2] handle failed"
+	case DOMAIN_CODE__PARAMETER:
+		return "[DOMAIN_NAME:3] invalid parameter"
+	}
 }
 
 func NewDomainCodeError(code DomainCode) error {
-	return errors.WithStack(&DomainCodeError{
+	return &DomainCodeError{
 		code: code,
-		msg:  domainCodeMessages[code],
-	})
+	}
 }
 
-func NewDomainCodeErrorf(code DomainCode, format string, args ...any) error {
-	return errors.WithStack(&DomainCodeError{
+func NewDomainCodeErrorf(code DomainCode, msg string, args ...any) error {
+	return &DomainCodeError{
 		code: code,
-		msg:  fmt.Sprintf(domainCodeMessages[code]+" "+format, args...),
-	})
+		msg:  msg,
+		args: args,
+	}
 }
 
 func NewDomainCodeErrorWrap(code DomainCode, cause error) error {
 	if cause == nil {
 		return nil
 	}
-	return errors.WithStack(&DomainCodeError{
-		code: code,
-		msg:  fmt.Sprintf(domainCodeMessages[code]+" [cause: %+v]", cause),
-	})
+	return &DomainCodeError{
+		code:  code,
+		args:  []any{cause},
+		cause: cause,
+	}
 }
 
-func NewDomainCodeErrorWrapf(code DomainCode, cause error, format string, args ...any) error {
+func NewDomainCodeErrorWrapf(code DomainCode, cause error, msg string, args ...any) error {
 	if cause == nil {
 		return nil
 	}
-	return errors.WithStack(&DomainCodeError{
-		code: code,
-		msg: fmt.Sprintf(
-			domainCodeMessages[code]+" [cause: %+v] "+format,
-			append([]any{cause}, args...)...,
-		),
-	})
+	return &DomainCodeError{
+		code:  code,
+		msg:   msg,
+		args:  append(args, cause),
+		cause: cause,
+	}
 }
 
 type DomainCodeError struct {
-	code DomainCode
-	msg  string
+	code  DomainCode
+	msg   string
+	args  []any
+	cause error
 }
 
 func (e *DomainCodeError) Error() string {
-	return e.msg
+	msg := e.code.Message()
+	if len(e.msg) > 0 {
+		msg += ". " + e.msg
+	}
+	if e.cause != nil {
+		msg += ". [cause: %+v]"
+	}
+	return fmt.Sprintf(msg, e.args...)
 }
 
 func (e *DomainCodeError) Code() DomainCode {
@@ -67,4 +83,8 @@ func (e *DomainCodeError) Code() DomainCode {
 func (e *DomainCodeError) Is(err error) bool {
 	var target *DomainCodeError
 	return errors.As(err, &target) && target.code == e.code
+}
+
+func (e *DomainCodeError) Unwrap() error {
+	return e.cause
 }

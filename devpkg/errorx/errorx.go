@@ -46,13 +46,19 @@ func (e *Error) add(c *pkgx.Constant) {
 	}
 }
 
-// MessageKeyValues generates code snippet error message key value pairs
-func (e *Error) MessageKeyValues(ctx context.Context) s.Snippet {
+// CodeMessageCases generates code snippet for error message cases
+func (e *Error) CodeMessageCases(ctx context.Context) s.Snippet {
 	ss := []s.Snippet{
 		s.Compose(
 			s.Indent(1),
+			s.Block("case "),
 			s.ExposeObject(ctx, e.undefined.Exposer()),
-			s.BlockF(": %q,", fmt.Sprintf("[%s:%s] undefined", e.def, e.undefined.Value())),
+			s.Block(":"),
+		),
+		s.Compose(
+			s.Indent(2),
+			s.Block("return "),
+			s.BlockRaw(fmt.Sprintf("[%s:%s] undefined", e.def, e.undefined.Value())),
 		),
 	}
 	for _, v := range e.list {
@@ -64,10 +70,14 @@ func (e *Error) MessageKeyValues(ctx context.Context) s.Snippet {
 			ss,
 			s.Compose(
 				s.Indent(1),
+				s.Block("case "),
 				s.ExposeObject(ctx, v.Exposer()),
 				s.Block(": "),
+			),
+			s.Compose(
+				s.Indent(2),
+				s.Block("return "),
 				s.BlockRaw(fmt.Sprintf("[%s:%s] %s", e.def, v.Value(), msg)),
-				s.Block(","),
 			),
 		)
 	}

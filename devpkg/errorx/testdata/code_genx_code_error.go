@@ -2,62 +2,78 @@
 package testdata
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
-var codeMessages = map[Code]string{
-	CODE_UNDEFINED: "[testdata.Code:0] undefined",
-	CODE__ERROR1:   "[testdata.Code:1] error1 message",
-	CODE__ERROR2:   "[testdata.Code:2] error2 message",
-	CODE__ERROR3:   "[testdata.Code:3] ERROR3",
+func (e Code) Message() string {
+	switch e {
+	default:
+		return fmt.Sprintf("[testdata.Code:%d] unknown", e)
+	case CODE_UNDEFINED:
+		return "[testdata.Code:0] undefined"
+	case CODE__ERROR1:
+		return "[testdata.Code:1] error1 message"
+	case CODE__ERROR2:
+		return "[testdata.Code:2] error2 message"
+	case CODE__ERROR3:
+		return "[testdata.Code:3] ERROR3"
+	}
 }
 
 func NewCodeError(code Code) error {
-	return errors.WithStack(&CodeError{
+	return &CodeError{
 		code: code,
-		msg:  codeMessages[code],
-	})
+	}
 }
 
-func NewCodeErrorf(code Code, format string, args ...any) error {
-	return errors.WithStack(&CodeError{
+func NewCodeErrorf(code Code, msg string, args ...any) error {
+	return &CodeError{
 		code: code,
-		msg:  fmt.Sprintf(codeMessages[code]+" "+format, args...),
-	})
+		msg:  msg,
+		args: args,
+	}
 }
 
 func NewCodeErrorWrap(code Code, cause error) error {
 	if cause == nil {
 		return nil
 	}
-	return errors.WithStack(&CodeError{
-		code: code,
-		msg:  fmt.Sprintf(codeMessages[code]+" [cause: %+v]", cause),
-	})
+	return &CodeError{
+		code:  code,
+		args:  []any{cause},
+		cause: cause,
+	}
 }
 
-func NewCodeErrorWrapf(code Code, cause error, format string, args ...any) error {
+func NewCodeErrorWrapf(code Code, cause error, msg string, args ...any) error {
 	if cause == nil {
 		return nil
 	}
-	return errors.WithStack(&CodeError{
-		code: code,
-		msg: fmt.Sprintf(
-			codeMessages[code]+" [cause: %+v] "+format,
-			append([]any{cause}, args...)...,
-		),
-	})
+	return &CodeError{
+		code:  code,
+		msg:   msg,
+		args:  append(args, cause),
+		cause: cause,
+	}
 }
 
 type CodeError struct {
-	code Code
-	msg  string
+	code  Code
+	msg   string
+	args  []any
+	cause error
 }
 
 func (e *CodeError) Error() string {
-	return e.msg
+	msg := e.code.Message()
+	if len(e.msg) > 0 {
+		msg += ". " + e.msg
+	}
+	if e.cause != nil {
+		msg += ". [cause: %+v]"
+	}
+	return fmt.Sprintf(msg, e.args...)
 }
 
 func (e *CodeError) Code() Code {
@@ -67,4 +83,8 @@ func (e *CodeError) Code() Code {
 func (e *CodeError) Is(err error) bool {
 	var target *CodeError
 	return errors.As(err, &target) && target.code == e.code
+}
+
+func (e *CodeError) Unwrap() error {
+	return e.cause
 }
