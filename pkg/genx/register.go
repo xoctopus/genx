@@ -3,10 +3,10 @@ package genx
 import (
 	"sort"
 
-	"github.com/xoctopus/x/mapx"
+	"github.com/xoctopus/x/syncx"
 )
 
-var generators = mapx.NewXmap[string, Generator]()
+var generators = syncx.NewXmap[string, Generator]()
 
 func Register(g Generator) {
 	generators.LoadOrStore(g.Identifier(), g)

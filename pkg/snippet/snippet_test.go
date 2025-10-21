@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/xoctopus/typex/pkgutil"
@@ -29,6 +30,9 @@ func Write(ctx context.Context, w io.Writer, ss ...Snippet) {
 	for _, s := range ss {
 		if !s.IsNil() {
 			for line := range s.Fragments(ctx) {
+				if line == eof {
+					break
+				}
 				_, _ = w.Write([]byte(line))
 			}
 		}
@@ -297,16 +301,6 @@ func ExampleValue() {
 		Value(ctx, nil),
 	)
 
-	x := map[any]int{
-		"1":                  1,
-		testdata.String("2"): 4,
-		"3":                  2,
-		testdata.String("4"): 5,
-		"5":                  3,
-		testdata.String("6"): 6,
-	}
-	reflect.ValueOf(x)
-
 	Print(
 		ctx,
 		Poster("demo", "genx:test_value"),
@@ -339,4 +333,12 @@ func ExampleValue() {
 	// []map[interface {}]interface {}{map[interface {}]interface {}{2: 0, ptrx.Ptr[testdata.String](testdata.String("3")): 1, "1": 2, testdata.String("0"): 3}}
 	// []interface {}{nil, true, false, (1+0i), (1+0i)}
 	// nil
+}
+
+var eof = strconv.QuoteRune(-1)
+
+func ExampleSnippets_eof() {
+	Print(context.Background(), Compose(Block(eof)))
+
+	// Output:
 }

@@ -4,10 +4,10 @@ go 1.25.1
 
 require (
 	github.com/pkg/errors v0.9.1
-	github.com/xoctopus/pkgx v0.0.0-20251016074410-a511df1aef70
-	github.com/xoctopus/typex v0.1.3-0.20251013043517-cde6be6c66a0
-	github.com/xoctopus/x v0.1.3-0.20251016125604-a5b9f79d8d26
-	golang.org/x/exp v0.0.0-20251009144603-d2f985daa21b
+	github.com/xoctopus/pkgx v0.0.0-20251021111914-a2a0e931f461
+	github.com/xoctopus/typex v0.1.3-0.20251021103835-1cc131e441e4
+	github.com/xoctopus/x v0.1.3-0.20251021103404-c872bf18f209
+	golang.org/x/exp v0.0.0-20251017212417-90e834f514db
 )
 
 require (

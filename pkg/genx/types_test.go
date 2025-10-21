@@ -2,6 +2,7 @@ package genx_test
 
 import (
 	"context"
+	"errors"
 	"go/types"
 	"strconv"
 
@@ -107,10 +108,34 @@ func (v *TestGeneratorHasTypeGenerated) Generate(c genx.Context, _ types.Type) e
 	return nil
 }
 
+type TestGeneratorMustFailed struct{}
+
+func (v *TestGeneratorMustFailed) Identifier() string {
+	return "test_genx_ge"
+}
+
+func (v *TestGeneratorMustFailed) Generate(c genx.Context, _ types.Type) error {
+	return errors.New("any")
+}
+
+type TestGeneratorMustNil struct{}
+
+func (v *TestGeneratorMustNil) Identifier() string {
+	return "test_genx_nil"
+}
+
+func (v *TestGeneratorMustNil) Generate(c genx.Context, _ types.Type) error {
+	return nil
+}
+
 func ExampleGenerator() {
 	c := genx.NewContext(&genx.Args{
 		Entrypoint: []string{"github.com/xoctopus/genx/testdata"},
 	})
+
+	genc, ok := c.(genx.Context)
+	must.BeTrue(ok && genc.Context() == context.Background())
+
 	_ = c.Execute(context.Background(), &TestGenerator{}, &TestGeneratorHasTypeGenerated{})
 
 	c = genx.NewContext(&genx.Args{
@@ -127,6 +152,16 @@ func ExampleGenerator() {
 		Entrypoint: []string{"github.com/xoctopus/genx/testdata"},
 	})
 	_ = c.Execute(context.Background(), &TestGeneratorHasSyntaxError{})
+
+	c = genx.NewContext(&genx.Args{
+		Entrypoint: []string{"github.com/xoctopus/genx/testdata"},
+	})
+	_ = c.Execute(context.Background(), &TestGeneratorMustFailed{})
+
+	c = genx.NewContext(&genx.Args{
+		Entrypoint: []string{"github.com/xoctopus/genx/testdata"},
+	})
+	_ = c.Execute(context.Background(), &TestGeneratorMustNil{})
 
 	//Output:
 	//    2: package testdata

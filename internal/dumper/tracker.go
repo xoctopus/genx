@@ -123,13 +123,12 @@ func (t *tracker) Range(f func(Import) bool) {
 	sort.Slice(paths, func(i, j int) bool {
 		pi := t.imports[paths[i]].path
 		pj := t.imports[paths[j]].path
-		if IsStd(pi) {
-			if IsStd(pj) {
-				return pi < pj
-			}
-			return true
+		si, sj := IsStd(pi), IsStd(pj)
+
+		if si == sj {
+			return pi < pj
 		}
-		return !IsStd(pj) && pi < pj
+		return si
 	})
 
 	for _, path := range paths {

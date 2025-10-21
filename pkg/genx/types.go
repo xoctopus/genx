@@ -58,12 +58,15 @@ type Context interface {
 
 type Args struct {
 	Entrypoint []string
+	Workdir    string
 }
 
 func NewContext(args *Args) Executor {
+	ctx := pkgx.WithWorkdir(context.Background(), args.Workdir)
+
 	return &genc{
 		args: args,
-		pkgs: pkgx.NewPackages(args.Entrypoint...),
+		pkgs: pkgx.NewPackages(ctx, args.Entrypoint...),
 	}
 }
 
@@ -95,7 +98,7 @@ func (x *genc) Execute(ctx context.Context, generators ...Generator) error {
 		x.gens["_genx_"+g.Identifier()+".go"] = struct{}{}
 	}
 
-	for path := range x.pkgs.Directs() {
+	for path := range x.pkgs.Directs {
 		p := x.pkgs.Package(path)
 		must.NotNilF(p, "package is not found: %s", path)
 		if err := x.exec(ctx, p, generators...); err != nil {
@@ -276,32 +279,25 @@ func (x *genf) write(ctx context.Context, filename string) error {
 		e := serr[0]
 		line, column := e.Pos.Line, e.Pos.Column-1
 
-		b := &strings.Builder{}
-
 		for i := line - 10; i < line; i++ {
 			if i > 0 {
-				_, _ = fmt.Fprintf(b, "%4d:", i+1)
+				_, _ = fmt.Printf("%4d:", i+1)
 				if len(text[i]) > 0 {
-					_, _ = fmt.Fprintf(b, " %s\n", text[i])
+					_, _ = fmt.Printf(" %s\n", text[i])
 				} else {
-					_, _ = fmt.Fprintf(b, "\n")
+					_, _ = fmt.Printf("\n")
 				}
 			}
 		}
-		if column < 0 {
-			column = 0
-		}
-		_, _ = fmt.Fprintf(b, "      %s↑\n", strings.Repeat(" ", column))
-		_, _ = fmt.Fprintln(b, e.Msg)
-		fmt.Print(b.String())
+		fmt.Printf("      %s↑\n", strings.Repeat(" ", column))
+		fmt.Println(e.Msg)
 		return err
 	}
 
-	filename = filepath.Join(x.pkg.SourceDir(), filename)
-	output, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
+	output := must.NoErrorV(os.OpenFile(
+		filepath.Join(x.pkg.SourceDir(), filename),
+		os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644,
+	))
 	defer output.Close()
 
 	return format.Node(output, fileset, f)

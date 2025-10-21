@@ -40,9 +40,7 @@ func (ss *snippets) Fragments(ctx context.Context) iter.Seq[string] {
 			}
 			if ss.sep != nil && !ss.sep.IsNil() && i > 0 {
 				for s := range ss.sep.Fragments(ctx) {
-					if !yield(s) {
-						return
-					}
+					yield(s)
 				}
 			}
 			for s := range si.Fragments(ctx) {

@@ -18,11 +18,8 @@ func less(x, y reflect.Value) bool {
 		y = y.Elem()
 	}
 
-	if x.IsValid() && !y.IsValid() {
-		return false
-	}
-	if !x.IsValid() && y.IsValid() {
-		return true
+	if x.IsValid() != y.IsValid() {
+		return !x.IsValid()
 	}
 
 	px, py := x.Type().PkgPath(), y.Type().PkgPath()
@@ -35,8 +32,7 @@ func less(x, y reflect.Value) bool {
 		return kx < ky
 	}
 
-	sx, sy := fmt.Sprintf("%#v", x.Interface()), fmt.Sprintf("%#v", y.Interface())
-	return sx < sy
+	return fmt.Sprintf("%#v", x.Interface()) < fmt.Sprintf("%#v", y.Interface())
 }
 
 func Value(ctx context.Context, x any) Snippet {
