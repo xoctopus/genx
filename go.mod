@@ -4,9 +4,9 @@ go 1.25.1
 
 require (
 	github.com/pkg/errors v0.9.1
-	github.com/xoctopus/pkgx v0.0.0-20251023050839-0ef78f7b19bf
-	github.com/xoctopus/typex v0.1.3-0.20251021103835-1cc131e441e4
-	github.com/xoctopus/x v0.1.3-0.20251021103404-c872bf18f209
+	github.com/xoctopus/pkgx v0.0.0-20251023052303-c45f7040bb27
+	github.com/xoctopus/typex v0.1.3-0.20251023052113-27fbcad39237
+	github.com/xoctopus/x v0.1.3-0.20251023051842-45a07e57da1a
 	golang.org/x/exp v0.0.0-20251017212417-90e834f514db
 )
 
