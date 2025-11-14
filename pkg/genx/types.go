@@ -178,6 +178,7 @@ func (x *genc) genpkg(ctx context.Context, g Generator) error {
 			curr: x.curr,
 			file: newgenf(x.curr, g.Identifier()),
 			ctx: sync.OnceValue(func() context.Context {
+				ctx = pkgx.WithWorkdir(ctx, x.args.Workdir)
 				return dumper.WithTrackerContext(ctx, x.curr.Unwrap().Path(), x.curr.GoModule().Path)
 			}),
 		}
