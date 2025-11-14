@@ -12,24 +12,24 @@ import (
 )
 
 func IdentFor[T any](ctx context.Context) Snippet {
-	return Ident(ctx, typex.NewRType(reflect.TypeFor[T]()))
+	return Ident(ctx, typex.NewRType(ctx, reflect.TypeFor[T]()))
 }
 
 func IdentOf[T any](ctx context.Context, v T) Snippet {
-	return Ident(ctx, typex.NewRType(reflect.TypeOf(v)))
+	return Ident(ctx, typex.NewRType(ctx, reflect.TypeOf(v)))
 }
 
 func Ident(ctx context.Context, t typex.Type) Snippet {
-	dumper.TrackerFromContext(ctx).Track(t.PkgPath())
+	dumper.TrackerFromContext(ctx).Track(ctx, t.PkgPath())
 	return &ident{t: t}
 }
 
 func IdentRT(ctx context.Context, t reflect.Type) Snippet {
-	return Ident(ctx, typex.NewRType(t))
+	return Ident(ctx, typex.NewRType(ctx, t))
 }
 
 func IdentTT(ctx context.Context, t types.Type) Snippet {
-	return Ident(ctx, typex.NewTType(t))
+	return Ident(ctx, typex.NewTType(ctx, t))
 }
 
 type ident struct {

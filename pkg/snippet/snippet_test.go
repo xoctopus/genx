@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"github.com/xoctopus/typex/pkgutil"
+	"github.com/xoctopus/pkgx"
 	"github.com/xoctopus/x/ptrx"
 	_ "github.com/xoctopus/x/ptrx"
 
@@ -129,8 +129,8 @@ func ExampleIdentFor() {
 func ExampleExpose() {
 	ctx := dumper.WithTrackerContext(context.Background(), "demo", "demo")
 
-	t1 := pkgutil.MustLookupByPath[*types.Named]("github.com/xoctopus/genx/testdata", "T")
-	t2 := pkgutil.MustLookupByPath[*types.Named]("github.com/xoctopus/genx/testdata", "TT")
+	t1 := pkgx.MustLookup[*types.Named](ctx, "github.com/xoctopus/genx/testdata", "T")
+	t2 := pkgx.MustLookup[*types.Named](ctx, "github.com/xoctopus/genx/testdata", "TT")
 
 	body := Snippets(
 		NewLine(1),

@@ -3,6 +3,7 @@ package dumper
 import (
 	"bufio"
 	"bytes"
+	"context"
 	_ "embed"
 	"fmt"
 	"sort"
@@ -11,8 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/xoctopus/typex/namer"
-	"github.com/xoctopus/typex/pkgutil"
+	"github.com/xoctopus/pkgx"
 	"github.com/xoctopus/x/misc/must"
 	"golang.org/x/exp/maps"
 )
@@ -40,7 +40,7 @@ func IsStd(path string) bool {
 
 type ImportTracker interface {
 	// Track adds package path and name
-	Track(string)
+	Track(context.Context, string)
 	// Package returns the ref leader of package path
 	Package(string) string
 	// Range traverse imports
@@ -73,11 +73,11 @@ type tracker struct {
 }
 
 var (
-	_ ImportTracker      = (*tracker)(nil)
-	_ namer.PackageNamer = (*tracker)(nil)
+	_ ImportTracker = (*tracker)(nil)
+	_ pkgx.PkgNamer = (*tracker)(nil)
 )
 
-func (t *tracker) Track(path string) {
+func (t *tracker) Track(ctx context.Context, path string) {
 	must.BeTrueF(
 		!t.initialized.Load(),
 		"cannot track package to tracker after initialization",
@@ -90,7 +90,7 @@ func (t *tracker) Track(path string) {
 		return
 	}
 
-	p := pkgutil.New(path)
+	p := pkgx.Load(ctx, path)
 	i := &Import{
 		path:  path,
 		name:  p.Name(),

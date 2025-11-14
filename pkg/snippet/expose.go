@@ -7,8 +7,7 @@ import (
 	"iter"
 	"strings"
 
-	"github.com/xoctopus/typex/namer"
-	"github.com/xoctopus/typex/pkgutil"
+	"github.com/xoctopus/pkgx"
 	"github.com/xoctopus/x/misc/must"
 
 	"github.com/xoctopus/genx/internal/dumper"
@@ -30,8 +29,8 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 		"exposed name must is exported",
 	)
 
-	p := pkgutil.New(path)
-	target := p.Scope().Lookup(name)
+	p := pkgx.Load(ctx, path)
+	target := p.Unwrap().Scope().Lookup(name)
 	must.BeTrueF(
 		target != nil,
 		"cannot lookup `%s` in package `%s`",
@@ -75,7 +74,7 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 		r.name = x.Name()
 	}
 
-	dumper.TrackerFromContext(ctx).Track(path)
+	dumper.TrackerFromContext(ctx).Track(ctx, path)
 	return r
 }
 
@@ -97,10 +96,12 @@ func (r *exposer) Fragments(ctx context.Context) iter.Seq[string] {
 	return func(yield func(string) bool) {
 		b := &strings.Builder{}
 
-		path := namer.MustFromContext(ctx).Package(r.path)
-		b.WriteString(path)
-		if path != "" {
-			b.WriteString(".")
+		name := ""
+		if r.path != "" {
+			name = pkgx.PackageName(ctx, pkgx.Load(ctx, r.path))
+		}
+		if name != "" {
+			b.WriteString(name + ".")
 		}
 		b.WriteString(r.name)
 		if len(r.targs) > 0 {

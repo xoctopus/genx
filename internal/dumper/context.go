@@ -3,7 +3,7 @@ package dumper
 import (
 	"context"
 
-	"github.com/xoctopus/typex/namer"
+	"github.com/xoctopus/pkgx"
 	"github.com/xoctopus/x/contextx"
 )
 
@@ -19,5 +19,5 @@ func WithTrackerContext(parent context.Context, path, module string) context.Con
 	}
 
 	i := NewImportTracker(path, module)
-	return ctx.With(namer.WithContext(parent, i), i)
+	return ctx.With(pkgx.WithNamer(parent, i), i)
 }

@@ -1,6 +1,7 @@
 package dumper_test
 
 import (
+	"context"
 	"strconv"
 	"testing"
 
@@ -23,24 +24,26 @@ func TestNewImportTracker(t *testing.T) {
 		ExpectPanic(t, func() { tracker.Range(nil) }, ErrorContains("cannot range"))
 	})
 
-	tracker.Track("github.com/xoctopus/genx/testdata")
-	tracker.Track("github.com/pkg/errors")
-	tracker.Track("errors")
-	tracker.Track("bytes")
-	tracker.Track("strings")
-	tracker.Track("io")
-	tracker.Track("errors")
-	tracker.Track("fmt")
-	tracker.Track("context")
-	tracker.Track("")                                  // track empty
-	tracker.Track("github.com/xoctopus/genx/testdata") // track tracked
-	tracker.Track("github.com/xoctopus/pkgx")
-	tracker.Track("github.com/xoctopus/typex")
+	ctx := context.Background()
+
+	tracker.Track(ctx, "github.com/xoctopus/genx/testdata")
+	tracker.Track(ctx, "github.com/pkg/errors")
+	tracker.Track(ctx, "errors")
+	tracker.Track(ctx, "bytes")
+	tracker.Track(ctx, "strings")
+	tracker.Track(ctx, "io")
+	tracker.Track(ctx, "errors")
+	tracker.Track(ctx, "fmt")
+	tracker.Track(ctx, "context")
+	tracker.Track(ctx, "")                                  // track empty
+	tracker.Track(ctx, "github.com/xoctopus/genx/testdata") // track tracked
+	tracker.Track(ctx, "github.com/xoctopus/pkgx")
+	tracker.Track(ctx, "github.com/xoctopus/typex")
 
 	tracker.Init()
 
 	t.Run("TrackAfterInitialized", func(t *testing.T) {
-		ExpectPanic(t, func() { tracker.Track("any") }, ErrorContains("cannot track"))
+		ExpectPanic(t, func() { tracker.Track(ctx, "any") }, ErrorContains("cannot track"))
 	})
 
 	Expect(t, tracker.Package("github.com/xoctopus/genx/testdata"), HaveLen[string](0))
