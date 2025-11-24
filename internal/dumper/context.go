@@ -7,17 +7,23 @@ import (
 	"github.com/xoctopus/x/contextx"
 )
 
-var ctx = contextx.NewT[ImportTracker]()
+var ctxTracker = contextx.NewT[ImportTracker]()
 
-func TrackerFromContext(child context.Context) ImportTracker {
-	return ctx.MustFrom(child)
+func TrackerFrom(ctx context.Context) ImportTracker {
+	return ctxTracker.MustFrom(ctx)
 }
 
-func WithTrackerContext(parent context.Context, path, module string) context.Context {
-	if _, ok := ctx.From(parent); ok {
-		return parent
+func WithTracker(ctx context.Context, path, module string) context.Context {
+	if _, ok := ctxTracker.From(ctx); ok {
+		return ctx
 	}
 
 	i := NewImportTracker(path, module)
-	return ctx.With(pkgx.WithNamer(parent, i), i)
+	return ctxTracker.With(pkgx.CtxPkgNamer.With(ctx, i), i)
+}
+
+func TrackerCarrier(path, module string) contextx.Carrier {
+	return func(ctx context.Context) context.Context {
+		return WithTracker(ctx, path, module)
+	}
 }

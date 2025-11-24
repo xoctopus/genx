@@ -74,7 +74,7 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 		r.name = x.Name()
 	}
 
-	dumper.TrackerFromContext(ctx).Track(ctx, path)
+	dumper.TrackerFrom(ctx).Track(ctx, path)
 	return r
 }
 

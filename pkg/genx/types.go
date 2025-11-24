@@ -18,6 +18,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/xoctopus/pkgx"
+	"github.com/xoctopus/x/contextx"
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/reflectx"
 	"github.com/xoctopus/x/stringsx"
@@ -62,7 +63,7 @@ type Args struct {
 }
 
 func NewContext(args *Args) Executor {
-	ctx := pkgx.WithWorkdir(context.Background(), args.Workdir)
+	ctx := pkgx.CtxWorkdir.With(context.Background(), args.Workdir)
 
 	return &genc{
 		args: args,
@@ -178,8 +179,10 @@ func (x *genc) genpkg(ctx context.Context, g Generator) error {
 			curr: x.curr,
 			file: newgenf(x.curr, g.Identifier()),
 			ctx: sync.OnceValue(func() context.Context {
-				ctx = pkgx.WithWorkdir(ctx, x.args.Workdir)
-				return dumper.WithTrackerContext(ctx, x.curr.Unwrap().Path(), x.curr.GoModule().Path)
+				return contextx.Compose(
+					pkgx.CtxWorkdir.Carry(x.args.Workdir),
+					dumper.TrackerCarrier(x.curr.Path(), x.curr.GoModule().Path),
+				)(ctx)
 			}),
 		}
 		if err := xf.gen(x.New(g), t.Type()); err != nil {

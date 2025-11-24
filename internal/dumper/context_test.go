@@ -12,9 +12,9 @@ import (
 func TestWithTrackerContext(t *testing.T) {
 	ctx := context.Background()
 
-	ctx = dumper.WithTrackerContext(ctx, "pkg/path", "pkg/module")
-	ctx2 := dumper.WithTrackerContext(ctx, "any", "any")
+	ctx = dumper.WithTracker(ctx, "pkg/path", "pkg/module")
+	ctx2 := dumper.TrackerCarrier("any", "any")(ctx)
 
 	Expect(t, ctx, Equal(ctx2))
-	Expect(t, dumper.TrackerFromContext(ctx), Equal(dumper.TrackerFromContext(ctx2)))
+	Expect(t, dumper.TrackerFrom(ctx), Equal(dumper.TrackerFrom(ctx2)))
 }

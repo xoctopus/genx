@@ -84,7 +84,7 @@ func ExampleBlock() {
 }
 
 func ExampleIdentFor() {
-	ctx := dumper.WithTrackerContext(context.Background(), "demo", "demo")
+	ctx := dumper.WithTracker(context.Background(), "demo", "demo")
 
 	body := Snippets(
 		NewLine(1),
@@ -127,7 +127,7 @@ func ExampleIdentFor() {
 }
 
 func ExampleExpose() {
-	ctx := dumper.WithTrackerContext(context.Background(), "demo", "demo")
+	ctx := dumper.WithTracker(context.Background(), "demo", "demo")
 
 	t1 := pkgx.MustLookup[*types.Named](ctx, "github.com/xoctopus/genx/testdata", "T")
 	t2 := pkgx.MustLookup[*types.Named](ctx, "github.com/xoctopus/genx/testdata", "TT")
@@ -185,7 +185,7 @@ func ExampleExpose() {
 var template []byte
 
 func ExampleTemplate() {
-	ctx := dumper.WithTrackerContext(
+	ctx := dumper.WithTracker(
 		context.Background(),
 		"github.com/xoctopus/genx/testdata",
 		"github.com/xoctopus/genx",
@@ -256,7 +256,7 @@ func ExampleTemplate() {
 }
 
 func ExampleValue() {
-	ctx := dumper.WithTrackerContext(
+	ctx := dumper.WithTracker(
 		context.Background(),
 		"github.com/xoctopus/genx/snippet_test",
 		"github.com/xoctopus/genx",
