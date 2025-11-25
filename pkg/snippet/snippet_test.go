@@ -339,6 +339,7 @@ var eof = strconv.QuoteRune(-1)
 
 func ExampleSnippets_eof() {
 	Print(context.Background(), Compose(Block(eof)))
+	Print(context.Background(), &Placeholder{})
 
 	// Output:
 }

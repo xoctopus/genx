@@ -51,3 +51,16 @@ func (ss *snippets) Fragments(ctx context.Context) iter.Seq[string] {
 		}
 	}
 }
+
+// Placeholder must be not nil and yield an empty string
+type Placeholder struct{}
+
+func (Placeholder) IsNil() bool {
+	return false
+}
+
+func (Placeholder) Fragments(ctx context.Context) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		yield("")
+	}
+}

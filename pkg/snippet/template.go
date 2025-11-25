@@ -122,7 +122,7 @@ func (s *segment) Fragments(ctx context.Context) iter.Seq[string] {
 				}
 			}
 			must.BeTrueF(index == -1, "unfinished replacer at line:%d", lineno)
-			if newline[len(newline)-1] != '\n' {
+			if len(newline) > 0 && newline[len(newline)-1] != '\n' {
 				newline = append(newline, '\n')
 			}
 			yield(string(newline))
