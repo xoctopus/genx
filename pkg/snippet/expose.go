@@ -44,7 +44,11 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 		if _, ok := x.(*types.Func); ok {
 			params = x.Type().(*types.Signature).TypeParams()
 		} else {
-			params = x.Type().(*types.Named).TypeParams()
+			if tps, ok := x.Type().(interface {
+				TypeParams() *types.TypeParamList
+			}); ok {
+				params = tps.TypeParams()
+			}
 		}
 		if targc := params.Len(); targc != 0 {
 			must.BeTrueF(
@@ -54,7 +58,7 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 			)
 			for i, targ := range targs {
 				must.BeTrueF(
-					targ != nil && !targ.IsNil(),
+					!IsNil(targ),
 					"got invalid type arg snippet at %d", i,
 				)
 				ta, ok := targ.(*ident)

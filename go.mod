@@ -7,7 +7,7 @@ require (
 	github.com/xoctopus/pkgx v0.1.1-0.20251124100900-b88ff3a8b8c4
 	github.com/xoctopus/typex v0.2.2-0.20251124101059-710b367cebae
 	github.com/xoctopus/x v0.2.1-0.20251124085551-4660064d025a
-	golang.org/x/exp v0.0.0-20251113190631-e25ba8c21ef6
+	golang.org/x/exp v0.0.0-20251125195548-87e1e737ad39
 )
 
 require (

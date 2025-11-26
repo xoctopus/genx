@@ -28,7 +28,7 @@ func Print(ctx context.Context, ss ...Snippet) {
 
 func Write(ctx context.Context, w io.Writer, ss ...Snippet) {
 	for _, s := range ss {
-		if !s.IsNil() {
+		if !IsNil(s) {
 			for line := range s.Fragments(ctx) {
 				if line == eof {
 					break
@@ -342,4 +342,15 @@ func ExampleSnippets_eof() {
 	Print(context.Background(), &Placeholder{})
 
 	// Output:
+}
+
+func ExampleStrings() {
+	Print(context.Background(), Strings(",", "\n", "1", "2", "3", "4"))
+	Print(context.Background(), Strings(",", "\n"))
+
+	// Output:
+	// "1",
+	// "2",
+	// "3",
+	// "4",
 }

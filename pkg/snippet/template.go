@@ -109,7 +109,7 @@ func (s *segment) Fragments(ctx context.Context) iter.Seq[string] {
 
 				arg, ok := s.args[macro]
 				must.BeTrueF(
-					ok && arg != nil && !arg.snippet.IsNil(),
+					ok && arg != nil && !IsNil(arg.snippet),
 					"template argument %s not found or nil at line:%d:col:%d",
 					macro, lineno+s.offset, column,
 				)
@@ -136,6 +136,9 @@ func Template(r io.Reader, args ...*TArg) Snippet {
 	for _, arg := range args {
 		if arg != nil {
 			tpl.args[arg.name] = arg
+			if IsNil(arg.snippet) {
+				arg.snippet = &Placeholder{}
+			}
 		}
 	}
 	defs := make(map[string]int)
