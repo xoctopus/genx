@@ -8,8 +8,8 @@ github.com/xoctopus/pkgx v0.1.1-0.20251127115730-40f38b1c6085 h1:npqxt7EcrvYZTie
 github.com/xoctopus/pkgx v0.1.1-0.20251127115730-40f38b1c6085/go.mod h1:q0PmQlzsqNXbPzmUs+a+/5PkZAAZWYo0A8IUHqhUt/I=
 github.com/xoctopus/pkgx/testdata v1.0.0 h1:wn8ybhu+LWxuHzqGaZMff2Lik9trL8rkPwyZyqKQT3E=
 github.com/xoctopus/pkgx/testdata v1.0.0/go.mod h1:hM3Pd+eByHRAG1plTMLXVBFzEdYqG3h7B5sHvOu2+iU=
-github.com/xoctopus/typex v0.2.2-0.20251126093658-0b77b696a6a8 h1:XJkLB1aG9AkzH1Vb+OjqLlTEuoePM3XUBByWRBDTtMo=
-github.com/xoctopus/typex v0.2.2-0.20251126093658-0b77b696a6a8/go.mod h1:s+/7Aue6/bejxk/7+fYpMSRIui6G33DsNnUoqUrUV5M=
+github.com/xoctopus/typex v0.2.2-0.20251127120105-e41be093062a h1:bTiO3tcK5IDMeymZQyU5Hs1um+UH+q1yqojJyv9+ZoM=
+github.com/xoctopus/typex v0.2.2-0.20251127120105-e41be093062a/go.mod h1:E4wAizyQlrW49edWp46/KPGAxX7Jv2g9S0FQ7i45u7A=
 github.com/xoctopus/x v0.2.1-0.20251124085551-4660064d025a h1:zwS2vMoLUM+/B357Lb6z0p9LT8C5PHslcEWpntkeFMU=
 github.com/xoctopus/x v0.2.1-0.20251124085551-4660064d025a/go.mod h1:+UndN5zUWOUJFFpnIM9EoN9DqFlQ8M1HZzuInf1qCRg=
 golang.org/x/exp v0.0.0-20251125195548-87e1e737ad39 h1:DHNhtq3sNNzrvduZZIiFyXWOL9IWaDPHqTnLJp+rCBY=
