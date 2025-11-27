@@ -142,33 +142,49 @@ func (t *tracker) Range(f func(Import) bool) {
 
 func (t *tracker) Init() {
 	t.once.Do(func() {
-		for name, list := range t.names {
-			if len(list) <= 1 {
-				continue
+		duplicated := func() bool {
+			for _, list := range t.names {
+				if len(list) > 1 {
+					return true
+				}
 			}
+			return false
+		}
 
-			t.names[name] = nil
-			sort.Slice(list, func(i, j int) bool {
-				return list[i].path < list[j].path
-			})
-
-			externals := make([]*Import, 0, len(list))
-			for _, p := range list {
-				if IsStd(p.path) {
-					t.names[name] = append(t.names[name], p)
+		for duplicated() {
+			for name, list := range t.names {
+				if len(list) <= 1 {
 					continue
 				}
-				externals = append(externals, p)
-			}
 
-			for _, p := range list {
-				parts := strings.Split(p.path, "/")
-				for i := range len(parts) {
-					alias := strings.Join(parts[len(parts)-i-1:], "_")
-					alias = strings.Replace(alias, ".", "_", -1)
-					if _, ok := t.names[alias]; !ok {
-						p.alias = alias
-						break
+				t.names[name] = nil
+				sort.Slice(list, func(i, j int) bool {
+					return list[i].path < list[j].path
+				})
+
+				externals := make([]*Import, 0, len(list))
+				// internals := make([]*Import, 0, len(list))
+				for _, p := range list {
+					if IsStd(p.path) {
+						t.names[name] = append(t.names[name], p)
+						continue
+					}
+					if strings.HasPrefix(p.path, t.module) {
+						// internals = append(internals, p)
+					}
+					externals = append(externals, p)
+				}
+
+				for _, p := range externals {
+					parts := strings.Split(p.path, "/")
+					for i := range len(parts) {
+						alias := strings.Join(parts[len(parts)-i-1:], "_")
+						alias = strings.Replace(alias, ".", "_", -1)
+						if _, ok := t.names[alias]; !ok {
+							p.alias = alias
+							t.names[alias] = append(t.names[alias], p)
+							break
+						}
 					}
 				}
 			}
