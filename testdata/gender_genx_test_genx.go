@@ -4,7 +4,7 @@ package testdata
 import (
 	"bytes"
 
-	"github.com/pkg/errors"
+	"github.com/xoctopus/genx/testdata/errors"
 )
 
 var _ = Gender(1)

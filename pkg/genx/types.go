@@ -3,6 +3,7 @@ package genx
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"go/format"
 	"go/parser"
@@ -16,8 +17,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pkg/errors"
-	"github.com/xoctopus/pkgx"
+	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/contextx"
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/reflectx"

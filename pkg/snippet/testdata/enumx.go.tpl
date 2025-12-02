@@ -4,7 +4,7 @@
 @def NameToValueCases
 @def fmt.Sscanf
 @def UnknownValue
-@def github.com/pkg/errors.New
+@def errors.New
 --Parse
 // Parse#Type# parse #Type# from key
 func Parse#Type#(key string) (#Type#, error) {
@@ -15,7 +15,7 @@ func Parse#Type#(key string) (#Type#, error) {
 		if _, err := #fmt.Sscanf#(key, "UNKNOWN_%d", &v); err != nil {
 			return v, nil
 		}
-		return #UnknownValue#, #github.com/pkg/errors.New#("failed to parse #macro in string will be ignored#  ")
+		return #UnknownValue#, #errors.New#("failed to parse #macro in string will be ignored#  ")
 	}
 }
 

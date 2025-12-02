@@ -12,9 +12,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/xoctopus/pkgx"
+	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/misc/must"
-	"golang.org/x/exp/maps"
 )
 
 var (
@@ -41,8 +40,8 @@ func IsStd(path string) bool {
 type ImportTracker interface {
 	// Track adds package path and name
 	Track(context.Context, string)
-	// Package returns the ref leader of package path
-	Package(string) string
+	// PackageName returns the ref leader of package path
+	PackageName(string) string
 	// Range traverse imports
 	Range(func(Import) bool)
 	// Init adjust imported package alias
@@ -100,7 +99,7 @@ func (t *tracker) Track(ctx context.Context, path string) {
 	t.names[i.alias] = append(t.names[p.Name()], i)
 }
 
-func (t *tracker) Package(path string) string {
+func (t *tracker) PackageName(path string) string {
 	must.BeTrueF(
 		t.initialized.Load(),
 		"cannot fetch package reference before tracker initialization",
@@ -119,7 +118,12 @@ func (t *tracker) Range(f func(Import) bool) {
 		t.initialized.Load(),
 		"cannot range imports before tracker initialization",
 	)
-	paths := maps.Keys(t.imports)
+
+	paths := make([]string, 0, len(t.imports))
+	for _, i := range t.imports {
+		paths = append(paths, i.path)
+	}
+
 	sort.Slice(paths, func(i, j int) bool {
 		pi := t.imports[paths[i]].path
 		pj := t.imports[paths[j]].path

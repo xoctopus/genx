@@ -6,7 +6,7 @@ import (
 	"go/types"
 	"strconv"
 
-	"github.com/xoctopus/pkgx"
+	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/misc/must"
 
 	"github.com/xoctopus/genx/pkg/genx"
@@ -55,7 +55,7 @@ func (g *TestGenerator) Generate(c genx.Context, t types.Type) error {
 		),
 		s.Compose(
 			s.Block("var _ = "),
-			s.Expose(ctx, "github.com/pkg/errors", "New"),
+			s.Expose(ctx, "github.com/xoctopus/genx/testdata/errors", "New"),
 			s.BlockF("(%s)", strconv.Quote("some error")),
 		),
 		s.Compose(

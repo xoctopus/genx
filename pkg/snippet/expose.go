@@ -7,7 +7,8 @@ import (
 	"iter"
 	"strings"
 
-	"github.com/xoctopus/pkgx"
+	"github.com/xoctopus/pkgx/pkg/pkgx"
+	"github.com/xoctopus/typx/pkg/typx"
 	"github.com/xoctopus/x/misc/must"
 
 	"github.com/xoctopus/genx/internal/dumper"
@@ -102,7 +103,9 @@ func (r *exposer) Fragments(ctx context.Context) iter.Seq[string] {
 
 		name := ""
 		if r.path != "" {
-			name = pkgx.PackageName(ctx, pkgx.Load(ctx, r.path))
+			if namer, ok := typx.CtxPkgNamer.From(ctx); ok {
+				name = namer.PackageName(r.path)
+			}
 		}
 		if name != "" {
 			b.WriteString(name + ".")

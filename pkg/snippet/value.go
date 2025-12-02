@@ -49,10 +49,11 @@ func Value(ctx context.Context, x any) Snippet {
 			return Block("nil")
 		}
 		return Compose(
-			Expose(ctx, "github.com/xoctopus/x/ptrx", "Ptr", IdentRT(ctx, v.Elem().Type())),
-			Block("("),
-			Value(ctx, v.Elem()),
-			Block(")"),
+			Expose(
+				ctx,
+				"github.com/xoctopus/x/ptrx", "Ptr", IdentRT(ctx, v.Elem().Type()),
+			),
+			Block("("), Value(ctx, v.Elem()), Block(")"),
 		)
 	case reflect.Interface:
 		if v.IsNil() {

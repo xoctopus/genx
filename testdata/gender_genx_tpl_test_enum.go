@@ -4,9 +4,8 @@ package testdata
 import (
 	"bytes"
 	"database/sql/driver"
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
 // ParseGender parse Gender from key

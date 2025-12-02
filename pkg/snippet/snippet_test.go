@@ -12,8 +12,8 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/pkg/errors"
-	"github.com/xoctopus/pkgx"
+	"github.com/xoctopus/pkgx/pkg/pkgx"
+	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/ptrx"
 	_ "github.com/xoctopus/x/ptrx"
 
@@ -145,8 +145,8 @@ func ExampleExpose() {
 		Expose(ctx, "fmt", "Sscanf"),
 		Expose(ctx, "io", "ReadAll"),
 		// imported: general
-		Expose(ctx, "github.com/pkg/errors", "New"),
-		Expose(ctx, "github.com/xoctopus/x/ptrx", "Ptr", IdentFor[errors.StackTrace](ctx)),
+		Expose(ctx, "errors", "New"),
+		Expose(ctx, "github.com/xoctopus/x/ptrx", "Ptr", IdentFor[testdata.DemoEnum](ctx)),
 	)
 
 	Print(
@@ -161,10 +161,10 @@ func ExampleExpose() {
 	// package demo
 	//
 	// import (
+	// 	"errors"
 	// 	"fmt"
 	// 	"io"
 	//
-	// 	"github.com/pkg/errors"
 	// 	"github.com/xoctopus/genx/testdata"
 	// 	"github.com/xoctopus/x/ptrx"
 	// )
@@ -178,7 +178,7 @@ func ExampleExpose() {
 	// fmt.Sscanf
 	// io.ReadAll
 	// errors.New
-	// ptrx.Ptr[errors.StackTrace]
+	// ptrx.Ptr[testdata.DemoEnum]
 }
 
 //go:embed testdata/enumx.go.tpl
@@ -204,7 +204,7 @@ func ExampleTemplate() {
 		)),
 		ArgExpose(ctx, "github.com/xoctopus/genx/testdata", "GENDER_UNKNOWN").
 			WithName("UnknownValue"),
-		ArgExpose(ctx, "github.com/pkg/errors", "New"),
+		ArgExpose(ctx, "errors", "New"),
 		Arg(ctx, "Values", Snippets(
 			NewLine(1),
 			Compose(Indent(2), Expose(ctx, "github.com/xoctopus/genx/testdata", "GENDER__MALE"), Block(",")),
@@ -242,9 +242,10 @@ func ExampleTemplate() {
 		tpl,
 	)
 
-	cwd, _ := os.Getwd()
+	filename := filepath.Join(must.NoErrorV(os.Getwd()), "..", "..", "testdata", "gender_genx_tpl_test_enum.go")
+	must.NoError(os.RemoveAll(filename))
 	output, _ := os.OpenFile(
-		filepath.Join(cwd, "..", "testdata", "gender_genx_tpl_test_enum.go"),
+		filename,
 		os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
 		0644,
 	)

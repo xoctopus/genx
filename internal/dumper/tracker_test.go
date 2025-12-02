@@ -20,14 +20,13 @@ func TestNewImportTracker(t *testing.T) {
 	Expect(t, tracker.Module(), Equal(path))
 
 	t.Run("FetchBeforeInitialized", func(t *testing.T) {
-		ExpectPanic(t, func() { tracker.Package("any") }, ErrorContains("cannot fetch"))
+		ExpectPanic(t, func() { tracker.PackageName("any") }, ErrorContains("cannot fetch"))
 		ExpectPanic(t, func() { tracker.Range(nil) }, ErrorContains("cannot range"))
 	})
 
 	ctx := context.Background()
 
 	tracker.Track(ctx, "github.com/xoctopus/genx/testdata")
-	tracker.Track(ctx, "github.com/pkg/errors")
 	tracker.Track(ctx, "errors")
 	tracker.Track(ctx, "bytes")
 	tracker.Track(ctx, "strings")
@@ -37,8 +36,9 @@ func TestNewImportTracker(t *testing.T) {
 	tracker.Track(ctx, "context")
 	tracker.Track(ctx, "")                                  // track empty
 	tracker.Track(ctx, "github.com/xoctopus/genx/testdata") // track tracked
-	tracker.Track(ctx, "github.com/xoctopus/pkgx")
-	tracker.Track(ctx, "github.com/xoctopus/typex")
+	tracker.Track(ctx, "github.com/xoctopus/pkgx/pkg/pkgx")
+	tracker.Track(ctx, "github.com/xoctopus/typx/pkg/typx")
+	tracker.Track(ctx, "github.com/xoctopus/genx/testdata/errors") // conflict with std.errors
 
 	tracker.Init()
 
@@ -46,9 +46,9 @@ func TestNewImportTracker(t *testing.T) {
 		ExpectPanic(t, func() { tracker.Track(ctx, "any") }, ErrorContains("cannot track"))
 	})
 
-	Expect(t, tracker.Package("github.com/xoctopus/genx/testdata"), HaveLen[string](0))
-	ExpectPanic(t, func() { tracker.Package("unimported") }, ErrorContains("not be tracked"))
-	Expect(t, tracker.Package("github.com/pkg/errors"), Equal("pkg_errors"))
+	Expect(t, tracker.PackageName("github.com/xoctopus/genx/testdata"), HaveLen[string](0))
+	ExpectPanic(t, func() { tracker.PackageName("unimported") }, ErrorContains("not be tracked"))
+	Expect(t, tracker.PackageName("github.com/xoctopus/genx/testdata/errors"), Equal("testdata_errors"))
 
 	imports := make([]string, 0)
 	for i := range tracker.Range {
@@ -66,8 +66,8 @@ func TestNewImportTracker(t *testing.T) {
 		`"fmt"`,
 		`"io"`,
 		`"strings"`,
-		`pkg_errors "github.com/pkg/errors"`,
-		`"github.com/xoctopus/pkgx"`,
-		`"github.com/xoctopus/typex"`,
+		`testdata_errors "github.com/xoctopus/genx/testdata/errors"`,
+		`"github.com/xoctopus/pkgx/pkg/pkgx"`,
+		`"github.com/xoctopus/typx/pkg/typx"`,
 	}))
 }
