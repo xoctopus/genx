@@ -181,7 +181,7 @@ func (x *genc) genpkg(ctx context.Context, g Generator) error {
 			ctx: sync.OnceValue(func() context.Context {
 				return contextx.Compose(
 					pkgx.CtxWorkdir.Carry(x.args.Workdir),
-					dumper.TrackerCarrier(x.curr.Path(), x.curr.GoModule().Path),
+					dumper.TrackerCarrier(x.curr.Path()),
 				)(ctx)
 			}),
 		}

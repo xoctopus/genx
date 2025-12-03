@@ -12,7 +12,6 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/ptrx"
 	_ "github.com/xoctopus/x/ptrx"
@@ -84,7 +83,7 @@ func ExampleBlock() {
 }
 
 func ExampleIdentFor() {
-	ctx := dumper.WithTracker(context.Background(), "demo", "demo")
+	ctx := dumper.WithTracker(context.Background(), "github.com/xoctopus/genx/testdata")
 
 	body := Snippets(
 		NewLine(1),
@@ -127,10 +126,12 @@ func ExampleIdentFor() {
 }
 
 func ExampleExpose() {
-	ctx := dumper.WithTracker(context.Background(), "demo", "demo")
+	ctx := dumper.WithTracker(context.Background(), "github.com/xoctopus/genx/testdata")
 
-	t1 := pkgx.MustLookup[*types.Named](ctx, "github.com/xoctopus/genx/testdata", "T")
-	t2 := pkgx.MustLookup[*types.Named](ctx, "github.com/xoctopus/genx/testdata", "TT")
+	pkg := dumper.Load(ctx, "github.com/xoctopus/genx/testdata")
+
+	t1 := pkg.Types.Scope().Lookup("T").Type().(*types.Named)
+	t2 := pkg.Types.Scope().Lookup("TT").Type().(*types.Named)
 
 	body := Snippets(
 		NewLine(1),
@@ -165,20 +166,19 @@ func ExampleExpose() {
 	// 	"fmt"
 	// 	"io"
 	//
-	// 	"github.com/xoctopus/genx/testdata"
 	// 	"github.com/xoctopus/x/ptrx"
 	// )
 	//
-	// testdata.FuncT[string]
-	// testdata.DEMO_ENUM_A
-	// testdata.Var
-	// testdata.VarFuncT
-	// testdata.T[int]
-	// testdata.TT[int, string]
+	// FuncT[string]
+	// DEMO_ENUM_A
+	// Var
+	// VarFuncT
+	// T[int]
+	// TT[int, string]
 	// fmt.Sscanf
 	// io.ReadAll
 	// errors.New
-	// ptrx.Ptr[testdata.DemoEnum]
+	// ptrx.Ptr[DemoEnum]
 }
 
 //go:embed testdata/enumx.go.tpl
@@ -188,7 +188,6 @@ func ExampleTemplate() {
 	ctx := dumper.WithTracker(
 		context.Background(),
 		"github.com/xoctopus/genx/testdata",
-		"github.com/xoctopus/genx",
 	)
 
 	tpl := Template(
@@ -259,8 +258,7 @@ func ExampleTemplate() {
 func ExampleValue() {
 	ctx := dumper.WithTracker(
 		context.Background(),
-		"github.com/xoctopus/genx/snippet_test",
-		"github.com/xoctopus/genx",
+		"github.com/xoctopus/genx/pkg/snippet_test",
 	)
 
 	body := Snippets(

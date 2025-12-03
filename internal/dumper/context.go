@@ -13,16 +13,13 @@ func TrackerFrom(ctx context.Context) ImportTracker {
 	return ctxTracker.MustFrom(ctx)
 }
 
-func WithTracker(ctx context.Context, path, module string) context.Context {
-	if _, ok := ctxTracker.From(ctx); ok {
-		return ctx
-	}
-	i := NewImportTracker(path, module)
+func WithTracker(ctx context.Context, entry string) context.Context {
+	i := NewImportTracker(entry)
 	return ctxTracker.With(typx.CtxPkgNamer.With(ctx, i), i)
 }
 
-func TrackerCarrier(path, module string) contextx.Carrier {
+func TrackerCarrier(entry string) contextx.Carrier {
 	return func(ctx context.Context) context.Context {
-		return WithTracker(ctx, path, module)
+		return WithTracker(ctx, entry)
 	}
 }

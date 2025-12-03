@@ -7,7 +7,6 @@ import (
 	"iter"
 	"strings"
 
-	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/typx/pkg/typx"
 	"github.com/xoctopus/x/misc/must"
 
@@ -30,8 +29,8 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 		"exposed name must is exported",
 	)
 
-	p := pkgx.Load(ctx, path)
-	target := p.Unwrap().Scope().Lookup(name)
+	p := dumper.Load(ctx, path)
+	target := p.Types.Scope().Lookup(name)
 	must.BeTrueF(
 		target != nil,
 		"cannot lookup `%s` in package `%s`",
