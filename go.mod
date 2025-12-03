@@ -6,7 +6,7 @@ tool github.com/xoctopus/genx/internal/cmd/example
 
 require (
 	github.com/xoctopus/pkgx v0.1.3
-	github.com/xoctopus/typx v0.3.1
+	github.com/xoctopus/typx v0.3.2
 	github.com/xoctopus/x v0.2.1
 )
 
