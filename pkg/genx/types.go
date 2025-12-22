@@ -50,6 +50,7 @@ type Context interface {
 
 	Context() context.Context
 
+	Packages() *pkgx.Packages
 	Package() pkgx.Package
 	PackageByPath(string) pkgx.Package
 	// PackageByPos(token.Pos) pkgx.Package
@@ -83,6 +84,10 @@ type genc struct {
 
 func (x *genc) IsZero() bool {
 	return x.ctx == nil || x.file == nil || x.curr == nil
+}
+
+func (x *genc) Packages() *pkgx.Packages {
+	return x.pkgs
 }
 
 func (x *genc) Package() pkgx.Package {
