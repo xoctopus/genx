@@ -82,6 +82,18 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 	return r
 }
 
+// ExposeUnsafe like Expose but skip validation of package and type arguments
+func ExposeUnsafe(ctx context.Context, path, name string) Snippet {
+	must.BeTrueF(path != "" && name != "", "package path and exposed name is required")
+	must.BeTrueF(ast.IsExported(name), "exposed name must is exported")
+
+	dumper.TrackerFrom(ctx).Track(ctx, path)
+	return &exposer{
+		path: path,
+		name: name,
+	}
+}
+
 func ExposeObject(ctx context.Context, o types.Object, targs ...Snippet) Snippet {
 	return Expose(ctx, o.Pkg().Path(), o.Name(), targs...)
 }

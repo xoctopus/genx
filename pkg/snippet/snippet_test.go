@@ -137,6 +137,7 @@ func ExampleExpose() {
 		NewLine(1),
 		// imported: project
 		Expose(ctx, "github.com/xoctopus/genx/testdata", "FuncT", IdentFor[string](ctx)),
+		ExposeUnsafe(ctx, "github.com/xoctopus/genx/testdata", "FuncT"),
 		Expose(ctx, "github.com/xoctopus/genx/testdata", "DEMO_ENUM_A"),
 		Expose(ctx, "github.com/xoctopus/genx/testdata", "Var"),
 		Expose(ctx, "github.com/xoctopus/genx/testdata", "VarFuncT"),
@@ -170,6 +171,7 @@ func ExampleExpose() {
 	// )
 	//
 	// FuncT[string]
+	// FuncT
 	// DEMO_ENUM_A
 	// Var
 	// VarFuncT
