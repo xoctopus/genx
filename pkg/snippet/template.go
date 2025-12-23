@@ -39,6 +39,13 @@ func ArgExpose(ctx context.Context, path string, name string, targs ...Snippet) 
 	}
 }
 
+func ArgExposeUnsafe(ctx context.Context, path string, name string) *TArg {
+	return &TArg{
+		name:    path + "." + name,
+		snippet: ExposeUnsafe(ctx, path, name),
+	}
+}
+
 type TArg struct {
 	name    string
 	snippet Snippet

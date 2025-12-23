@@ -27,8 +27,10 @@ func (g *TestGenerator) Generate(c genx.Context, t types.Type) error {
 		return nil
 	}
 
-	if c.Package().Unwrap().Path() != "" {
+	if path := c.Package().Unwrap().Path(); path != "" {
+	}
 
+	if doc := c.Packages().DocOf(0); doc != nil {
 	}
 
 	var obj *types.TypeName

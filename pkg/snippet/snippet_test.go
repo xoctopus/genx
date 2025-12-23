@@ -212,7 +212,7 @@ func ExampleTemplate() {
 			Compose(Indent(2), Expose(ctx, "github.com/xoctopus/genx/testdata", "GENDER__FEMALE"), Block(",")),
 		)),
 		ArgExpose(ctx, "github.com/xoctopus/genx/testdata", "Scan").WithName("EnumScanBrick"),
-		ArgExpose(ctx, "bytes", "ToUpper"),
+		ArgExposeUnsafe(ctx, "bytes", "ToUpper"),
 		ArgExpose(ctx, "fmt", "Sscanf"),
 		ArgT[driver.Value](ctx),
 		Arg(ctx, "ValueToDescCases", Snippets(

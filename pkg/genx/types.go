@@ -258,7 +258,7 @@ func (x *genf) write(ctx context.Context, filename string) error {
 
 	for code := range snippet.Snippets(
 		snippet.NewLine(1),
-		snippet.Poster(x.pkg.Unwrap().Name(), x.name),
+		snippet.Poster(x.pkg.Unwrap().Name(), "genx:"+x.name),
 		snippet.Imports(ctx),
 	).Fragments(ctx) {
 		body.WriteString(code)
