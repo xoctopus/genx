@@ -5,7 +5,9 @@ import (
 	"database/sql/driver"
 	_ "embed"
 	"go/types"
+	"log"
 	"strings"
+	"time"
 
 	"github.com/xoctopus/x/enumx"
 
@@ -41,7 +43,10 @@ func (x *g) New(c genx.Context) genx.Generator {
 func (x *g) Generate(c genx.Context, t types.Type) error {
 	if e, ok := x.enums.Resolve(t); ok {
 		if e.IsValid() {
+			cost := Span()
+			log.Printf("genx:enumx %s\n", t)
 			x.generate(c, e)
+			log.Printf("cost: %fs\n", cost().Seconds())
 			return nil
 		}
 	}
@@ -56,19 +61,19 @@ func (x *g) generate(c genx.Context, e *Enum) {
 
 	args := []*s.TArg{
 		// @def bytes.ToUpper
-		s.ArgExpose(ctx, "bytes", "ToUpper"),
+		s.ArgExposeUnsafe(ctx, "bytes", "ToUpper"),
 		// @def fmt.Sprintf
-		s.ArgExpose(ctx, "fmt", "Sprintf"),
+		s.ArgExposeUnsafe(ctx, "fmt", "Sprintf"),
 		// @def fmt.Errorf
-		s.ArgExpose(ctx, "fmt", "Errorf"),
+		s.ArgExposeUnsafe(ctx, "fmt", "Errorf"),
 		// @def fmt.Sscanf
-		s.ArgExpose(ctx, "fmt", "Sscanf"),
-		// @def EnumerationType github.com/xoctopus/x/enumx.Enum[Type]
-		s.ArgExpose(ctx, pkgid, "Enum", ident).WithName("EnumerationType"),
+		s.ArgExposeUnsafe(ctx, "fmt", "Sscanf"),
+		// @def EnumerationType github.com/xoctopus/x/enumx.Enum
+		s.ArgExposeUnsafe(ctx, pkgid, "Enum").WithName("EnumerationType"),
 		// @def github.com/xoctopus/x/enumx.Scan
-		s.ArgExpose(ctx, pkgid, "Scan"),
+		s.ArgExposeUnsafe(ctx, pkgid, "Scan"),
 		// @def github.com/xoctopus/x/enumx.ParseErrorFor
-		s.ArgExpose(ctx, pkgid, "ParseErrorFor", ident),
+		s.ArgExposeUnsafe(ctx, pkgid, "ParseErrorFor"),
 
 		// @def Type
 		s.Arg(ctx, "Type", ident),
@@ -104,4 +109,11 @@ func (x *g) generate(c genx.Context, e *Enum) {
 	}
 
 	c.Render(s.Snippets(s.NewLine(1), ss...))
+}
+
+func Span() func() time.Duration {
+	t := time.Now()
+	return func() time.Duration {
+		return time.Since(t)
+	}
 }

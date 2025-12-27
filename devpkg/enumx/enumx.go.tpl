@@ -1,7 +1,7 @@
 @def Type
 @def EnumerationType
 --Assertion
-var _ #EnumerationType# = (*#Type#)(nil)
+var _ #EnumerationType#[#Type#] = (*#Type#)(nil)
 
 @def Type
 @def StringToValueCases
@@ -18,7 +18,7 @@ func Parse#Type#(key string) (#Type#, error) {
 		if _, err := #fmt.Sscanf#(key, "UNKNOWN_%d", &v); err != nil {
 			return v, nil
 		}
-		return #UnknownValue#, #github.com/xoctopus/x/enumx.ParseErrorFor#(key)
+		return #UnknownValue#, #github.com/xoctopus/x/enumx.ParseErrorFor#[#Type#](key)
 	}
 }
 
