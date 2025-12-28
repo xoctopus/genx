@@ -132,6 +132,7 @@ func ExampleExpose() {
 
 	t1 := pkg.Types.Scope().Lookup("T").Type().(*types.Named)
 	t2 := pkg.Types.Scope().Lookup("TT").Type().(*types.Named)
+	t3 := pkg.Types.Scope().Lookup("DemoEnum").Type().(*types.Named)
 
 	body := Snippets(
 		NewLine(1),
@@ -143,6 +144,7 @@ func ExampleExpose() {
 		Expose(ctx, "github.com/xoctopus/genx/testdata", "VarFuncT"),
 		ExposeObject(ctx, t1.Obj(), IdentFor[int](ctx)),
 		ExposeObject(ctx, t2.Obj(), IdentFor[int](ctx), IdentFor[string](ctx)),
+		ExposeObjectUnsafe(ctx, t3.Obj()),
 		// imported: std
 		Expose(ctx, "fmt", "Sscanf"),
 		Expose(ctx, "io", "ReadAll"),
@@ -177,6 +179,7 @@ func ExampleExpose() {
 	// VarFuncT
 	// T[int]
 	// TT[int, string]
+	// DemoEnum
 	// fmt.Sscanf
 	// io.ReadAll
 	// errors.New

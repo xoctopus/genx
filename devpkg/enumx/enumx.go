@@ -86,7 +86,7 @@ func (e *Enum) add(c *pkgx.Constant) {
 func (e *Enum) Values(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
 	for _, v := range e.values {
-		expose := s.ExposeObject(ctx, v.value.Exposer())
+		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
 			s.Compose(s.Indent(2), expose, s.Block(",")),
@@ -103,7 +103,7 @@ func (e *Enum) ValueToStringCases(ctx context.Context) s.Snippet {
 			v.value.Name(),
 			stringsx.UpperSnakeCase(v.value.TypeName())+"__",
 		)
-		expose := s.ExposeObject(ctx, v.value.Exposer())
+		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
 			s.Compose(s.Indent(1), s.Block("case "), expose, s.Block(":")),
@@ -117,7 +117,7 @@ func (e *Enum) ValueToStringCases(ctx context.Context) s.Snippet {
 func (e *Enum) StringToValueCases(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
 	for _, v := range e.values {
-		expose := s.ExposeObject(ctx, v.value.Exposer())
+		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
 			s.Compose(s.Indent(1), s.BlockF("case %q:", v.name)),
@@ -135,7 +135,7 @@ func (e *Enum) ValueToTextCases(ctx context.Context) s.Snippet {
 		if len(text) == 0 {
 			text = v.name
 		}
-		expose := s.ExposeObject(ctx, v.value.Exposer())
+		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
 			s.Compose(s.Indent(1), s.Block("case "), expose, s.Block(":")),
@@ -174,7 +174,7 @@ func (e *Enum) Attr(ctx context.Context, attr, option string) s.Snippet {
 	)
 
 	for _, v := range e.values {
-		expose := s.ExposeObject(ctx, v.value.Exposer())
+		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
 			s.Compose(s.Indent(1), s.Block("case "), expose, s.Block(":")),

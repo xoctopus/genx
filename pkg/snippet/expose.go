@@ -98,6 +98,10 @@ func ExposeObject(ctx context.Context, o types.Object, targs ...Snippet) Snippet
 	return Expose(ctx, o.Pkg().Path(), o.Name(), targs...)
 }
 
+func ExposeObjectUnsafe(ctx context.Context, o types.Object) Snippet {
+	return ExposeUnsafe(ctx, o.Pkg().Path(), o.Name())
+}
+
 type exposer struct {
 	path  string
 	name  string

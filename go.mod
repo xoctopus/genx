@@ -7,7 +7,7 @@ tool github.com/xoctopus/genx/internal/cmd/example
 require (
 	github.com/xoctopus/pkgx v0.1.4
 	github.com/xoctopus/typx v0.3.3
-	github.com/xoctopus/x v0.2.5
+	github.com/xoctopus/x v0.2.6
 )
 
 require golang.org/x/tools v0.40.0

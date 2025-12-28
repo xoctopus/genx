@@ -6,8 +6,8 @@ github.com/xoctopus/pkgx/testdata v1.0.0 h1:wn8ybhu+LWxuHzqGaZMff2Lik9trL8rkPwyZ
 github.com/xoctopus/pkgx/testdata v1.0.0/go.mod h1:hM3Pd+eByHRAG1plTMLXVBFzEdYqG3h7B5sHvOu2+iU=
 github.com/xoctopus/typx v0.3.3 h1:kaHbX7blaFoiwXFCL+fdYMSWLFrbLuFf1zlR40wcXsM=
 github.com/xoctopus/typx v0.3.3/go.mod h1:Wgm316Bqha/1g5wI/30iLAI12HDK/VKSZBqok7oLCFU=
-github.com/xoctopus/x v0.2.5 h1:15osjPOnMpnkahGUCa97aRZxqqKPAYajwsA1HcUbXgk=
-github.com/xoctopus/x v0.2.5/go.mod h1:50E7nA4s9BB4jgDmd59IqyluaJCxoUnS7QPi3nCyLFw=
+github.com/xoctopus/x v0.2.6 h1:Amxg9HjsewdLLkn6PVRUs/gnPsTTuHQxrt44l42nji0=
+github.com/xoctopus/x v0.2.6/go.mod h1:50E7nA4s9BB4jgDmd59IqyluaJCxoUnS7QPi3nCyLFw=
 golang.org/x/mod v0.31.0 h1:HaW9xtz0+kOcWKwli0ZXy79Ix+UW/vOfmWI5QVd2tgI=
 golang.org/x/mod v0.31.0/go.mod h1:43JraMp9cGx1Rx3AqioxrbrhNsLl2l/iNAvuBkrezpg=
 golang.org/x/sync v0.19.0 h1:vV+1eWNmZ5geRlYjzm2adRgW2/mcpevXNg50YZtPCE4=
