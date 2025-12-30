@@ -307,7 +307,7 @@ func (x *genf) write(ctx context.Context, filename string) error {
 		filepath.Join(x.pkg.SourceDir(), filename),
 		os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644,
 	))
-	defer output.Close()
+	defer func() { _ = output.Close() }()
 
 	return format.Node(output, fileset, f)
 }

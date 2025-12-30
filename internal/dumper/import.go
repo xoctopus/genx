@@ -59,7 +59,7 @@ func NewImport(ctx context.Context, path string) *Import {
 	// see https://go.dev/ref/spec#Import_declarations
 	// go help importpath
 	// an import path just contains alphabets and . _ - /
-	for _, c := range []rune(path) {
+	for _, c := range path {
 		switch c {
 		case '_', '.', '-', '/':
 			r = append(r, '_')
