@@ -1,7 +1,6 @@
 package enumx
 
 // Gender
-// +genx:enum
 // @def storage=text
 type Gender int8
 

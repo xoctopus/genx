@@ -51,6 +51,34 @@ type ImportTracker interface {
 	Module() string
 }
 
+func MergeTrackers(trackers ...ImportTracker) ImportTracker {
+	for i, j := 0, 0; i < len(trackers); i++ {
+		if trackers[i] != nil {
+			trackers[j] = trackers[i]
+			j++
+		}
+	}
+	must.BeTrueF(len(trackers) > 0, "trackers must not be empty")
+
+	entry := trackers[0].Entry()
+	merged := NewImportTracker(entry)
+	for _, t := range trackers {
+		tr := t.(*tracker)
+		must.BeTrueF(
+			!tr.initialized.Load(),
+			"cannot track package to tracker after initialization",
+		)
+		must.BeTrueF(
+			t.Entry() == entry,
+			"cannot merge trackers with different entry",
+		)
+		for _, i := range tr.imports {
+			merged.Track(context.Background(), i.path)
+		}
+	}
+	return merged
+}
+
 func NewImportTracker(entry string) ImportTracker {
 	pkg := NewImport(context.Background(), entry).pkg
 	i := &tracker{

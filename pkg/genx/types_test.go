@@ -9,6 +9,8 @@ import (
 	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/misc/must"
 
+	_ "github.com/xoctopus/genx/devpkg/docx"
+	_ "github.com/xoctopus/genx/devpkg/enumx"
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
@@ -91,6 +93,11 @@ func (v *TestGeneratorHasSyntaxError) Generate(c genx.Context, t types.Type) err
 	return nil
 }
 
+type TestAggregationHasSyntaxError struct {
+	genx.AggregationGeneratorMarker
+	TestGeneratorHasSyntaxError
+}
+
 type TestGeneratorHasTypeGenerated struct{}
 
 func (v *TestGeneratorHasTypeGenerated) Identifier() string {
@@ -154,6 +161,7 @@ func ExampleGenerator() {
 		Entrypoint: []string{"github.com/xoctopus/genx/testdata"},
 	})
 	_ = c.Execute(context.Background(), &TestGeneratorHasSyntaxError{})
+	_ = c.Execute(context.Background(), &TestAggregationHasSyntaxError{})
 
 	c = genx.NewContext(&genx.Args{
 		Entrypoint: []string{"github.com/xoctopus/genx/testdata"},
@@ -165,6 +173,16 @@ func ExampleGenerator() {
 	})
 	_ = c.Execute(context.Background(), &TestGeneratorMustNil{})
 
+	c = genx.NewContext(&genx.Args{
+		Entrypoint: []string{"github.com/xoctopus/genx/devpkg/testdata/enumx"},
+	})
+	_ = c.Execute(context.Background(), genx.Get("enum")...)
+
+	c = genx.NewContext(&genx.Args{
+		Entrypoint: []string{"github.com/xoctopus/genx/devpkg/testdata/docx"},
+	})
+	_ = c.Execute(context.Background(), genx.Get("doc")...)
+
 	//Output:
 	//    2: package testdata
 	//    3:
@@ -173,4 +191,17 @@ func ExampleGenerator() {
 	//    6: 	return 1
 	//                ↑
 	//expected ';', found 'EOF'
+	//    2: package testdata
+	//    3:
+	//    4:
+	//    5: func X() int {
+	//    6: 	return 1
+	//                ↑
+	//expected ';', found 'EOF'
+}
+
+func Example_generatorGlobal() {
+
+	// Output:
+
 }

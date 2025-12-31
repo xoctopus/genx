@@ -27,7 +27,9 @@ func TestRegister(t *testing.T) {
 	Expect(t, gs[1].Identifier(), Equal("b"))
 
 	gs = genx.Get()
-	Expect(t, len(gs), Equal(2))
+	Expect(t, len(gs), Equal(4))
 	Expect(t, gs[0].Identifier(), Equal("a"))
 	Expect(t, gs[1].Identifier(), Equal("b"))
+	Expect(t, gs[2].Identifier(), Equal("doc"))
+	Expect(t, gs[3].Identifier(), Equal("enum"))
 }

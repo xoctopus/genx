@@ -9,7 +9,7 @@ import (
 )
 
 func Imports(ctx context.Context) Snippet {
-	tracker := dumper.TrackerFrom(ctx)
+	tracker := dumper.From(ctx)
 	// when write import segment. invoke Init to finish tracking
 	tracker.Init()
 

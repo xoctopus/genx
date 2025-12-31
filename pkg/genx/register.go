@@ -3,13 +3,15 @@ package genx
 import (
 	"sort"
 
+	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/syncx"
 )
 
-var generators = syncx.NewXmap[string, Generator]()
+var gGenerators = syncx.NewXmap[string, Generator]()
 
 func Register(g Generator) {
-	generators.LoadOrStore(g.Identifier(), g)
+	_, loaded := gGenerators.LoadOrStore(g.Identifier(), g)
+	must.BeTrueF(!loaded, "generator '%s' has been registered", g.Identifier())
 }
 
 func Get(identifiers ...string) (gs []Generator) {
@@ -20,7 +22,7 @@ func Get(identifiers ...string) (gs []Generator) {
 	}()
 
 	if len(identifiers) == 0 {
-		generators.Range(func(_ string, g Generator) bool {
+		gGenerators.Range(func(_ string, g Generator) bool {
 			gs = append(gs, g)
 			return true
 		})
@@ -31,7 +33,7 @@ func Get(identifiers ...string) (gs []Generator) {
 	for _, id := range identifiers {
 		ids[id] = false
 	}
-	generators.Range(func(id string, g Generator) bool {
+	gGenerators.Range(func(id string, g Generator) bool {
 		if scanned, ok := ids[id]; ok && !scanned {
 			gs = append(gs, g)
 			ids[id] = true

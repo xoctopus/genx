@@ -87,3 +87,19 @@ func TestNewImportTracker(t *testing.T) {
 		}))
 	})
 }
+
+func TestMergeTrackers(t *testing.T) {
+	t1 := dumper.NewImportTracker("github.com/xoctopus/genx/testdata")
+	t1.Track(context.Background(), "io")
+	t1.Track(context.Background(), "bytes")
+
+	t2 := dumper.NewImportTracker("github.com/xoctopus/genx/testdata")
+	t2.Track(context.Background(), "bytes")
+
+	t3 := dumper.MergeTrackers(t1, t2)
+	t3.Init()
+	Expect(t, t3.Entry(), Equal("github.com/xoctopus/genx/testdata"))
+	Expect(t, t3.PackageName("github.com/xoctopus/genx/testdata"), Equal(""))
+	Expect(t, t3.PackageName("io"), Equal("io"))
+	Expect(t, t3.PackageName("bytes"), Equal("bytes"))
+}

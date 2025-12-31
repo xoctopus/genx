@@ -1,7 +1,6 @@
 package enumx
 
 // Status
-// +genx:enum
 // @def attr.Gender=Gender
 type Status int8
 

@@ -12,9 +12,9 @@ import (
 func TestWithTrackerContext(t *testing.T) {
 	ctx := context.Background()
 
-	ctx = dumper.WithTracker(ctx, "github.com/xoctopus/genx/testdata")
-	Expect(t, dumper.TrackerFrom(ctx).Entry(), Equal("github.com/xoctopus/genx/testdata"))
+	ctx = dumper.WithEntry(ctx, "github.com/xoctopus/genx/testdata")
+	Expect(t, dumper.From(ctx).Entry(), Equal("github.com/xoctopus/genx/testdata"))
 
-	ctx = dumper.TrackerCarrier("github.com/xoctopus/genx/testdata")(ctx)
-	Expect(t, dumper.TrackerFrom(ctx).Entry(), Equal("github.com/xoctopus/genx/testdata"))
+	ctx = dumper.CarrierEntry("github.com/xoctopus/genx/testdata")(ctx)
+	Expect(t, dumper.From(ctx).Entry(), Equal("github.com/xoctopus/genx/testdata"))
 }

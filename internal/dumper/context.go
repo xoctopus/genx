@@ -9,17 +9,25 @@ import (
 
 var ctxTracker = contextx.NewT[ImportTracker]()
 
-func TrackerFrom(ctx context.Context) ImportTracker {
+func From(ctx context.Context) ImportTracker {
 	return ctxTracker.MustFrom(ctx)
 }
 
-func WithTracker(ctx context.Context, entry string) context.Context {
-	i := NewImportTracker(entry)
-	return ctxTracker.With(typx.CtxPkgNamer.With(ctx, i), i)
+func With(ctx context.Context, t ImportTracker) context.Context {
+	ctx = typx.CtxPkgNamer.With(ctx, t)
+	return ctxTracker.With(ctx, t)
 }
 
-func TrackerCarrier(entry string) contextx.Carrier {
+func WithEntry(ctx context.Context, entry string) context.Context {
+	return With(ctx, NewImportTracker(entry))
+}
+
+func Carrier(t ImportTracker) contextx.Carrier {
 	return func(ctx context.Context) context.Context {
-		return WithTracker(ctx, entry)
+		return With(ctx, t)
 	}
+}
+
+func CarrierEntry(entry string) contextx.Carrier {
+	return Carrier(NewImportTracker(entry))
 }

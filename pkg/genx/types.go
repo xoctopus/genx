@@ -18,11 +18,9 @@ import (
 	"sync"
 
 	"github.com/xoctopus/pkgx/pkg/pkgx"
-	"github.com/xoctopus/x/contextx"
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/reflectx"
 	"github.com/xoctopus/x/stringsx"
-	"github.com/xoctopus/x/syncx"
 
 	"github.com/xoctopus/genx/internal/dumper"
 	"github.com/xoctopus/genx/pkg/snippet"
@@ -35,6 +33,17 @@ type GeneratorNewer interface {
 type Generator interface {
 	Identifier() string
 	Generate(Context, types.Type) error
+}
+
+// AggregationGeneratorMarker marks the generator as aggregated.
+// the generated files will be aggregated into a single file
+type AggregationGeneratorMarker interface {
+	aggregation()
+}
+
+// GlobalGeneratorMarker marks the generator as global regardless of annotations.
+type GlobalGeneratorMarker interface {
+	global()
 }
 
 type GenerateNewer interface {
@@ -114,52 +123,113 @@ func (x *genc) Execute(ctx context.Context, generators ...Generator) error {
 	return nil
 }
 
-func (x *genc) exec(ctx context.Context, p pkgx.Package, generators ...Generator) error {
+func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error {
 	tags := p.Doc().Tags()
 	ignores := tags["genx:ignore"]
 
-	for _, g := range generators {
-		// eg: the following generator will be skipped
-		// genx:enum=false
-		// genx:ignore=enum
+	generators := map[string]Generator{}
+	for _, g := range gs {
+		_, ok := generators[g.Identifier()]
+		must.BeTrueF(!ok, "duplicated generator: '%s'", g.Identifier())
+		generators[g.Identifier()] = g
+	}
 
-		if slices.Contains(ignores, g.Identifier()) {
-			continue
+	// filter ignored
+	// eg:
+	//	genx:ignore=x,y,z generator x y and z will be skipped
+	//	genx:enum=false enum will be skipped
+	for name := range generators {
+		if slices.Contains(ignores, name) {
+			delete(generators, name)
 		}
-
-		skip := false
-		for _, v := range tags["genx:"+g.Identifier()] {
-			if v == "false" {
-				skip = true
-				break
+		for tag, values := range tags {
+			if tag == "genx:"+name && slices.Contains(values, "false") {
+				delete(generators, name)
 			}
 		}
-		if skip {
+	}
+
+	// must be generated defined in package document
+	globals := make(map[string]Generator)
+	for _, tag := range p.Doc().TagKeys() {
+		if strings.HasPrefix(tag, "genx:") {
+			name := strings.TrimPrefix(tag, "genx:")
+			if g, ok := generators[name]; ok {
+				globals[name] = g
+				delete(generators, name)
+			}
+		}
+	}
+
+	aggregated := make(map[string][]*genc)
+	for _, group := range []struct {
+		generators map[string]Generator
+		global     bool
+	}{
+		{globals, true},
+		{generators, false},
+	} {
+		for _, g := range group.generators {
+			xp := &genc{
+				args: x.args,
+				pkgs: x.pkgs,
+				curr: p,
+				gens: x.gens,
+			}
+			cs, err := xp.genpkg(ctx, g, group.global)
+			if err != nil {
+				return err
+			}
+			if len(cs) > 0 {
+				aggregated[g.Identifier()] = cs
+			}
+		}
+	}
+
+	for name, gcs := range aggregated {
+		g := globals[name]
+		if g == nil {
+			g = generators[name]
+		}
+		if _, ok := g.(AggregationGeneratorMarker); ok {
+			filename := "zz_" + stringsx.LowerSnakeCase(name) + "_genx_" + name + ".go"
+			xf := newgenf(p, name, "")
+
+			trackers := make([]dumper.ImportTracker, 0, len(gcs))
+			snippets := make([]snippet.Snippet, 0)
+			for _, c := range gcs {
+				trackers = append(trackers, dumper.From(c.ctx()))
+				snippets = append(snippets, c.file.snippets...)
+			}
+			xf.snippets = []snippet.Snippet{snippet.Snippets(snippet.Block("\n"), snippets...)}
+
+			merged := dumper.With(ctx, dumper.MergeTrackers(trackers...))
+			if err := xf.write(merged, filename); err != nil {
+				return err
+			}
 			continue
 		}
 
-		xp := &genc{
-			args: x.args,
-			pkgs: x.pkgs,
-			curr: p,
-			gens: x.gens,
-		}
-		if err := xp.genpkg(ctx, g); err != nil {
-			return err
+		for _, xc := range gcs {
+			filename := stringsx.LowerSnakeCase(xc.file.typ) + "_genx_" + g.Identifier() + ".go"
+			if err := xc.file.write(xc.ctx(), filename); err != nil {
+				return err
+			}
 		}
 	}
 
 	return nil
 }
 
-func (x *genc) genpkg(ctx context.Context, g Generator) error {
+func (x *genc) genpkg(ctx context.Context, g Generator, global bool) ([]*genc, error) {
 	prefix := "genx:" + g.Identifier()
-	generated := syncx.NewSmap[string, *genc]()
+	generated := make([]*genc, 0)
 
 	for t := range x.curr.TypeNames().Elements() {
 		pos := t.Node().Pos()
 		filename := x.curr.FileSet().File(pos).Position(pos).Filename
 
+		// skip generated files
 		skip := false
 		for suffix := range x.gens {
 			if strings.HasSuffix(filename, suffix) {
@@ -173,7 +243,13 @@ func (x *genc) genpkg(ctx context.Context, g Generator) error {
 
 		tags := t.Doc().Tags()
 		values, ok := tags[prefix]
-		if !ok || slices.Contains(values, "false") {
+		// marked disable clearly
+		if ok && slices.Contains(values, "false") {
+			continue
+		}
+
+		// if not global must mark enable clearly
+		if !global && !ok {
 			continue
 		}
 
@@ -182,32 +258,21 @@ func (x *genc) genpkg(ctx context.Context, g Generator) error {
 			pkgs: x.pkgs,
 			gens: x.gens,
 			curr: x.curr,
-			file: newgenf(x.curr, g.Identifier()),
+			file: newgenf(x.curr, g.Identifier(), t.TypeName()),
 			ctx: sync.OnceValue(func() context.Context {
-				return contextx.Compose(
-					pkgx.CtxWorkdir.Carry(x.args.Workdir),
-					dumper.TrackerCarrier(x.curr.Path()),
-				)(ctx)
+				return dumper.WithEntry(ctx, x.curr.Path())
 			}),
 		}
 		if err := xf.gen(x.New(g), t.Type()); err != nil {
-			return err
+			return nil, err
 		}
 		if xf.file.IsNil() {
 			continue
 		}
-		generated.Store(
-			stringsx.LowerSnakeCase(t.TypeName())+"_genx_"+g.Identifier()+".go",
-			xf,
-		)
+		generated = append(generated, xf)
 	}
 
-	for filename, xf := range generated.Range {
-		if err := xf.file.write(xf.ctx(), filename); err != nil {
-			return err
-		}
-	}
-	return nil
+	return generated, nil
 }
 
 func (x *genc) gen(g Generator, t types.Type) error {
@@ -232,15 +297,17 @@ func (x *genc) Context() context.Context {
 	return context.Background()
 }
 
-func newgenf(p pkgx.Package, name string) *genf {
+func newgenf(p pkgx.Package, generator, typename string) *genf {
 	return &genf{
-		name: name,
+		name: generator,
+		typ:  typename,
 		pkg:  p,
 	}
 }
 
 type genf struct {
 	name     string
+	typ      string
 	pkg      pkgx.Package
 	snippets []snippet.Snippet
 }

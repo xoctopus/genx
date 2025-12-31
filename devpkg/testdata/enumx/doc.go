@@ -3,8 +3,7 @@
 // +genx:enum
 package enumx
 
-// Weekday not a int/string enum will be skipped
-// +genx:enum
+// Weekday not an int/string enum will be skipped
 type Weekday string
 
 const (

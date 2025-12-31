@@ -5,9 +5,9 @@ go 1.25.5
 tool github.com/xoctopus/genx/internal/cmd/example
 
 require (
-	github.com/xoctopus/pkgx v0.1.5
+	github.com/xoctopus/pkgx v0.1.7
 	github.com/xoctopus/typx v0.3.4
-	github.com/xoctopus/x v0.2.7
+	github.com/xoctopus/x v0.2.8
 )
 
 require golang.org/x/tools v0.40.0

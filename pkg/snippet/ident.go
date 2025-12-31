@@ -20,7 +20,7 @@ func IdentOf[T any](ctx context.Context, v T) Snippet {
 }
 
 func Ident(ctx context.Context, t typx.Type) Snippet {
-	dumper.TrackerFrom(ctx).Track(ctx, t.PkgPath())
+	dumper.From(ctx).Track(ctx, t.PkgPath())
 	return &ident{t: t}
 }
 

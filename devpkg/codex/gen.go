@@ -51,7 +51,7 @@ func (x *g) generate(c genx.Context, e *Error) {
 		// @def CodeType
 		s.Arg(ctx, "CodeType", ident),
 		// @def fmt.Sprintf
-		s.ArgExpose(ctx, "fmt", "Sprintf"),
+		s.ArgExposeUnsafe(ctx, "fmt", "Sprintf"),
 		// @def CodeMessageCases
 		s.Arg(ctx, "CodeMessageCases", e.CodeMessageCases(ctx)),
 		// @def UnknownCodeFormat

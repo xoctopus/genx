@@ -78,7 +78,7 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 		r.name = x.Name()
 	}
 
-	dumper.TrackerFrom(ctx).Track(ctx, path)
+	dumper.From(ctx).Track(ctx, path)
 	return r
 }
 
@@ -87,7 +87,7 @@ func ExposeUnsafe(ctx context.Context, path, name string) Snippet {
 	must.BeTrueF(path != "" && name != "", "package path and exposed name is required")
 	must.BeTrueF(ast.IsExported(name), "exposed name must is exported")
 
-	dumper.TrackerFrom(ctx).Track(ctx, path)
+	dumper.From(ctx).Track(ctx, path)
 	return &exposer{
 		path: path,
 		name: name,
