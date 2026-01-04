@@ -5,11 +5,13 @@ import (
 	_ "embed"
 	"go/ast"
 	"go/types"
+	"log"
 	"strconv"
 	"strings"
 
 	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/misc/must"
+	"github.com/xoctopus/x/misc/timer"
 
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
@@ -41,9 +43,11 @@ func (x *g) Generate(c genx.Context, t types.Type) error {
 	case nil, *types.Interface, *types.Alias, *types.Union:
 		return nil // skipped
 	}
+	cost := timer.Span()
+	log.Printf("genx:doc %s", t)
 	n, ok := t.(*types.Named)
 	must.BeTrueF(ok, "accept *types.Named only but got %T", t)
-
+	log.Printf("cost: %fs", cost().Seconds())
 	return x.generate(c, n)
 }
 
