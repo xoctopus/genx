@@ -93,9 +93,9 @@ type G[V any] struct {
 	ext.T3[V]
 	// T4 star index expr
 	*ext.T4[V]
-	// T5 // index list expr
+	// T5 index list expr
 	ext.T5[V, V]
-	// T6 // star index expr
+	// T6 star index list expr
 	*ext.T6[V, V]
 }
 

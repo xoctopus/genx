@@ -124,7 +124,10 @@ func (x *genc) Execute(ctx context.Context, generators ...Generator) error {
 }
 
 func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error {
-	tags := p.Doc().Tags()
+	tags := make(map[string][]string)
+	if d := p.Doc(); d != nil {
+		tags = d.Tags()
+	}
 	ignores := tags["genx:ignore"]
 
 	generators := map[string]Generator{}

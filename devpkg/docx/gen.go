@@ -91,12 +91,13 @@ func (x *g) generate(c genx.Context, t *types.Named) error {
 	return nil
 }
 
-func (x *g) doc(d *pkgx.Doc) string {
+func (x *g) doc(prefix string, d *pkgx.Doc) string {
 	if d == nil || len(d.Desc()) == 0 {
 		return ""
 	}
 	lines := make([]string, 0)
 	for _, desc := range d.Desc() {
+		desc = strings.TrimSpace(strings.TrimPrefix(desc, prefix))
 		lines = append(lines, strconv.Quote(desc))
 	}
 	return strings.Join(lines, ", ")
@@ -104,8 +105,8 @@ func (x *g) doc(d *pkgx.Doc) string {
 
 func (x *g) docNamed(c genx.Context, typename string) s.Snippet {
 	o := c.Package().TypeNames().ElementByName(typename)
-	must.BeTrueF(o != nil, "type '%s' not found in package $s", typename, c.Package().Path())
-	return s.Block(x.doc(o.Doc()))
+	must.NotNilF(o, "type '%s' not found in package $s", typename, c.Package().Path())
+	return s.Block(x.doc(typename, o.Doc()))
 }
 
 func (x *g) docFields(c genx.Context, p *types.Struct) s.Snippet {
@@ -135,7 +136,7 @@ func (x *g) docFields(c genx.Context, p *types.Struct) s.Snippet {
 		ss = append(
 			ss,
 			s.BlockF(`case %q:
-	return []string{%s}, true`, f.Name(), x.doc(d)),
+	return []string{%s}, true`, f.Name(), x.doc(f.Name(), d)),
 		)
 	}
 	return s.Snippets(s.Block("\n"), ss...)
@@ -155,6 +156,7 @@ func (x *g) docAnonymous(c genx.Context, p *types.Struct) s.Snippet {
 		prefix := ""
 		if d := c.Package().DocOf(f.Pos()); d != nil && len(d.Desc()) > 0 {
 			prefix = d.Desc()[0]
+			prefix = strings.TrimSpace(strings.TrimPrefix(prefix, f.Name()))
 		}
 
 		ref := "&v"

@@ -23,7 +23,7 @@ type g struct {
 }
 
 func (x *g) Identifier() string {
-	return "errx_code"
+	return "code"
 }
 
 func (x *g) New(c genx.Context) genx.Generator {

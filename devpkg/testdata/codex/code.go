@@ -1,7 +1,7 @@
 package testdata
 
 // Code internal error code
-// +genx:errx_code
+// +genx:code
 type Code int8
 
 const (
