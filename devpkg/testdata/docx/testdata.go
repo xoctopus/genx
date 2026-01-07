@@ -100,3 +100,6 @@ type G[V any] struct {
 }
 
 func A() {}
+
+// FAlias alias of F
+type FAlias = F

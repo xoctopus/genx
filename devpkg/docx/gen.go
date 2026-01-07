@@ -46,7 +46,13 @@ func (x *g) Generate(c genx.Context, t types.Type) error {
 	cost := timer.Span()
 	log.Printf("genx:doc %s", t)
 	n, ok := t.(*types.Named)
-	must.BeTrueF(ok, "accept *types.Named only but got %T", t)
+	if !ok {
+		log.Printf(
+			"cost: %fs.\n==> skipped: Accept *types.Named only but got %T",
+			cost().Seconds(), t,
+		)
+		return nil
+	}
 	log.Printf("cost: %fs", cost().Seconds())
 	return x.generate(c, n)
 }

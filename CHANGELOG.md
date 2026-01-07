@@ -1,4 +1,18 @@
 
+<a name="v0.1.15"></a>
+## [v0.1.15](https://github.com/xoctopus/genx/compare/v0.1.14...v0.1.15)
+
+> 2026-01-05
+
+### Chore
+
+* format config and regen
+* **deps:** bump actions/checkout from 4 to 6 ([#1](https://github.com/xoctopus/genx/issues/1))
+* **deps:** bump actions/setup-go from 5 to 6 ([#2](https://github.com/xoctopus/genx/issues/2))
+* **deps:** bump codecov/codecov-action from 4 to 5 ([#3](https://github.com/xoctopus/genx/issues/3))
+* **deps:** bump github.com/xoctopus/x from 0.2.10 to 0.2.11 ([#4](https://github.com/xoctopus/genx/issues/4))
+
+
 <a name="v0.1.14"></a>
 ## [v0.1.14](https://github.com/xoctopus/genx/compare/v0.1.13...v0.1.14)
 
