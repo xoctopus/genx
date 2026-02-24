@@ -1,13 +1,13 @@
 module github.com/xoctopus/genx
 
-go 1.25.5
+go 1.26.0
 
 tool github.com/xoctopus/genx/internal/cmd/example
 
 require (
 	github.com/xoctopus/pkgx v0.1.10
 	github.com/xoctopus/typx v0.3.4
-	github.com/xoctopus/x v0.2.11
+	github.com/xoctopus/x v0.3.4
 )
 
 require (
