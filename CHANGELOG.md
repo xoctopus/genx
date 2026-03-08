@@ -1,4 +1,20 @@
 
+<a name="HEAD"></a>
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.1.16...HEAD)
+
+> 0001-01-01
+
+
+<a name="v0.1.16"></a>
+## [v0.1.16](https://github.com/xoctopus/genx/compare/v0.1.15...v0.1.16)
+
+> 2026-01-07
+
+### Fix
+
+* doc gen skip types.Alias
+
+
 <a name="v0.1.15"></a>
 ## [v0.1.15](https://github.com/xoctopus/genx/compare/v0.1.14...v0.1.15)
 

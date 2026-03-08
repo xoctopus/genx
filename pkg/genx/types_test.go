@@ -98,6 +98,20 @@ type TestAggregationHasSyntaxError struct {
 	TestGeneratorHasSyntaxError
 }
 
+func (v *TestAggregationHasSyntaxError) Identifier() string {
+	return "test_genx_e_a"
+}
+
+func (v *TestAggregationHasSyntaxError) Generate(c genx.Context, _ types.Type) error {
+	must.BeTrue(!c.IsZero())
+	c.Render(s.Snippets(
+		s.NewLine(1),
+		s.Block("func Y() int {"),
+		s.Block("\treturn 1"),
+	))
+	return nil
+}
+
 type TestGeneratorHasTypeGenerated struct{}
 
 func (v *TestGeneratorHasTypeGenerated) Identifier() string {
@@ -184,13 +198,6 @@ func ExampleGenerator() {
 	_ = c.Execute(context.Background(), genx.Get("doc")...)
 
 	//Output:
-	//    2: package testdata
-	//    3:
-	//    4:
-	//    5: func X() int {
-	//    6: 	return 1
-	//                ↑
-	//expected ';', found 'EOF'
 	//    2: package testdata
 	//    3:
 	//    4:

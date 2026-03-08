@@ -353,9 +353,8 @@ func (x *genf) write(ctx context.Context, filename string) error {
 		parser.ParseComments|parser.SkipObjectResolution|parser.AllErrors,
 	)
 
-	var serr scanner.ErrorList
-	if err != nil && errors.As(err, &serr) && serr.Len() > 0 {
-		e := serr[0]
+	if se, ok := errors.AsType[scanner.ErrorList](err); ok && se.Len() > 0 {
+		e := (se)[0]
 		line, column := e.Pos.Line, e.Pos.Column-1
 
 		for i := line - 10; i < line; i++ {
