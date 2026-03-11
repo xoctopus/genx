@@ -1,8 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.1.16...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.0...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.2.0"></a>
+## [v0.2.0](https://github.com/xoctopus/genx/compare/v0.1.16...v0.2.0)
+
+> 2026-03-08
+
+### Chore
+
+* use errors.AsType to assert error
 
 
 <a name="v0.1.16"></a>

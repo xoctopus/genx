@@ -63,8 +63,8 @@ func (e *Enum) add(c *pkgx.Constant) {
 
 	lines := make([]string, 0)
 	for _, desc := range c.Doc().Desc() {
-		if strings.HasPrefix(desc, "@attr ") {
-			attr := strings.TrimPrefix(desc, "@attr ")
+		if after, ok := strings.CutPrefix(desc, "@attr "); ok {
+			attr := after
 			if idx := strings.Index(attr, "="); idx != -1 && idx != len(attr)-1 {
 				k, v := attr[:idx], attr[idx+1:]
 				o.attrs[k] = v
@@ -240,8 +240,8 @@ func NewEnums(g genx.Context) *Enums {
 					case "storage":
 						v.storage = strings.ToLower(kvs[1])
 					default:
-						if strings.HasPrefix(kvs[0], "attr.") {
-							attr := strings.TrimPrefix(kvs[0], "attr.")
+						if after, ok0 := strings.CutPrefix(kvs[0], "attr."); ok0 {
+							attr := after
 							if len(attr) > 0 {
 								if opt := strings.TrimSpace(kvs[1]); len(opt) > 0 {
 									v.options[attr] = opt

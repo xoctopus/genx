@@ -83,7 +83,7 @@ func (s *segment) Fragments(ctx context.Context) iter.Seq[string] {
 				index   = -1
 				whole   = false // flag replace whole line
 			)
-			for i := 0; i < len(runes); i++ {
+			for i := range runes {
 				column++
 				c := runes[i]
 				switch c {

@@ -104,8 +104,8 @@ func NewErrors(g genx.Context) *Errors {
 			must.BeTrue(te != nil)
 			def := ""
 			for _, desc := range te.Doc().Desc() {
-				if strings.HasPrefix(desc, "@def ") {
-					def = strings.TrimPrefix(desc, "@def ")
+				if after, ok0 := strings.CutPrefix(desc, "@def "); ok0 {
+					def = after
 					break
 				}
 			}

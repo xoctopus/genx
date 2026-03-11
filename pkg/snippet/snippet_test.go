@@ -93,7 +93,7 @@ func ExampleIdentFor() {
 		IdentFor[*bytes.Buffer](ctx),
 		IdentFor[io.Reader](ctx),
 		IdentFor[dumper.Import](ctx),
-		IdentRT(ctx, reflect.TypeOf(3.2)),
+		IdentRT(ctx, reflect.TypeFor[float64]()),
 		IdentTT(ctx, types.Typ[types.Int32]),
 	)
 

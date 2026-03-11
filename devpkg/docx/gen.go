@@ -69,8 +69,8 @@ func (x *g) generate(c genx.Context, t *types.Named) error {
 		ident = s.Arg(ctx, "T", s.Block(name))
 	} else {
 		names := make([]string, 0, params.Len())
-		for i := range params.Len() {
-			names = append(names, params.At(i).Obj().Name())
+		for tparam := range params.TypeParams() {
+			names = append(names, tparam.Obj().Name())
 		}
 		ident = s.Arg(ctx, "T", s.BlockF("%s[%s]", name, strings.Join(names, ", ")))
 	}
@@ -122,8 +122,7 @@ func (x *g) docNamed(c genx.Context, typename string) s.Snippet {
 func (x *g) docFields(c genx.Context, p *types.Struct) s.Snippet {
 	ss := make([]s.Snippet, 0, p.NumFields())
 
-	for i := 0; i < p.NumFields(); i++ {
-		f := p.Field(i)
+	for f := range p.Fields() {
 		if !ast.IsExported(f.Name()) {
 			continue
 		}
@@ -155,8 +154,7 @@ func (x *g) docFields(c genx.Context, p *types.Struct) s.Snippet {
 func (x *g) docAnonymous(c genx.Context, p *types.Struct) s.Snippet {
 	ss := make([]s.Snippet, 0, p.NumFields())
 	ctx := c.Context()
-	for i := 0; i < p.NumFields(); i++ {
-		f := p.Field(i)
+	for f := range p.Fields() {
 		if !f.Anonymous() {
 			continue
 		}

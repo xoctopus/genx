@@ -155,8 +155,8 @@ func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error 
 	// must be generated defined in package document
 	globals := make(map[string]Generator)
 	for _, tag := range p.Doc().TagKeys() {
-		if strings.HasPrefix(tag, "genx:") {
-			name := strings.TrimPrefix(tag, "genx:")
+		if after, ok := strings.CutPrefix(tag, "genx:"); ok {
+			name := after
 			if g, ok := generators[name]; ok {
 				globals[name] = g
 				delete(generators, name)

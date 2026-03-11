@@ -68,7 +68,7 @@ func NewImport(ctx context.Context, path string) *Import {
 		}
 	}
 	path = string(r)
-	for _, s := range strings.Split(path, "_") {
+	for s := range strings.SplitSeq(path, "_") {
 		if s != "" {
 			i.seps = append(i.seps, s)
 		}
@@ -108,9 +108,6 @@ func (i *Import) Code() string {
 
 func (i *Import) MakeAlias() {
 	i.cut++
-	cut0 := len(i.seps) - i.cut
-	if cut0 < 0 {
-		cut0 = 0
-	}
+	cut0 := max(len(i.seps)-i.cut, 0)
 	i.alias = strings.Join(i.seps[cut0:], "_")
 }
