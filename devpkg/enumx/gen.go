@@ -3,11 +3,12 @@ package enumx
 import (
 	"bytes"
 	"database/sql/driver"
-	_ "embed"
 	"go/types"
 	"log"
 	"strings"
 	"time"
+
+	_ "embed"
 
 	"github.com/xoctopus/x/enumx"
 

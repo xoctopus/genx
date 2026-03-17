@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	_ "embed"
 	"sort"
 	"sync"
 	"sync/atomic"
+
+	_ "embed"
 
 	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/misc/must"

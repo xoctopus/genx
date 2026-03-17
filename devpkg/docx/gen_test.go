@@ -5,9 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
+	_ "github.com/xoctopus/genx/devpkg/docx"
+
 	"github.com/xoctopus/x/misc/must"
 
-	_ "github.com/xoctopus/genx/devpkg/docx"
 	"github.com/xoctopus/genx/pkg/genx"
 )
 

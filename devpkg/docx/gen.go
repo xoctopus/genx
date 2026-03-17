@@ -2,12 +2,13 @@ package docx
 
 import (
 	"bytes"
-	_ "embed"
 	"go/ast"
 	"go/types"
 	"log"
 	"strconv"
 	"strings"
+
+	_ "embed"
 
 	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/misc/must"

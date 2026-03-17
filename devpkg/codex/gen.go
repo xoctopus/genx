@@ -2,10 +2,11 @@ package codex
 
 import (
 	"bytes"
-	_ "embed"
 	"go/types"
 	"log"
 	"time"
+
+	_ "embed"
 
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"

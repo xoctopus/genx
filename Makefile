@@ -1,3 +1,4 @@
+
 # go package info
 MODULE_PATH    := $(shell cat go.mod | grep ^module -m 1 | awk '{ print $$2; }' || '')
 MODULE_NAME    := $(shell basename $(MODULE_PATH))
@@ -106,10 +107,11 @@ view-cover: cover
 
 ci-cover: lint cover
 
+
 fmt: dep clean
 	@echo "==> formating code"
 	@goimports-reviser -rm-unused \
-		-imports-order 'std,general,company,project' \
+		-imports-order 'std,dotted,blanked,general,company,project' \
 		-project-name ${MODULE_PATH} \
 		-excludes $(FORMAT_IGNORES) ./...
 
