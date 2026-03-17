@@ -374,7 +374,7 @@ func (x *genf) write(ctx context.Context, filename string) error {
 
 	output := must.NoErrorV(os.OpenFile(
 		filepath.Join(x.pkg.SourceDir(), filename),
-		os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644,
+		os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644,
 	))
 	defer func() { _ = output.Close() }()
 

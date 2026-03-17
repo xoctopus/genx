@@ -1,4 +1,3 @@
-
 # go package info
 MODULE_PATH    := $(shell cat go.mod | grep ^module -m 1 | awk '{ print $$2; }' || '')
 MODULE_NAME    := $(shell basename $(MODULE_PATH))
@@ -19,7 +18,8 @@ endif
 export BUILD_AT := $(shell date "+%Y%m%d%H%M%S")
 
 # global env variables
-export GOWORK := off
+GOWORK ?= off
+export GOWORK
 
 # go build tools
 GOTEST  := go
@@ -105,7 +105,6 @@ view-cover: cover
 	@$(GOBUILD) tool cover -html cover.out
 
 ci-cover: lint cover
-
 
 fmt: dep clean
 	@echo "==> formating code"

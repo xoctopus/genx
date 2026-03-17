@@ -1,20 +1,32 @@
 package snippet_test
 
 import (
+	"bufio"
 	"bytes"
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	_ "embed"
+	"fmt"
 	"go/types"
+	"hash"
 	"io"
+	"iter"
+	"net"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
+	"sync"
+	"testing"
 
+	"github.com/xoctopus/typx/pkg/typx"
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/ptrx"
 	_ "github.com/xoctopus/x/ptrx"
+	. "github.com/xoctopus/x/testx"
 
 	"github.com/xoctopus/genx/internal/dumper"
 	. "github.com/xoctopus/genx/pkg/snippet"
@@ -251,7 +263,7 @@ func ExampleTemplate() {
 	output, _ := os.OpenFile(
 		filename,
 		os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
-		0644,
+		0o644,
 	)
 	_, _ = io.Copy(output, b)
 	_ = output.Sync()
@@ -357,4 +369,69 @@ func ExampleStrings() {
 	// "2",
 	// "3",
 	// "4",
+}
+
+type (
+	StructT[T any, E any] struct {
+		_            *StructT[int, string]
+		bufio.Reader // bufio package will be ignored by tracker
+	}
+	F[IN any, OUT any]       func(IN) (OUT, error)
+	Map[K comparable, V any] map[K]V
+)
+
+func TestTracker_InIdent_GenericTypeParameters(t *testing.T) {
+	entry := "github.com/xoctopus/genx/pkg/snippet"
+	imp := dumper.NewImportTracker(entry)
+	ctx := dumper.With(context.Background(), imp)
+
+	// generic value
+	IdentOf(ctx, testdata.T[fmt.Stringer]{})
+	// generic type
+	IdentFor[testdata.T[net.Addr]](ctx)
+	// generic recursive
+	IdentRT(ctx, reflect.TypeFor[iter.Seq2[
+		string,
+		testdata.T[StructT[
+			bytes.Buffer,
+			*StructT[io.Reader, *url.URL],
+		]]]]())
+	// unnamed struct pointer
+	tt := typx.NewRType(reflect.TypeFor[*struct {
+		_ hash.Hash
+		f F[*sync.Map, sort.Float64Slice]
+	}]())
+	Ident(ctx, tt)
+	// has key and element
+	IdentFor[Map[testdata.Gender, any]](ctx)
+	// function
+	f := func(int) string { return "" }
+	IdentOf(ctx, f)
+	IdentFor[interface {
+		Apply(*sql.DB) error
+		New(string) (*sql.DB, error)
+	}](ctx)
+
+	imp.Init()
+
+	Expect(t, imp.PackageName(entry), Equal(""))
+
+	Expect(t, imp.PackageName("fmt"), NotEqual(""))
+	Expect(t, imp.PackageName("net"), NotEqual(""))
+	Expect(t, imp.PackageName("iter"), NotEqual(""))
+	Expect(t, imp.PackageName("github.com/xoctopus/genx/testdata"), NotEqual(""))
+	Expect(t, imp.PackageName("github.com/xoctopus/genx/pkg/snippet_test"), NotEqual(""))
+	Expect(t, imp.PackageName("bytes"), NotEqual(""))
+	Expect(t, imp.PackageName("io"), NotEqual(""))
+	Expect(t, imp.PackageName("net/url"), NotEqual(""))
+	Expect(t, imp.PackageName("hash"), NotEqual(""))
+	Expect(t, imp.PackageName("sync"), NotEqual(""))
+	Expect(t, imp.PackageName("sort"), NotEqual(""))
+	Expect(t, imp.PackageName("database/sql"), NotEqual(""))
+	// named struct field will be skipped
+	ExpectPanic(
+		t,
+		func() { imp.PackageName("bufio") },
+		ErrorContains("imported package bufio not be tracked"),
+	)
 }

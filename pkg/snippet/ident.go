@@ -12,36 +12,68 @@ import (
 )
 
 func IdentFor[T any](ctx context.Context) Snippet {
-	return Ident(ctx, typx.NewRType(reflect.TypeFor[T]()))
+	return _ident(ctx, typx.LitType(reflect.TypeFor[T]()))
 }
 
-func IdentOf[T any](ctx context.Context, v T) Snippet {
-	return Ident(ctx, typx.NewRType(reflect.TypeOf(v)))
+func IdentOf(ctx context.Context, v any) Snippet {
+	return _ident(ctx, typx.LitType(reflect.TypeOf(v)))
 }
 
 func Ident(ctx context.Context, t typx.Type) Snippet {
-	dumper.From(ctx).Track(ctx, t.PkgPath())
-	return &ident{t: t}
+	return _ident(ctx, typx.LitType(t.Unwrap()))
 }
 
 func IdentRT(ctx context.Context, t reflect.Type) Snippet {
-	return Ident(ctx, typx.NewRType(t))
+	return _ident(ctx, typx.LitType(t))
 }
 
 func IdentTT(ctx context.Context, t types.Type) Snippet {
-	return Ident(ctx, typx.NewTType(t))
+	return _ident(ctx, typx.LitType(t))
+}
+
+func _ident(ctx context.Context, t *typx.Literal) Snippet {
+	tracker := dumper.From(ctx)
+
+	var walk func(lit *typx.Literal)
+	walk = func(lit *typx.Literal) {
+		if lit == nil {
+			return
+		}
+		tracker.Track(ctx, lit.PkgPath())
+		for _, targ := range lit.TypeArgs() {
+			walk(targ)
+		}
+		walk(lit.Key())
+		walk(lit.Elem())
+		for _, in := range lit.Ins() {
+			walk(in)
+		}
+		for _, out := range lit.Outs() {
+			walk(out)
+		}
+		if lit.Typename() == "" {
+			for _, out := range lit.Fields() {
+				walk(out)
+			}
+			for _, method := range lit.Methods() {
+				walk(method)
+			}
+		}
+	}
+	walk(t)
+	return &ident{t: t}
 }
 
 type ident struct {
-	t typx.Type
+	t *typx.Literal
 }
 
 func (v *ident) IsNil() bool {
-	return false
+	return v == nil || v.t == nil
 }
 
 func (v *ident) Fragments(ctx context.Context) iter.Seq[string] {
 	return func(yield func(string) bool) {
-		yield(typx.TypeLit(ctx, v.t.Unwrap()))
+		yield(v.t.Dump(ctx))
 	}
 }

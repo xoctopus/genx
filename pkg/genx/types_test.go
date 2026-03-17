@@ -15,8 +15,7 @@ import (
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
 
-type TestGenerator struct {
-}
+type TestGenerator struct{}
 
 func (g *TestGenerator) Identifier() string {
 	return "test_genx"
@@ -197,18 +196,16 @@ func ExampleGenerator() {
 	})
 	_ = c.Execute(context.Background(), genx.Get("doc")...)
 
-	//Output:
+	// Output:
 	//    2: package testdata
 	//    3:
 	//    4:
 	//    5: func X() int {
 	//    6: 	return 1
 	//                ↑
-	//expected ';', found 'EOF'
+	// expected ';', found 'EOF'
 }
 
 func Example_generatorGlobal() {
-
 	// Output:
-
 }
