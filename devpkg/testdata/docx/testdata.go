@@ -32,33 +32,33 @@ type Empty struct{}
 type S struct {
 	// unexported
 	unexported any
-	// Empty
+	// Empty EmptyPrefix
 	Empty
-	// Empty2
+	// Empty2 Empty2Doc
 	Empty2 Empty
-	// Inline struct
+	// Inline InlineUnnamed
 	Inline struct {
 		A any // A
 	}
 	// NameType
 	NameType int
-	// Interface
+	// Interface NamedInterface
 	Interface Stringer
-	// D ident only
+	// D AnonymousDPrefix
 	D
-	// S star expr
+	// S *SPrefix
 	*S
-	// T1 ext selector
+	// T1 ext.T1Prefix
 	ext.T1
-	// T2 star ref
+	// T2 *ext.T2Prefix
 	*ext.T2
-	// T3 index expr
+	// T3 ext.T3[int]Prefix
 	ext.T3[int]
-	// T4 star index expr
+	// T4 *ext.T4[int]Prefix
 	*ext.T4[int]
-	// T5 index list expr
+	// T5 ext.T5[int,int]Prefix
 	ext.T5[int, int]
-	// T6 star index expr
+	// T6 *ext.T6[int, int]Prefix
 	*ext.T6[int, int]
 	NoDoc any
 }

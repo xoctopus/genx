@@ -27,6 +27,14 @@ func ParseGender(key string) (Gender, error) {
 	}
 }
 
+// EnumValues implements enumx.CanBeEnum
+func (Gender) EnumValues() []any {
+	return []any{
+		GENDER__MALE,
+		GENDER__FEMALE,
+	}
+}
+
 // Values returns enum value list of Gender
 func (Gender) Values() []Gender {
 	return []Gender{

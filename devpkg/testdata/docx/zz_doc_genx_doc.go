@@ -18,53 +18,53 @@ func (v *S) DocOf(names ...string) ([]string, bool) {
 		case "NameType":
 			return []string{""}, true
 		case "Interface":
-			return []string{""}, true
+			return []string{"NamedInterface"}, true
 		case "S":
-			return []string{"star expr"}, true
+			return []string{"*SPrefix"}, true
 		case "T1":
-			return []string{"ext selector"}, true
+			return []string{"ext.T1Prefix"}, true
 		case "T2":
-			return []string{"star ref"}, true
+			return []string{"*ext.T2Prefix"}, true
 		case "T3":
-			return []string{"index expr"}, true
+			return []string{"ext.T3[int]Prefix"}, true
 		case "T4":
-			return []string{"star index expr"}, true
+			return []string{"*ext.T4[int]Prefix"}, true
 		case "T5":
-			return []string{"index list expr"}, true
+			return []string{"ext.T5[int,int]Prefix"}, true
 		case "T6":
-			return []string{"star index expr"}, true
+			return []string{"*ext.T6[int, int]Prefix"}, true
 		case "NoDoc":
 			return []string{}, true
 		}
-		if doc, ok := docx.Of(&v.D, "ident only", names...); ok {
+		if doc, ok := docx.Of(&v.D, "AnonymousDPrefix", names...); ok {
 			return doc, true
 		}
 
-		if doc, ok := docx.Of(v.S, "star expr", names...); ok {
+		if doc, ok := docx.Of(v.S, "*SPrefix", names...); ok {
 			return doc, true
 		}
 
-		if doc, ok := docx.Of(&v.T1, "ext selector", names...); ok {
+		if doc, ok := docx.Of(&v.T1, "ext.T1Prefix", names...); ok {
 			return doc, true
 		}
 
-		if doc, ok := docx.Of(v.T2, "star ref", names...); ok {
+		if doc, ok := docx.Of(v.T2, "*ext.T2Prefix", names...); ok {
 			return doc, true
 		}
 
-		if doc, ok := docx.Of(&v.T3, "index expr", names...); ok {
+		if doc, ok := docx.Of(&v.T3, "ext.T3[int]Prefix", names...); ok {
 			return doc, true
 		}
 
-		if doc, ok := docx.Of(v.T4, "star index expr", names...); ok {
+		if doc, ok := docx.Of(v.T4, "*ext.T4[int]Prefix", names...); ok {
 			return doc, true
 		}
 
-		if doc, ok := docx.Of(&v.T5, "index list expr", names...); ok {
+		if doc, ok := docx.Of(&v.T5, "ext.T5[int,int]Prefix", names...); ok {
 			return doc, true
 		}
 
-		if doc, ok := docx.Of(v.T6, "star index expr", names...); ok {
+		if doc, ok := docx.Of(v.T6, "*ext.T6[int, int]Prefix", names...); ok {
 			return doc, true
 		}
 		return []string{}, false

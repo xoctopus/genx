@@ -2,6 +2,7 @@ package docx
 
 import (
 	"bytes"
+	"errors"
 	"go/ast"
 	"go/types"
 	"log"
@@ -25,6 +26,8 @@ var (
 	tplStruct []byte
 	//go:embed tpls/docx.embed.tpl
 	tplEmbed []byte
+
+	errSkip = errors.New("skip")
 )
 
 func init() {
@@ -39,22 +42,35 @@ func (x *g) Identifier() string {
 	return "doc"
 }
 
-func (x *g) Generate(c genx.Context, t types.Type) error {
-	switch t.Underlying().(type) {
-	case nil, *types.Interface, *types.Alias, *types.Union:
-		return nil // skipped
-	}
+func (x *g) Generate(c genx.Context, t types.Type) (err error) {
 	cost := timer.Span()
 	log.Printf("genx:doc %s", t)
+
+	defer func() {
+		if errors.Is(err, errSkip) {
+			log.Printf("==> skipped: Accept *types.Named only but got %T\n", t)
+			err = nil
+		}
+		if err != nil {
+			log.Printf("failed generating: %v\n", err)
+			return
+		}
+		log.Printf("cost: %fs", cost().Seconds())
+	}()
+
+	switch t.(type) {
+	case nil, *types.Interface, *types.Alias, *types.Union:
+		return errSkip // skipped
+	}
+	switch t.Underlying().(type) {
+	case nil, *types.Interface, *types.Alias, *types.Union:
+		return errSkip // skipped
+	}
+
 	n, ok := t.(*types.Named)
 	if !ok {
-		log.Printf(
-			"cost: %fs.\n==> skipped: Accept *types.Named only but got %T",
-			cost().Seconds(), t,
-		)
-		return nil
+		return errSkip
 	}
-	log.Printf("cost: %fs", cost().Seconds())
 	return x.generate(c, n)
 }
 
@@ -70,16 +86,13 @@ func (x *g) generate(c genx.Context, t *types.Named) error {
 		ident = s.Arg(ctx, "T", s.Block(name))
 	} else {
 		names := make([]string, 0, params.Len())
-		for tparam := range params.TypeParams() {
-			names = append(names, tparam.Obj().Name())
+		for param := range params.TypeParams() {
+			names = append(names, param.Obj().Name())
 		}
 		ident = s.Arg(ctx, "T", s.BlockF("%s[%s]", name, strings.Join(names, ", ")))
 	}
 
-	args := []*s.TArg{
-		ident,
-		s.Arg(ctx, "TDoc", x.docNamed(c, name)),
-	}
+	args := []*s.TArg{ident, s.Arg(ctx, "TDoc", x.docNamed(c, name))}
 
 	var ss s.Snippet
 	if y, ok := u.(*types.Struct); !ok || !hasExported(y) {

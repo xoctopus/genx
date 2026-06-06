@@ -1,12 +1,26 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.0...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.1...HEAD)
 
-> 2026-03-12
+> 2026-03-17
+
+### Chore
+
+* fmt code
+
+
+<a name="v0.2.1"></a>
+## [v0.2.1](https://github.com/xoctopus/genx/compare/v0.2.0...v0.2.1)
+
+> 2026-03-17
 
 ### Chore
 
 * go fix for mordernization
+
+### Fix
+
+* **snippet:** ImportTracker for key,elem,ins,outs,fields,methods,typeargs etc
 
 
 <a name="v0.2.0"></a>

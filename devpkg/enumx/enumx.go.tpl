@@ -22,6 +22,15 @@ func Parse#Type#(key string) (#Type#, error) {
 	}
 }
 
+@def Values
+--EnumValues
+// EnumValues implements enumx.CanBeEnum
+func (#Type#) EnumValues() []any {
+	return []any{
+		#Values#
+	}
+}
+
 @def Type
 @def Values
 --Values

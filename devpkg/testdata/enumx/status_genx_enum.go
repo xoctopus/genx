@@ -27,6 +27,14 @@ func ParseStatus(key string) (Status, error) {
 	}
 }
 
+// EnumValues implements enumx.CanBeEnum
+func (Status) EnumValues() []any {
+	return []any{
+		STATUS__ENABLED,
+		STATUS__DISABLED,
+	}
+}
+
 // Values returns enum value list of Status
 func (Status) Values() []Status {
 	return []Status{

@@ -85,6 +85,8 @@ func (x *g) generate(c genx.Context, e *Enum) {
 
 		// @def UnknownValue
 		s.Arg(ctx, "UnknownValue", s.ExposeObject(ctx, e.unknown.Exposer())),
+		// @def EnumValues
+		s.Arg(ctx, "EnumValues", e.Values(ctx)),
 		// @def Values
 		s.Arg(ctx, "Values", e.Values(ctx)),
 		// @def NameToValueCases
