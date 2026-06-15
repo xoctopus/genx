@@ -121,6 +121,9 @@ func (x *g) doc(prefix string, d *pkgx.Doc) string {
 	}
 	lines := make([]string, 0)
 	for _, desc := range d.Desc() {
+		if strings.HasPrefix(desc, "@") || strings.HasPrefix(desc, "+") {
+			continue
+		}
 		desc = strings.TrimSpace(strings.TrimPrefix(desc, prefix))
 		lines = append(lines, strconv.Quote(desc))
 	}

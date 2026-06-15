@@ -1,12 +1,22 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.1...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.2-rc1...HEAD)
 
-> 2026-03-17
+> 0001-01-01
+
+
+<a name="v0.2.2-rc1"></a>
+## [v0.2.2-rc1](https://github.com/xoctopus/genx/compare/v0.2.1...v0.2.2-rc1)
+
+> 2026-06-07
 
 ### Chore
 
 * fmt code
+
+### Feat
+
+* generate enumx.EnumValues
 
 
 <a name="v0.2.1"></a>

@@ -29,12 +29,16 @@ type Int interface {
 type Empty struct{}
 
 // S struct
+// @attributes...
+// +directives...
 type S struct {
 	// unexported
 	unexported any
 	// Empty EmptyPrefix
 	Empty
 	// Empty2 Empty2Doc
+	// @attributes...
+	// +directives...
 	Empty2 Empty
 	// Inline InlineUnnamed
 	Inline struct {
@@ -43,6 +47,8 @@ type S struct {
 	// NameType
 	NameType int
 	// Interface NamedInterface
+	// @attributes...
+	// +directives...
 	Interface Stringer
 	// D AnonymousDPrefix
 	D
