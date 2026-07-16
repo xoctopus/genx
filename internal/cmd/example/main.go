@@ -5,12 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/xoctopus/x/misc/must"
+
 	_ "github.com/xoctopus/genx/devpkg/codex"
 	_ "github.com/xoctopus/genx/devpkg/docx"
 	_ "github.com/xoctopus/genx/devpkg/enumx"
-
-	"github.com/xoctopus/x/misc/must"
-
 	"github.com/xoctopus/genx/pkg/genx"
 )
 

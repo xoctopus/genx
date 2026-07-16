@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	_ "embed"
 	"fmt"
 	"go/types"
 	"hash"
@@ -21,17 +22,14 @@ import (
 	"sync"
 	"testing"
 
-	. "github.com/xoctopus/genx/pkg/snippet"
-	. "github.com/xoctopus/x/testx"
-
-	_ "embed"
-	_ "github.com/xoctopus/x/ptrx"
-
 	"github.com/xoctopus/typx/pkg/typx"
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/ptrx"
+	_ "github.com/xoctopus/x/ptrx"
+	. "github.com/xoctopus/x/testx"
 
 	"github.com/xoctopus/genx/internal/dumper"
+	. "github.com/xoctopus/genx/pkg/snippet"
 	"github.com/xoctopus/genx/testdata"
 )
 

@@ -49,36 +49,32 @@ func (e *Enum) add(c *pkgx.Constant) {
 		return
 	}
 
-	parts := strings.SplitN(name, "__", 2)
-	if len(parts) != 2 || parts[0] != prefix {
+	before, after, found := strings.Cut(name, "__")
+	if !found || before != prefix {
 		return
 	}
 
 	o := &option{
 		value: c,
-		name:  parts[1],
+		name:  after,
 		text:  "",
 		attrs: map[string]string{},
 	}
 
-	lines := make([]string, 0)
-	for _, desc := range c.Doc().Desc() {
-		if after, ok := strings.CutPrefix(desc, "@attr "); ok {
-			attr := after
-			if idx := strings.Index(attr, "="); idx != -1 && idx != len(attr)-1 {
-				k, v := attr[:idx], attr[idx+1:]
-				o.attrs[k] = v
-				e.attrs[k] = struct{}{}
+	doc := c.Doc()
+	for key, annotations := range doc.Annotations() {
+		for _, anno := range annotations {
+			switch key {
+			case "attr":
+				if k, v, found := strings.Cut(anno.Text(), "="); found {
+					o.attrs[k] = v
+					e.attrs[k] = struct{}{}
+				}
+			default:
 			}
-			continue
 		}
-		// maybe more attributes, it can prefix with '@' for document parsing
-		if desc == c.Name() || strings.HasPrefix(desc, "@") {
-			continue
-		}
-		lines = append(lines, desc)
 	}
-	o.text = strings.Join(lines, " ")
+	o.text = doc.Title(c.Name())
 	e.values = append(e.values, o)
 }
 
@@ -132,7 +128,7 @@ func (e *Enum) ValueToTextCases(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
 	for _, v := range e.values {
 		text := v.text
-		if len(text) == 0 {
+		if len(text) == 0 || text == v.value.Name() {
 			text = v.name
 		}
 		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
@@ -229,25 +225,27 @@ func NewEnums(g genx.Context) *Enums {
 			es.e[typ] = v
 
 			x := es.p.TypeNames().ElementByName(elem.TypeName())
-			for _, doc := range x.Doc().Desc() {
-				if !strings.HasPrefix(doc, "@def ") {
-					continue
-				}
-				def := strings.TrimPrefix(doc, "@def ")
-				kvs := strings.SplitN(def, "=", 2)
-				if len(kvs) == 2 {
-					switch kvs[0] {
-					case "storage":
-						v.storage = strings.ToLower(kvs[1])
-					default:
-						if after, ok0 := strings.CutPrefix(kvs[0], "attr."); ok0 {
-							attr := after
-							if len(attr) > 0 {
-								if opt := strings.TrimSpace(kvs[1]); len(opt) > 0 {
-									v.options[attr] = opt
+			d := x.Doc()
+
+			for key, annotations := range d.Annotations() {
+				for _, anno := range annotations {
+					switch key {
+					case "def":
+						if k, val, found := strings.Cut(anno.Text(), "="); found {
+							switch k {
+							case "storage":
+								v.storage = strings.ToLower(val)
+							default:
+								if attr, found := strings.CutPrefix(k, "attr."); found {
+									attr = strings.TrimSpace(attr)
+									val = strings.TrimSpace(val)
+									if len(attr) > 0 && len(val) > 0 {
+										v.options[attr] = val
+									}
 								}
 							}
 						}
+					default:
 					}
 				}
 			}

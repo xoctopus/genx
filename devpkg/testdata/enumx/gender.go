@@ -6,11 +6,11 @@ type Gender int8
 
 const (
 	GENDER_UNKNOWN Gender = iota
-	// GENDER__MALE
+	// GENDER__MALE 男
 	// @attr name=男
 	// @attr text=男
 	// @attr short=M
-	GENDER__MALE // 男
+	GENDER__MALE
 	// GENDER__FEMALE
 	// @attr name=女
 	// @attr text=女

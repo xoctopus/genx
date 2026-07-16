@@ -13,7 +13,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"slices"
 	"strings"
 	"sync"
 
@@ -124,76 +123,47 @@ func (x *genc) Execute(ctx context.Context, generators ...Generator) error {
 }
 
 func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error {
-	tags := make(map[string][]string)
-	if d := p.Doc(); d != nil {
-		tags = d.Tags()
+	type generator struct {
+		Generator
+		global bool
 	}
-	ignores := tags["genx:ignore"]
 
-	generators := map[string]Generator{}
+	var (
+		directives = ParseDirectives(p.PackageDoc().Directives()...) // global directives
+
+		generators = make(map[string]generator)
+		aggregated = make(map[string][]*genc)
+	)
+
 	for _, g := range gs {
 		_, ok := generators[g.Identifier()]
 		must.BeTrueF(!ok, "duplicated generator: '%s'", g.Identifier())
-		generators[g.Identifier()] = g
+		// trim global disabled
+		gg := generator{Generator: g}
+		if d, ok := directives[g.Identifier()]; ok && d.enabled {
+			gg.global = true
+		}
+		generators[g.Identifier()] = gg
 	}
 
-	// filter ignored
-	// eg:
-	//	genx:ignore=x,y,z generator x y and z will be skipped
-	//	genx:enum=false enum will be skipped
-	for name := range generators {
-		if slices.Contains(ignores, name) {
-			delete(generators, name)
+	for _, g := range generators {
+		xp := &genc{
+			args: x.args,
+			pkgs: x.pkgs,
+			curr: p,
+			gens: x.gens,
 		}
-		for tag, values := range tags {
-			if tag == "genx:"+name && slices.Contains(values, "false") {
-				delete(generators, name)
-			}
+		cs, err := xp.genpkg(ctx, g.Generator, g.global)
+		if err != nil {
+			return err
 		}
-	}
-
-	// must be generated defined in package document
-	globals := make(map[string]Generator)
-	for _, tag := range p.Doc().TagKeys() {
-		if after, ok := strings.CutPrefix(tag, "genx:"); ok {
-			name := after
-			if g, ok := generators[name]; ok {
-				globals[name] = g
-				delete(generators, name)
-			}
-		}
-	}
-
-	aggregated := make(map[string][]*genc)
-	for _, group := range []struct {
-		generators map[string]Generator
-		global     bool
-	}{
-		{globals, true},
-		{generators, false},
-	} {
-		for _, g := range group.generators {
-			xp := &genc{
-				args: x.args,
-				pkgs: x.pkgs,
-				curr: p,
-				gens: x.gens,
-			}
-			cs, err := xp.genpkg(ctx, g, group.global)
-			if err != nil {
-				return err
-			}
-			if len(cs) > 0 {
-				aggregated[g.Identifier()] = cs
-			}
+		if len(cs) > 0 {
+			aggregated[g.Identifier()] = cs
 		}
 	}
 
 	for name, gcs := range aggregated {
-		g := globals[name]
-		if g == nil {
-			g = generators[name]
-		}
+		g := generators[name].Generator
 		if _, ok := g.(AggregationGeneratorMarker); ok {
 			filename := "zz_" + stringsx.LowerSnakeCase(name) + "_genx_" + name + ".go"
 			xf := newgenf(p, name, "")
@@ -225,7 +195,6 @@ func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error 
 }
 
 func (x *genc) genpkg(ctx context.Context, g Generator, global bool) ([]*genc, error) {
-	prefix := "genx:" + g.Identifier()
 	generated := make([]*genc, 0)
 
 	for t := range x.curr.TypeNames().Elements() {
@@ -244,15 +213,12 @@ func (x *genc) genpkg(ctx context.Context, g Generator, global bool) ([]*genc, e
 			continue
 		}
 
-		tags := t.Doc().Tags()
-		values, ok := tags[prefix]
-		// marked disable clearly
-		if ok && slices.Contains(values, "false") {
+		directives := ParseDirectives(t.Doc().Directives()...)
+		gg, ok := directives[g.Identifier()]
+		if ok && !gg.enabled {
 			continue
 		}
-
-		// if not global must mark enable clearly
-		if !global && !ok {
+		if !ok && !global {
 			continue
 		}
 

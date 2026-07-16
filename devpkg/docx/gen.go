@@ -2,18 +2,17 @@ package docx
 
 import (
 	"bytes"
+	_ "embed"
 	"errors"
-	"go/ast"
+	"fmt"
 	"go/types"
 	"log"
-	"strconv"
 	"strings"
 
-	_ "embed"
-
-	"github.com/xoctopus/pkgx/pkg/pkgx"
+	"github.com/xoctopus/x/docx/v2"
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/misc/timer"
+	"github.com/xoctopus/x/slicex"
 
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
@@ -76,23 +75,23 @@ func (x *g) Generate(c genx.Context, t types.Type) (err error) {
 
 func (x *g) generate(c genx.Context, t *types.Named) error {
 	var (
-		u     = t.Underlying()
-		ctx   = c.Context()
-		name  = t.Obj().Name()
-		ident *s.TArg
+		u        = t.Underlying()
+		ctx      = c.Context()
+		typename = t.Obj().Name()
+		ident    *s.TArg
 	)
 
 	if params := t.TypeParams(); params.Len() == 0 {
-		ident = s.Arg(ctx, "T", s.Block(name))
+		ident = s.Arg(ctx, "T", s.Block(typename))
 	} else {
-		names := make([]string, 0, params.Len())
+		pnames := make([]string, 0, params.Len())
 		for param := range params.TypeParams() {
-			names = append(names, param.Obj().Name())
+			pnames = append(pnames, param.Obj().Name())
 		}
-		ident = s.Arg(ctx, "T", s.BlockF("%s[%s]", name, strings.Join(names, ", ")))
+		ident = s.Arg(ctx, "T", s.BlockF("%s[%s]", typename, strings.Join(pnames, ", ")))
 	}
 
-	args := []*s.TArg{ident, s.Arg(ctx, "TDoc", x.docNamed(c, name))}
+	args := []*s.TArg{ident, s.Arg(ctx, "TDoc", x.docNamed(c, typename))}
 
 	var ss s.Snippet
 	if y, ok := u.(*types.Struct); !ok || !hasExported(y) {
@@ -105,8 +104,8 @@ func (x *g) generate(c genx.Context, t *types.Named) error {
 			bytes.NewReader(tplStruct),
 			append(
 				args,
-				s.Arg(ctx, "FieldDocCases", x.docFields(c, y)),
-				s.Arg(ctx, "AnonymousDoc", x.docAnonymous(c, y)),
+				s.Arg(ctx, "FieldDocCases", x.docNamedFields(c, typename, y)),
+				s.Arg(ctx, "AnonymousDoc", x.docEmbeddedFields(c, typename, y)),
 			)...,
 		)
 	}
@@ -115,19 +114,17 @@ func (x *g) generate(c genx.Context, t *types.Named) error {
 	return nil
 }
 
-func (x *g) doc(prefix string, d *pkgx.Doc) string {
-	if d == nil || len(d.Desc()) == 0 {
-		return ""
+func (x *g) doc(prefix string, d *docx.Meta) string {
+	doc := fmt.Sprintf("%q", "")
+
+	if d != nil {
+		lines := append([]string{d.Title(prefix)}, d.Description().Lines()...)
+		lines = slicex.Mapping(lines, func(line string) string {
+			return fmt.Sprintf("%q", line)
+		})
+		doc = strings.Join(lines, ",")
 	}
-	lines := make([]string, 0)
-	for _, desc := range d.Desc() {
-		if strings.HasPrefix(desc, "@") || strings.HasPrefix(desc, "+") {
-			continue
-		}
-		desc = strings.TrimSpace(strings.TrimPrefix(desc, prefix))
-		lines = append(lines, strconv.Quote(desc))
-	}
-	return strings.Join(lines, ", ")
+	return doc
 }
 
 func (x *g) docNamed(c genx.Context, typename string) s.Snippet {
@@ -136,52 +133,47 @@ func (x *g) docNamed(c genx.Context, typename string) s.Snippet {
 	return s.Block(x.doc(typename, o.Doc()))
 }
 
-func (x *g) docFields(c genx.Context, p *types.Struct) s.Snippet {
+func (x *g) docNamedFields(c genx.Context, typename string, p *types.Struct) s.Snippet {
 	ss := make([]s.Snippet, 0, p.NumFields())
 
 	for f := range p.Fields() {
-		if !ast.IsExported(f.Name()) {
+		// if embedded field is not defined in current package, treated as a Field
+		if f.Embedded() {
 			continue
 		}
 
-		// if embedded field is not defined in current package, treated as a Field
-		if f.Embedded() {
-			n, ok := f.Type().(*types.Named)
-			if ok && n.Obj().Pkg().Path() == c.Package().Path() {
-				continue
-			}
+		if d := c.Package().FieldDoc(typename, f.Name()); d != nil {
+			ss = append(
+				ss,
+				s.BlockF(`case %q:`, f.Name()),
+				s.Compose(
+					s.Indent(1),
+					s.BlockF(`return []string{%s}, true`, x.doc(f.Name(), d)),
+				),
+			)
 		}
-		d := c.Package().DocOf(f.Pos())
-		if _, ok := f.Type().(*types.Struct); ok {
-			continue // skip inline struct
-		}
-		if _s, ok := f.Type().Underlying().(*types.Struct); ok && _s.NumFields() == 0 {
-			continue // skip empty struct
-		}
-
-		ss = append(
-			ss,
-			s.BlockF(`case %q:
-	return []string{%s}, true`, f.Name(), x.doc(f.Name(), d)),
-		)
 	}
 	return s.Snippets(s.Block("\n"), ss...)
 }
 
-func (x *g) docAnonymous(c genx.Context, p *types.Struct) s.Snippet {
+func (x *g) docEmbeddedFields(c genx.Context, typename string, p *types.Struct) s.Snippet {
 	ss := make([]s.Snippet, 0, p.NumFields())
 	ctx := c.Context()
 	for f := range p.Fields() {
-		if !f.Anonymous() {
+		if !f.Embedded() {
 			continue
 		}
+
 		if _s, ok := f.Type().Underlying().(*types.Struct); ok && !hasExported(_s) {
 			continue
 		}
+
 		prefix := ""
-		if d := c.Package().DocOf(f.Pos()); d != nil && len(d.Desc()) > 0 {
-			prefix = d.Desc()[0]
-			prefix = strings.TrimSpace(strings.TrimPrefix(prefix, f.Name()))
+		if d := c.Package().FieldDoc(typename, f.Name()); d != nil {
+			prefix = strings.Join(
+				append([]string{d.Title(f.Name())}, d.Description().Lines()...),
+				";",
+			)
 		}
 
 		ref := "&v"

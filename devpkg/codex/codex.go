@@ -62,7 +62,12 @@ func (e *Error) CodeMessageCases(ctx context.Context) s.Snippet {
 		),
 	}
 	for _, v := range e.list {
-		msg := strings.Join(v.Doc().Desc(), " ")
+		msg := ""
+		doc := v.Doc()
+		lines := append([]string{doc.Title(e.name)}, doc.Description().Lines()...)
+		if len(lines) > 0 {
+			msg = strings.Join(lines, " ")
+		}
 		if len(msg) == 0 {
 			msg = strings.TrimPrefix(v.Name(), stringsx.UpperSnakeCase(v.TypeName())+"__")
 		}
@@ -103,11 +108,8 @@ func NewErrors(g genx.Context) *Errors {
 			te := es.p.TypeNames().ElementByName(elem.TypeName())
 			must.BeTrue(te != nil)
 			def := ""
-			for _, desc := range te.Doc().Desc() {
-				if after, ok0 := strings.CutPrefix(desc, "@def "); ok0 {
-					def = after
-					break
-				}
+			if annotations, ok := te.Doc().Annotations()["def"]; ok && len(annotations) > 0 {
+				def = annotations[0].Text()
 			}
 			if def == "" {
 				def = es.p.Unwrap().Name() + "." + elem.TypeName()

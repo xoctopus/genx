@@ -6,12 +6,11 @@ import (
 	"go/types"
 	"strconv"
 
-	_ "github.com/xoctopus/genx/devpkg/docx"
-	_ "github.com/xoctopus/genx/devpkg/enumx"
-
 	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/misc/must"
 
+	_ "github.com/xoctopus/genx/devpkg/docx"
+	_ "github.com/xoctopus/genx/devpkg/enumx"
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
@@ -30,9 +29,6 @@ func (g *TestGenerator) Generate(c genx.Context, t types.Type) error {
 	}
 
 	if path := c.Package().Unwrap().Path(); path != "" {
-	}
-
-	if doc := c.Packages().DocOf(0); doc != nil {
 	}
 
 	var obj *types.TypeName

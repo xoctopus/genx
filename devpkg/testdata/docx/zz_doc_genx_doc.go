@@ -9,32 +9,24 @@ func (v *Empty) DocOf(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		return []string{}, false
 	}
-	return []string{}, true
+	return []string{""}, true
 }
 
 func (v *S) DocOf(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
+		case "unexported":
+			return []string{"unexported"}, true
+		case "Empty2":
+			return []string{"Empty2Doc"}, true
+		case "Inline":
+			return []string{"InlineUnnamed"}, true
 		case "NameType":
-			return []string{""}, true
+			return []string{"NameType"}, true
 		case "Interface":
 			return []string{"NamedInterface"}, true
-		case "S":
-			return []string{"*SPrefix"}, true
-		case "T1":
-			return []string{"ext.T1Prefix"}, true
-		case "T2":
-			return []string{"*ext.T2Prefix"}, true
-		case "T3":
-			return []string{"ext.T3[int]Prefix"}, true
-		case "T4":
-			return []string{"*ext.T4[int]Prefix"}, true
-		case "T5":
-			return []string{"ext.T5[int,int]Prefix"}, true
-		case "T6":
-			return []string{"*ext.T6[int, int]Prefix"}, true
 		case "NoDoc":
-			return []string{}, true
+			return []string{""}, true
 		}
 		if doc, ok := docx.Of(&v.D, "AnonymousDPrefix", names...); ok {
 			return doc, true
@@ -98,23 +90,9 @@ func (v *G[V]) DocOf(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "NameType":
-			return []string{""}, true
+			return []string{"NameType"}, true
 		case "Interface":
-			return []string{""}, true
-		case "S":
-			return []string{"star expr"}, true
-		case "T1":
-			return []string{"ext selector"}, true
-		case "T2":
-			return []string{"star ref"}, true
-		case "T3":
-			return []string{"index expr"}, true
-		case "T4":
-			return []string{"star index expr"}, true
-		case "T5":
-			return []string{"index list expr"}, true
-		case "T6":
-			return []string{"star index list expr"}, true
+			return []string{"Interface"}, true
 		}
 		if doc, ok := docx.Of(&v.D, "ident only", names...); ok {
 			return doc, true
@@ -149,5 +127,5 @@ func (v *G[V]) DocOf(names ...string) ([]string, bool) {
 		}
 		return []string{}, false
 	}
-	return []string{}, true
+	return []string{""}, true
 }
