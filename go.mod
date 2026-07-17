@@ -5,9 +5,9 @@ go 1.26.5
 tool github.com/xoctopus/genx/internal/cmd/example
 
 require (
-	github.com/xoctopus/pkgx v0.4.2
+	github.com/xoctopus/pkgx v0.4.3
 	github.com/xoctopus/typx v0.4.4
-	github.com/xoctopus/x v0.5.3
+	github.com/xoctopus/x v0.5.4
 )
 
 require (

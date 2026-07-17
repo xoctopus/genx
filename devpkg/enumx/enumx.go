@@ -11,6 +11,7 @@ import (
 	"github.com/xoctopus/pkgx/pkg/pkgx"
 	"github.com/xoctopus/x/stringsx"
 
+	"github.com/xoctopus/genx/pkg/docx"
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
@@ -38,44 +39,41 @@ func (e *Enum) IsValid() bool {
 
 // add adds option
 func (e *Enum) add(c *pkgx.Constant) {
-	name := c.Name()
-	if name[0] == '_' {
-		return
-	}
+	if name := c.Name(); name != "_" {
+		prefix := stringsx.UpperSnakeCase(e.key)
+		if name == prefix+"_UNKNOWN" {
+			e.unknown = c
+			return
+		}
 
-	prefix := stringsx.UpperSnakeCase(e.key)
-	if name == prefix+"_UNKNOWN" {
-		e.unknown = c
-		return
-	}
+		before, after, found := strings.Cut(name, "__")
+		if !found || before != prefix {
+			return
+		}
 
-	before, after, found := strings.Cut(name, "__")
-	if !found || before != prefix {
-		return
-	}
+		o := &option{
+			value: c,
+			name:  after,
+			text:  "",
+			attrs: map[string]string{},
+		}
 
-	o := &option{
-		value: c,
-		name:  after,
-		text:  "",
-		attrs: map[string]string{},
-	}
-
-	doc := c.Doc()
-	for key, annotations := range doc.Annotations() {
-		for _, anno := range annotations {
-			switch key {
-			case "attr":
-				if k, v, found := strings.Cut(anno.Text(), "="); found {
-					o.attrs[k] = v
-					e.attrs[k] = struct{}{}
+		doc := docx.Parse(c.Doc())
+		for key, annotations := range doc.Annotations() {
+			for _, anno := range annotations {
+				switch key {
+				case "attr":
+					if k, v, found := strings.Cut(anno.Text(), "="); found {
+						o.attrs[k] = v
+						e.attrs[k] = struct{}{}
+					}
+				default:
 				}
-			default:
 			}
 		}
+		o.text = doc.Title(c.Name())
+		e.values = append(e.values, o)
 	}
-	o.text = doc.Title(c.Name())
-	e.values = append(e.values, o)
 }
 
 // Values generates code snippet of const value list
@@ -225,27 +223,18 @@ func NewEnums(g genx.Context) *Enums {
 			es.e[typ] = v
 
 			x := es.p.TypeNames().ElementByName(elem.TypeName())
-			d := x.Doc()
+			d := docx.Parse(x.Doc())
 
-			for key, annotations := range d.Annotations() {
+			if annotations, ok := d.AnnotationsByName("def"); ok {
 				for _, anno := range annotations {
-					switch key {
-					case "def":
-						if k, val, found := strings.Cut(anno.Text(), "="); found {
-							switch k {
-							case "storage":
-								v.storage = strings.ToLower(val)
-							default:
-								if attr, found := strings.CutPrefix(k, "attr."); found {
-									attr = strings.TrimSpace(attr)
-									val = strings.TrimSpace(val)
-									if len(attr) > 0 && len(val) > 0 {
-										v.options[attr] = val
-									}
-								}
+					if key := anno.Key(); len(key) > 0 {
+						if key == "storage" && len(v.storage) == 0 {
+							v.storage = strings.ToLower(anno.Value())
+						} else {
+							if option, ok := strings.CutPrefix(key, "attr."); ok {
+								v.options[option] = anno.Value()
 							}
 						}
-					default:
 					}
 				}
 			}

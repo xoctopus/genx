@@ -3,17 +3,16 @@ package docx
 import (
 	"bytes"
 	_ "embed"
-	"errors"
 	"fmt"
 	"go/types"
 	"log"
 	"strings"
 
-	"github.com/xoctopus/x/docx/v2"
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/misc/timer"
 	"github.com/xoctopus/x/slicex"
 
+	"github.com/xoctopus/genx/pkg/docx"
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
@@ -25,8 +24,6 @@ var (
 	tplStruct []byte
 	//go:embed tpls/docx.embed.tpl
 	tplEmbed []byte
-
-	errSkip = errors.New("skip")
 )
 
 func init() {
@@ -45,32 +42,26 @@ func (x *g) Generate(c genx.Context, t types.Type) (err error) {
 	cost := timer.Span()
 	log.Printf("genx:doc %s", t)
 
+	skipped := false
 	defer func() {
-		if errors.Is(err, errSkip) {
+		if skipped {
 			log.Printf("==> skipped: Accept *types.Named only but got %T\n", t)
-			err = nil
-		}
-		if err != nil {
-			log.Printf("failed generating: %v\n", err)
-			return
 		}
 		log.Printf("cost: %fs", cost().Seconds())
 	}()
 
 	switch t.(type) {
 	case nil, *types.Interface, *types.Alias, *types.Union:
-		return errSkip // skipped
+		skipped = true
+		return
 	}
 	switch t.Underlying().(type) {
 	case nil, *types.Interface, *types.Alias, *types.Union:
-		return errSkip // skipped
+		skipped = true
+		return
 	}
 
-	n, ok := t.(*types.Named)
-	if !ok {
-		return errSkip
-	}
-	return x.generate(c, n)
+	return x.generate(c, t.(*types.Named))
 }
 
 func (x *g) generate(c genx.Context, t *types.Named) error {
@@ -118,8 +109,7 @@ func (x *g) doc(prefix string, d *docx.Meta) string {
 	doc := fmt.Sprintf("%q", "")
 
 	if d != nil {
-		lines := append([]string{d.Title(prefix)}, d.Description().Lines()...)
-		lines = slicex.Mapping(lines, func(line string) string {
+		lines := slicex.Mapping(d.Descriptions(prefix), func(line string) string {
 			return fmt.Sprintf("%q", line)
 		})
 		doc = strings.Join(lines, ",")
@@ -130,7 +120,7 @@ func (x *g) doc(prefix string, d *docx.Meta) string {
 func (x *g) docNamed(c genx.Context, typename string) s.Snippet {
 	o := c.Package().TypeNames().ElementByName(typename)
 	must.NotNilF(o, "type '%s' not found in package $s", typename, c.Package().Path())
-	return s.Block(x.doc(typename, o.Doc()))
+	return s.Block(x.doc(typename, docx.Parse(o.Doc())))
 }
 
 func (x *g) docNamedFields(c genx.Context, typename string, p *types.Struct) s.Snippet {
@@ -148,7 +138,7 @@ func (x *g) docNamedFields(c genx.Context, typename string, p *types.Struct) s.S
 				s.BlockF(`case %q:`, f.Name()),
 				s.Compose(
 					s.Indent(1),
-					s.BlockF(`return []string{%s}, true`, x.doc(f.Name(), d)),
+					s.BlockF(`return []string{%s}, true`, x.doc(f.Name(), docx.Parse(d))),
 				),
 			)
 		}
@@ -170,10 +160,7 @@ func (x *g) docEmbeddedFields(c genx.Context, typename string, p *types.Struct) 
 
 		prefix := ""
 		if d := c.Package().FieldDoc(typename, f.Name()); d != nil {
-			prefix = strings.Join(
-				append([]string{d.Title(f.Name())}, d.Description().Lines()...),
-				";",
-			)
+			prefix = docx.Parse(d).Title(f.Name())
 		}
 
 		ref := "&v"

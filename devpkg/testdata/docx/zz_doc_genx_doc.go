@@ -9,24 +9,24 @@ func (v *Empty) DocOf(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		return []string{}, false
 	}
-	return []string{""}, true
+	return []string{}, true
 }
 
 func (v *S) DocOf(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "unexported":
-			return []string{"unexported"}, true
+			return []string{}, true
 		case "Empty2":
 			return []string{"Empty2Doc"}, true
 		case "Inline":
 			return []string{"InlineUnnamed"}, true
 		case "NameType":
-			return []string{"NameType"}, true
+			return []string{}, true
 		case "Interface":
 			return []string{"NamedInterface"}, true
 		case "NoDoc":
-			return []string{""}, true
+			return []string{}, true
 		}
 		if doc, ok := docx.Of(&v.D, "AnonymousDPrefix", names...); ok {
 			return doc, true
@@ -90,9 +90,9 @@ func (v *G[V]) DocOf(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "NameType":
-			return []string{"NameType"}, true
+			return []string{}, true
 		case "Interface":
-			return []string{"Interface"}, true
+			return []string{}, true
 		}
 		if doc, ok := docx.Of(&v.D, "ident only", names...); ok {
 			return doc, true
@@ -127,5 +127,5 @@ func (v *G[V]) DocOf(names ...string) ([]string, bool) {
 		}
 		return []string{}, false
 	}
-	return []string{""}, true
+	return []string{}, true
 }

@@ -154,6 +154,7 @@ func ExampleGenerator() {
 
 	genc, ok := c.(genx.Context)
 	must.BeTrue(ok && genc.Context() == context.Background())
+	_ = genc.Packages()
 
 	_ = c.Execute(context.Background(), &TestGenerator{}, &TestGeneratorHasTypeGenerated{})
 
@@ -201,8 +202,11 @@ func ExampleGenerator() {
 	//    6: 	return 1
 	//                ↑
 	// expected ';', found 'EOF'
-}
-
-func Example_generatorGlobal() {
-	// Output:
+	//    2: package testdata
+	//    3:
+	//    4:
+	//    5: func X() int {
+	//    6: 	return 1
+	//                ↑
+	// expected ';', found 'EOF'
 }

@@ -3,6 +3,7 @@ package testdata
 // Gender enum of genders
 // +genx:test_genx
 // +genx:test_genx_e
+// +genx:test_genx_e_a
 // +genx:test_genx_t
 // +genx:test_genx_ge
 // +genx:test_genx_nil

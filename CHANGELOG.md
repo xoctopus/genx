@@ -1,8 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.2-rc2...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.3...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.2.3"></a>
+## [v0.2.3](https://github.com/xoctopus/genx/compare/v0.2.2-rc2...v0.2.3)
+
+> 2026-07-16
+
+### Refactor
+
+* migrate to directive-based generation and integrate docx/v2
 
 
 <a name="v0.2.2-rc2"></a>

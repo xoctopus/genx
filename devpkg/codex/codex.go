@@ -11,6 +11,7 @@ import (
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/stringsx"
 
+	"github.com/xoctopus/genx/pkg/docx"
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
@@ -30,19 +31,17 @@ func (e *Error) IsValid() bool {
 func (e *Error) add(c *pkgx.Constant) {
 	name := c.Name()
 
-	if name[0] == '_' {
-		return
-	}
+	if name[0] != '_' {
+		prefix := stringsx.UpperSnakeCase(e.name)
+		if name == prefix+"_UNDEFINED" {
+			e.undefined = c
+			return
+		}
 
-	prefix := stringsx.UpperSnakeCase(e.name)
-	if name == prefix+"_UNDEFINED" {
-		e.undefined = c
-		return
-	}
-
-	parts := strings.SplitN(name, "__", 2)
-	if len(parts) == 2 && parts[0] == prefix {
-		e.list = append(e.list, c)
+		parts := strings.SplitN(name, "__", 2)
+		if len(parts) == 2 && parts[0] == prefix {
+			e.list = append(e.list, c)
+		}
 	}
 }
 
@@ -62,12 +61,8 @@ func (e *Error) CodeMessageCases(ctx context.Context) s.Snippet {
 		),
 	}
 	for _, v := range e.list {
-		msg := ""
-		doc := v.Doc()
-		lines := append([]string{doc.Title(e.name)}, doc.Description().Lines()...)
-		if len(lines) > 0 {
-			msg = strings.Join(lines, " ")
-		}
+		doc := docx.Parse(v.Doc())
+		msg := doc.Title(v.Name())
 		if len(msg) == 0 {
 			msg = strings.TrimPrefix(v.Name(), stringsx.UpperSnakeCase(v.TypeName())+"__")
 		}
@@ -106,10 +101,10 @@ func NewErrors(g genx.Context) *Errors {
 
 		if _, ok := es.e[typ]; !ok {
 			te := es.p.TypeNames().ElementByName(elem.TypeName())
-			must.BeTrue(te != nil)
 			def := ""
-			if annotations, ok := te.Doc().Annotations()["def"]; ok && len(annotations) > 0 {
-				def = annotations[0].Text()
+			must.BeTrue(te != nil)
+			if defs, ok := docx.Parse(te.Doc()).AnnotationsByName("def"); ok {
+				def = defs[0].Text()
 			}
 			if def == "" {
 				def = es.p.Unwrap().Name() + "." + elem.TypeName()

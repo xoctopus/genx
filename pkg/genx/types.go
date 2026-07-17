@@ -22,6 +22,7 @@ import (
 	"github.com/xoctopus/x/stringsx"
 
 	"github.com/xoctopus/genx/internal/dumper"
+	"github.com/xoctopus/genx/pkg/docx"
 	"github.com/xoctopus/genx/pkg/snippet"
 )
 
@@ -129,8 +130,8 @@ func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error 
 	}
 
 	var (
-		directives = ParseDirectives(p.PackageDoc().Directives()...) // global directives
-
+		doc        = docx.Parse(p.PackageDoc())
+		directives = doc.Directives() // global directives
 		generators = make(map[string]generator)
 		aggregated = make(map[string][]*genc)
 	)
@@ -140,7 +141,7 @@ func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error 
 		must.BeTrueF(!ok, "duplicated generator: '%s'", g.Identifier())
 		// trim global disabled
 		gg := generator{Generator: g}
-		if d, ok := directives[g.Identifier()]; ok && d.enabled {
+		if d, ok := directives[g.Identifier()]; ok && d.Enabled() {
 			gg.global = true
 		}
 		generators[g.Identifier()] = gg
@@ -213,9 +214,9 @@ func (x *genc) genpkg(ctx context.Context, g Generator, global bool) ([]*genc, e
 			continue
 		}
 
-		directives := ParseDirectives(t.Doc().Directives()...)
+		directives := docx.Parse(t.Doc()).Directives()
 		gg, ok := directives[g.Identifier()]
-		if ok && !gg.enabled {
+		if ok && !gg.Enabled() {
 			continue
 		}
 		if !ok && !global {
