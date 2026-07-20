@@ -1,8 +1,22 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.3...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.4...HEAD)
 
-> 0001-01-01
+> 2026-07-17
+
+### Chore
+
+* **deps:** bump lint actions
+
+
+<a name="v0.2.4"></a>
+## [v0.2.4](https://github.com/xoctopus/genx/compare/v0.2.3...v0.2.4)
+
+> 2026-07-17
+
+### Refactor
+
+* migrate document parsing to public pkg/docx
 
 
 <a name="v0.2.3"></a>

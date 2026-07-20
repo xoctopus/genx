@@ -24,8 +24,6 @@ import (
 
 	"github.com/xoctopus/typx/pkg/typx"
 	"github.com/xoctopus/x/misc/must"
-	"github.com/xoctopus/x/ptrx"
-	_ "github.com/xoctopus/x/ptrx"
 	. "github.com/xoctopus/x/testx"
 
 	"github.com/xoctopus/genx/internal/dumper"
@@ -308,10 +306,10 @@ func ExampleValue() {
 			testdata.String("6"): 7,
 		}),
 		Value(ctx, []map[any]any{{
-			testdata.String("0"):           3, // snippet_test.String  3
-			"1":                            2, // string               2
-			2:                              0, // int                  0
-			ptrx.Ptr(testdata.String("3")): 1, // pointer              1
+			testdata.String("0"):      3, // snippet_test.String  3
+			"1":                       2, // string               2
+			2:                         0, // int                  0
+			new(testdata.String("3")): 1, // pointer              1
 		}}),
 		Value(ctx, []any{nil, true, false, complex64(1), complex128(1)}),
 		Value(ctx, nil),
