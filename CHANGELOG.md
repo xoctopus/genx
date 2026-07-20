@@ -2,10 +2,11 @@
 <a name="HEAD"></a>
 ## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.4...HEAD)
 
-> 2026-07-17
+> 2026-07-20
 
 ### Chore
 
+* remove ptrx.Ptr dependency
 * **deps:** bump lint actions
 
 

@@ -61,13 +61,12 @@ func Expose(ctx context.Context, path string, name string, targs ...Snippet) Sni
 					!IsNil(targ),
 					"got invalid type arg snippet at %d", i,
 				)
-				ta, ok := targ.(*ident)
-				must.BeTrueF(
-					ok,
-					"*types.Func type arguments MUST be a ident, but got %d:%T",
-					i, targ,
-				)
-				r.targs = append(r.targs, ta)
+				// must.BeTrueF(
+				// 	ok,
+				// 	"*types.Func type arguments MUST be a ident, but got %d:%T",
+				// 	i, targ,
+				// )
+				r.targs = append(r.targs, targ)
 			}
 			// TODO should here need check the instantiation must can be succeeded by targs...
 		}
@@ -102,10 +101,27 @@ func ExposeObjectUnsafe(ctx context.Context, o types.Object) Snippet {
 	return ExposeUnsafe(ctx, o.Pkg().Path(), o.Name())
 }
 
+/*
+func ExposeByID(ctx context.Context, id string) Snippet {
+	t := typx.LitTypeByID(id)
+
+	targs := make([]Snippet, 0)
+	for _, targ := range t.TypeArgs() {
+		targs = append(targs, ExposeByID(ctx, targ.String()))
+	}
+
+	return &exposer{
+		path:  t.PkgPath(),
+		name:  t.Typename(),
+		targs: targs,
+	}
+}
+*/
+
 type exposer struct {
 	path  string
 	name  string
-	targs []*ident
+	targs []Snippet
 }
 
 func (r *exposer) IsNil() bool {

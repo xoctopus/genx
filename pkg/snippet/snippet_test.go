@@ -161,6 +161,8 @@ func ExampleExpose() {
 		// imported: general
 		Expose(ctx, "errors", "New"),
 		Expose(ctx, "github.com/xoctopus/x/ptrx", "Ptr", IdentFor[testdata.DemoEnum](ctx)),
+		// ExposeByID(ctx, "github.com/xoctopus/genx/testdata.TT[int,github.com/xoctopus/genx/testdata.T[float32]]"),
+		// TT[int, T[float32]]
 	)
 
 	Print(
