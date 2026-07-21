@@ -1,8 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.5...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.6...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.2.6"></a>
+## [v0.2.6](https://github.com/xoctopus/genx/compare/v0.2.5...v0.2.6)
+
+> 2026-07-21
+
+### Test
+
+* more example
 
 
 <a name="v0.2.5"></a>

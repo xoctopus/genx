@@ -5,7 +5,8 @@ import (
 	_ "embed"
 	"go/types"
 	"log"
-	"time"
+
+	"github.com/xoctopus/x/misc/timer"
 
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
@@ -33,7 +34,7 @@ func (x *g) New(c genx.Context) genx.Generator {
 func (x *g) Generate(c genx.Context, t types.Type) error {
 	if e, ok := x.errors.Resolve(t); ok {
 		if e.IsValid() {
-			cost := Span()
+			cost := timer.Span()
 			log.Printf("genx:%s %s", x.Identifier(), t)
 			x.generate(c, e)
 			log.Printf("==> cost: %fs", cost().Seconds())
@@ -59,11 +60,4 @@ func (x *g) generate(c genx.Context, e *Error) {
 	}
 
 	c.Render(s.Template(bytes.NewReader(template), args...))
-}
-
-func Span() func() time.Duration {
-	t := time.Now()
-	return func() time.Duration {
-		return time.Since(t)
-	}
 }

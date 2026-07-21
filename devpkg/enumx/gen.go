@@ -7,9 +7,9 @@ import (
 	"go/types"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/xoctopus/x/enumx"
+	"github.com/xoctopus/x/misc/timer"
 
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
@@ -44,7 +44,7 @@ func (x *g) Generate(c genx.Context, t types.Type) error {
 
 	if e, ok := x.enums.Resolve(t); ok {
 		if e.IsValid() {
-			cost := Span()
+			cost := timer.Span()
 			log.Printf("genx:%s %s\n", x.Identifier(), t.String())
 			x.generate(c, e)
 			log.Printf("==> cost: %fs", cost().Seconds())
@@ -112,11 +112,4 @@ func (x *g) generate(c genx.Context, e *Enum) {
 	}
 
 	c.Render(s.Snippets(s.NewLine(1), ss...))
-}
-
-func Span() func() time.Duration {
-	t := time.Now()
-	return func() time.Duration {
-		return time.Since(t)
-	}
 }

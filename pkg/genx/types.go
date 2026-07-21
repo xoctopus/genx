@@ -166,7 +166,7 @@ func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error 
 	for name, gcs := range aggregated {
 		g := generators[name].Generator
 		if _, ok := g.(AggregationGeneratorMarker); ok {
-			filename := "zz_" + stringsx.LowerSnakeCase(name) + "_genx_" + name + ".go"
+			filename := "zz" + "_genx_" + stringsx.LowerSnakeCase(name) + ".go"
 			xf := newgenf(p, name, "")
 
 			trackers := make([]dumper.ImportTracker, 0, len(gcs))

@@ -11,6 +11,7 @@ import (
 	_ "github.com/xoctopus/genx/devpkg/contextx"
 	_ "github.com/xoctopus/genx/devpkg/docx"
 	_ "github.com/xoctopus/genx/devpkg/enumx"
+	_ "github.com/xoctopus/genx/devpkg/uintstr"
 	"github.com/xoctopus/genx/pkg/genx"
 )
 
@@ -23,6 +24,7 @@ func main() {
 			filepath.Join(entry, "codex"),
 			filepath.Join(entry, "docx"),
 			filepath.Join(entry, "contextx"),
+			filepath.Join(entry, "uintstr"),
 		},
 	})
 
