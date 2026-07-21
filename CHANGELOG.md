@@ -1,6 +1,12 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.4...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.5...HEAD)
+
+> 0001-01-01
+
+
+<a name="v0.2.5"></a>
+## [v0.2.5](https://github.com/xoctopus/genx/compare/v0.2.4...v0.2.5)
 
 > 2026-07-20
 
@@ -8,6 +14,10 @@
 
 * remove ptrx.Ptr dependency
 * **deps:** bump lint actions
+
+### Feat
+
+* **devpkg:** gen contextx
 
 
 <a name="v0.2.4"></a>

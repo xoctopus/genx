@@ -41,12 +41,13 @@ func (x *g) New(c genx.Context) genx.Generator {
 }
 
 func (x *g) Generate(c genx.Context, t types.Type) error {
+
 	if e, ok := x.enums.Resolve(t); ok {
 		if e.IsValid() {
 			cost := Span()
-			log.Printf("genx:enumx %s\n", t)
+			log.Printf("genx:%s %s\n", x.Identifier(), t.String())
 			x.generate(c, e)
-			log.Printf("cost: %fs\n", cost().Seconds())
+			log.Printf("==> cost: %fs", cost().Seconds())
 			return nil
 		}
 	}

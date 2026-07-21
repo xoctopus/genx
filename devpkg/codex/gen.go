@@ -34,9 +34,9 @@ func (x *g) Generate(c genx.Context, t types.Type) error {
 	if e, ok := x.errors.Resolve(t); ok {
 		if e.IsValid() {
 			cost := Span()
-			log.Printf("genx:codex %s\n", t)
+			log.Printf("genx:%s %s", x.Identifier(), t)
 			x.generate(c, e)
-			log.Printf("cost: %fs\n", cost().Seconds())
+			log.Printf("==> cost: %fs", cost().Seconds())
 			return nil
 		}
 	}

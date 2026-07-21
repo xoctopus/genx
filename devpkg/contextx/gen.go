@@ -31,10 +31,10 @@ func (x *g) Generate(c genx.Context, t types.Type) (err error) {
 	cost := timer.Span()
 	skip := false
 
-	log.Printf("genx:%s", x.Identifier())
+	log.Printf("genx:%s %s", x.Identifier(), t.String())
 	defer func() {
 		if skip {
-			log.Printf("==> cost: %fs. skipped: %T", cost().Seconds(), t)
+			log.Printf("==> cost: %fs skipped", cost().Seconds())
 		} else {
 			log.Printf("==> cost: %fs", cost().Seconds())
 		}

@@ -40,24 +40,25 @@ func (x *g) Identifier() string {
 
 func (x *g) Generate(c genx.Context, t types.Type) (err error) {
 	cost := timer.Span()
-	log.Printf("genx:doc %s", t)
+	log.Printf("genx:%s %s", x.Identifier(), t)
 
-	skipped := false
+	skip := false
 	defer func() {
-		if skipped {
-			log.Printf("==> skipped: Accept *types.Named only but got %T\n", t)
+		if skip {
+			log.Printf("==> cost: %fs skipped", cost().Seconds())
+		} else {
+			log.Printf("==> cost: %fs", cost().Seconds())
 		}
-		log.Printf("cost: %fs", cost().Seconds())
 	}()
 
 	switch t.(type) {
 	case nil, *types.Interface, *types.Alias, *types.Union:
-		skipped = true
+		skip = true
 		return
 	}
 	switch t.Underlying().(type) {
 	case nil, *types.Interface, *types.Alias, *types.Union:
-		skipped = true
+		skip = true
 		return
 	}
 
