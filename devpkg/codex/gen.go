@@ -2,9 +2,11 @@ package codex
 
 import (
 	"bytes"
+	"cmp"
 	_ "embed"
 	"go/types"
 	"log"
+	"runtime/debug"
 
 	"github.com/xoctopus/x/misc/timer"
 
@@ -25,6 +27,14 @@ type g struct {
 
 func (x *g) Identifier() string {
 	return "code"
+}
+
+func (x *g) Version() string {
+	v := ""
+	if i, ok := debug.ReadBuildInfo(); ok {
+		v = i.Main.Version
+	}
+	return cmp.Or(v, "devel")
 }
 
 func (x *g) New(c genx.Context) genx.Generator {

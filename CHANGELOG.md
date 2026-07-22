@@ -1,8 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.6...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.7...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.2.7"></a>
+## [v0.2.7](https://github.com/xoctopus/genx/compare/v0.2.6...v0.2.7)
+
+> 2026-07-21
+
+### Feat
+
+* **devpkg:** gen uintstr
 
 
 <a name="v0.2.6"></a>

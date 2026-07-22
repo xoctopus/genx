@@ -35,6 +35,10 @@ type Generator interface {
 	Generate(Context, types.Type) error
 }
 
+type Versioned interface {
+	Version() string
+}
+
 // AggregationGeneratorMarker marks the generator as aggregated.
 // the generated files will be aggregated into a single file
 type AggregationGeneratorMarker interface {
@@ -167,7 +171,12 @@ func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error 
 		g := generators[name].Generator
 		if _, ok := g.(AggregationGeneratorMarker); ok {
 			filename := "zz" + "_genx_" + stringsx.LowerSnakeCase(name) + ".go"
-			xf := newgenf(p, name, "")
+
+			version := ""
+			if v, ok := g.(Versioned); ok {
+				version = v.Version()
+			}
+			xf := newgenf(p, name, version, "")
 
 			trackers := make([]dumper.ImportTracker, 0, len(gcs))
 			snippets := make([]snippet.Snippet, 0)
@@ -223,12 +232,17 @@ func (x *genc) genpkg(ctx context.Context, g Generator, global bool) ([]*genc, e
 			continue
 		}
 
+		version := ""
+		if v, ok := g.(Versioned); ok {
+			version = v.Version()
+		}
+
 		xf := &genc{
 			args: x.args,
 			pkgs: x.pkgs,
 			gens: x.gens,
 			curr: x.curr,
-			file: newgenf(x.curr, g.Identifier(), t.TypeName()),
+			file: newgenf(x.curr, g.Identifier(), version, t.TypeName()),
 			ctx: sync.OnceValue(func() context.Context {
 				return dumper.WithEntry(ctx, x.curr.Path())
 			}),
@@ -267,16 +281,18 @@ func (x *genc) Context() context.Context {
 	return context.Background()
 }
 
-func newgenf(p pkgx.Package, generator, typename string) *genf {
+func newgenf(p pkgx.Package, generator, version, typename string) *genf {
 	return &genf{
-		name: generator,
-		typ:  typename,
-		pkg:  p,
+		name:    generator,
+		version: version,
+		typ:     typename,
+		pkg:     p,
 	}
 }
 
 type genf struct {
 	name     string
+	version  string
 	typ      string
 	pkg      pkgx.Package
 	snippets []snippet.Snippet
@@ -295,7 +311,7 @@ func (x *genf) write(ctx context.Context, filename string) error {
 
 	for code := range snippet.Snippets(
 		snippet.NewLine(1),
-		snippet.Poster(x.pkg.Unwrap().Name(), "genx:"+x.name),
+		snippet.Poster(x.pkg.Unwrap().Name(), "genx:"+x.name, x.version),
 		snippet.Imports(ctx),
 	).Fragments(ctx) {
 		body.WriteString(code)

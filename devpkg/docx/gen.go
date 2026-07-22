@@ -2,10 +2,12 @@ package docx
 
 import (
 	"bytes"
+	"cmp"
 	_ "embed"
 	"fmt"
 	"go/types"
 	"log"
+	"runtime/debug"
 	"strings"
 
 	"github.com/xoctopus/x/misc/must"
@@ -36,6 +38,14 @@ type g struct {
 
 func (x *g) Identifier() string {
 	return "doc"
+}
+
+func (x *g) Version() string {
+	v := ""
+	if i, ok := debug.ReadBuildInfo(); ok {
+		v = i.Main.Version
+	}
+	return cmp.Or(v, "devel")
 }
 
 func (x *g) Generate(c genx.Context, t types.Type) (err error) {

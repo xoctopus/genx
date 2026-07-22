@@ -2,9 +2,11 @@ package contextx
 
 import (
 	"bytes"
+	"cmp"
 	_ "embed"
 	"go/types"
 	"log"
+	"runtime/debug"
 
 	"github.com/xoctopus/x/misc/timer"
 
@@ -25,6 +27,14 @@ type g struct {
 
 func (g) Identifier() string {
 	return "ctx"
+}
+
+func (x *g) Version() string {
+	v := ""
+	if i, ok := debug.ReadBuildInfo(); ok {
+		v = i.Main.Version
+	}
+	return cmp.Or(v, "devel")
 }
 
 func (x *g) Generate(c genx.Context, t types.Type) (err error) {

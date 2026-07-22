@@ -2,10 +2,12 @@ package enumx
 
 import (
 	"bytes"
+	"cmp"
 	"database/sql/driver"
 	_ "embed"
 	"go/types"
 	"log"
+	"runtime/debug"
 	"strings"
 
 	"github.com/xoctopus/x/enumx"
@@ -34,6 +36,14 @@ type g struct {
 
 func (x *g) Identifier() string {
 	return "enum"
+}
+
+func (x *g) Version() string {
+	v := ""
+	if i, ok := debug.ReadBuildInfo(); ok {
+		v = i.Main.Version
+	}
+	return cmp.Or(v, "devel")
 }
 
 func (x *g) New(c genx.Context) genx.Generator {
