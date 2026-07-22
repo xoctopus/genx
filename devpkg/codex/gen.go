@@ -2,14 +2,13 @@ package codex
 
 import (
 	"bytes"
-	"cmp"
 	_ "embed"
 	"go/types"
 	"log"
-	"runtime/debug"
 
 	"github.com/xoctopus/x/misc/timer"
 
+	"github.com/xoctopus/genx/devpkg/helper"
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
@@ -30,11 +29,7 @@ func (x *g) Identifier() string {
 }
 
 func (x *g) Version() string {
-	v := ""
-	if i, ok := debug.ReadBuildInfo(); ok {
-		v = i.Main.Version
-	}
-	return cmp.Or(v, "devel")
+	return helper.VersionFor("github.com/xoctopus/genx")
 }
 
 func (x *g) New(c genx.Context) genx.Generator {

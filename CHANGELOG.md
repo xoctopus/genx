@@ -1,8 +1,28 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.7...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.9...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.2.9"></a>
+## [v0.2.9](https://github.com/xoctopus/genx/compare/v0.2.8...v0.2.9)
+
+> 2026-07-23
+
+### Chore
+
+* generators exported
+
+
+<a name="v0.2.8"></a>
+## [v0.2.8](https://github.com/xoctopus/genx/compare/v0.2.7...v0.2.8)
+
+> 2026-07-23
+
+### Feat
+
+* generator version
 
 
 <a name="v0.2.7"></a>

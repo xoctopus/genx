@@ -2,18 +2,17 @@ package docx
 
 import (
 	"bytes"
-	"cmp"
 	_ "embed"
 	"fmt"
 	"go/types"
 	"log"
-	"runtime/debug"
 	"strings"
 
 	"github.com/xoctopus/x/misc/must"
 	"github.com/xoctopus/x/misc/timer"
 	"github.com/xoctopus/x/slicex"
 
+	"github.com/xoctopus/genx/devpkg/helper"
 	"github.com/xoctopus/genx/pkg/docx"
 	"github.com/xoctopus/genx/pkg/genx"
 	s "github.com/xoctopus/genx/pkg/snippet"
@@ -41,11 +40,7 @@ func (x *g) Identifier() string {
 }
 
 func (x *g) Version() string {
-	v := ""
-	if i, ok := debug.ReadBuildInfo(); ok {
-		v = i.Main.Version
-	}
-	return cmp.Or(v, "devel")
+	return helper.VersionFor("github.com/xoctopus/genx")
 }
 
 func (x *g) Generate(c genx.Context, t types.Type) (err error) {
