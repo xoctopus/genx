@@ -26,56 +26,61 @@ import (
 	"github.com/xoctopus/genx/pkg/snippet"
 )
 
+// GeneratorNewer creates Generator instance by Context
 type GeneratorNewer interface {
 	New(Context) Generator
 }
 
+// Generator defines code generator with unique Identifier
 type Generator interface {
 	Identifier() string
 	Generate(Context, types.Type) error
 }
 
+// Versioned allows a generator to specify its version.
 type Versioned interface {
 	Version() string
 }
 
 // AggregationGeneratorMarker marks the generator as aggregated.
-// the generated files will be aggregated into a single file
+// If a generator implements this interface, all code generated for different types
+// within the same package will be aggregated into a single file.
 type AggregationGeneratorMarker interface {
 	aggregation()
 }
 
-// GlobalGeneratorMarker marks the generator as global regardless of annotations.
-type GlobalGeneratorMarker interface {
-	global()
-}
-
-type GenerateNewer interface {
-	Newer(Context) Generator
-}
-
+// Executor defines the interface for executing a set of generators.
 type Executor interface {
 	Execute(context.Context, ...Generator) error
 }
 
+// Context provides the execution context and package walker utilities for a Generator.
 type Context interface {
 	IsZero() bool
 
+	// Context returns the underlying context.Context, which includes import trackers.
 	Context() context.Context
 
+	// Packages returns all parsed packages.
 	Packages() *pkgx.Packages
+	// Package returns the current package being processed.
 	Package() pkgx.Package
+	// PackageByPath retrieves a package by its import path.
 	PackageByPath(string) pkgx.Package
-	// PackageByPos(token.Pos) pkgx.Package
 
+	// Render appends a code snippet to the current generated file.
 	Render(snippet.Snippet)
 }
 
+// Args holds the configuration for initializing the generator context.
 type Args struct {
+	// Entrypoint packages to parse (e.g., "./...")
 	Entrypoint []string
-	Workdir    string
+	// Working directory for parsing
+	Workdir string
 }
 
+// NewContext creates a new Executor instance based on the provided arguments.
 func NewContext(args *Args) Executor {
 	ctx := pkgx.CtxWorkdir.With(context.Background(), args.Workdir)
 

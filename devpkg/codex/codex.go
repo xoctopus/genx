@@ -19,7 +19,7 @@ import (
 type Error struct {
 	name      string
 	typ       types.Type
-	def       string
+	domain    string
 	undefined *pkgx.Constant
 	list      []*pkgx.Constant
 }
@@ -57,7 +57,7 @@ func (e *Error) CodeMessageCases(ctx context.Context) s.Snippet {
 		s.Compose(
 			s.Indent(2),
 			s.Block("return "),
-			s.BlockRaw(fmt.Sprintf("[%s:%s] undefined", e.def, e.undefined.Value())),
+			s.BlockRaw(fmt.Sprintf("[%s:%s] undefined", e.domain, e.undefined.Value())),
 		),
 	}
 	for _, v := range e.list {
@@ -77,7 +77,7 @@ func (e *Error) CodeMessageCases(ctx context.Context) s.Snippet {
 			s.Compose(
 				s.Indent(2),
 				s.Block("return "),
-				s.BlockRaw(fmt.Sprintf("[%s:%s] %s", e.def, v.Value(), msg)),
+				s.BlockRaw(fmt.Sprintf("[%s:%s] %s", e.domain, v.Value(), msg)),
 			),
 		)
 	}
@@ -101,19 +101,28 @@ func NewErrors(g genx.Context) *Errors {
 
 		if _, ok := es.e[typ]; !ok {
 			te := es.p.TypeNames().ElementByName(elem.TypeName())
-			def := ""
 			must.BeTrue(te != nil)
-			if defs, ok := docx.Parse(te.Doc()).AnnotationsByName("def"); ok {
-				def = defs[0].Text()
+
+			domain := stringsx.UpperSnakeCase(es.p.Unwrap().Name()) +
+				"::" +
+				stringsx.UpperSnakeCase(elem.TypeName())
+
+			doc := docx.Parse(te.Doc())
+			if annotations, ok := doc.AnnotationsByName(identifier); ok {
+				for _, anno := range annotations {
+					switch strings.ToLower(anno.Key()) {
+					case "domain":
+						domain = anno.Value()
+					default:
+					}
+				}
 			}
-			if def == "" {
-				def = es.p.Unwrap().Name() + "." + elem.TypeName()
-			}
+
 			es.e[typ] = &Error{
-				typ:  typ,
-				def:  def,
-				name: elem.TypeName(),
-				list: make([]*pkgx.Constant, 0),
+				typ:    typ,
+				domain: domain,
+				name:   elem.TypeName(),
+				list:   make([]*pkgx.Constant, 0),
 			}
 		}
 		es.e[typ].add(elem)

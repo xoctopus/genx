@@ -6,7 +6,6 @@ import (
 	_ "embed"
 	"go/types"
 	"log"
-	"strings"
 
 	"github.com/xoctopus/x/enumx"
 	"github.com/xoctopus/x/misc/timer"
@@ -23,6 +22,8 @@ var (
 	templateInt []byte // template for int storage driver.Valuer/sql.Scanner
 	//go:embed enumx.go_txt.tpl
 	templateTxt []byte // template for text/varchar storage driver.Valuer/sql.Scanner
+
+	identifier = "enum"
 )
 
 func init() {
@@ -34,7 +35,7 @@ type g struct {
 }
 
 func (x *g) Identifier() string {
-	return "enum"
+	return identifier
 }
 
 func (x *g) Version() string {
@@ -46,7 +47,6 @@ func (x *g) New(c genx.Context) genx.Generator {
 }
 
 func (x *g) Generate(c genx.Context, t types.Type) error {
-
 	if e, ok := x.enums.Resolve(t); ok {
 		if e.IsValid() {
 			cost := timer.Span()
@@ -103,14 +103,15 @@ func (x *g) generate(c genx.Context, e *Enum) {
 	}
 
 	ss := []s.Snippet{s.Template(bytes.NewReader(template), args...)}
-	for _, attr := range e.Attrs() {
-		if v := strings.ToLower(attr); v != "text" && v != "string" {
-			ss = append(ss, e.Attr(ctx, attr, e.options[attr]))
-		}
+	for _, name := range e.ExtendKeys() {
+		ss = append(ss, e.ExtendAttributes(ctx, name))
+	}
+	for _, name := range e.MappingKeys() {
+		ss = append(ss, e.MappingAttributes(ctx, name))
 	}
 
 	switch e.storage {
-	case "text", "string", "varchar":
+	case "text", "string", "varchar", "enum":
 		ss = append(ss, s.Template(bytes.NewReader(templateTxt), args...))
 	default:
 		ss = append(ss, s.Template(bytes.NewReader(templateInt), args...))

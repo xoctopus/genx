@@ -8,14 +8,14 @@ import (
 func (e Code) Message() string {
 	switch e {
 	default:
-		return fmt.Sprintf("[testdata.Code:%d] unknown", e)
+		return fmt.Sprintf("[TESTDATA::CODE:%d] unknown", e)
 	case CODE_UNDEFINED:
-		return "[testdata.Code:0] undefined"
+		return "[TESTDATA::CODE:0] undefined"
 	case CODE__ERROR1:
-		return "[testdata.Code:1] error1 message"
+		return "[TESTDATA::CODE:1] error1 message"
 	case CODE__ERROR2:
-		return "[testdata.Code:2] error2 message"
+		return "[TESTDATA::CODE:2] error2 message"
 	case CODE__ERROR3:
-		return "[testdata.Code:3] ERROR3"
+		return "[TESTDATA::CODE:3] ERROR3"
 	}
 }

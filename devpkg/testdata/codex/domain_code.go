@@ -2,7 +2,7 @@ package testdata
 
 // DomainCode internal error code has domain name
 // +genx:code
-// @def DOMAIN_NAME
+// @code domain=DOMAIN_NAME
 type DomainCode int8
 
 const (

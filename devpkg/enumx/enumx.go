@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"go/constant"
 	"go/types"
+	"maps"
+	"slices"
 	"sort"
 	"strings"
 
@@ -19,22 +21,26 @@ import (
 type option struct {
 	name  string
 	text  string
-	attrs map[string]string
 	value *pkgx.Constant
+
+	mapping map[string]string
+	extends map[string]string
 }
 
 type Enum struct {
 	typ     types.Type
 	key     string
 	unknown *pkgx.Constant
-	values  []*option
-	attrs   map[string]struct{}
-	options map[string]string
+	options []*option
+
 	storage string
+
+	mapping map[string]string
+	extends map[string]bool
 }
 
 func (e *Enum) IsValid() bool {
-	return e.unknown != nil || len(e.values) > 0
+	return e.unknown != nil || len(e.options) > 0
 }
 
 // add adds option
@@ -46,40 +52,53 @@ func (e *Enum) add(c *pkgx.Constant) {
 			return
 		}
 
-		before, after, found := strings.Cut(name, "__")
+		before, suffix, found := strings.Cut(name, "__")
 		if !found || before != prefix {
 			return
 		}
 
+		doc := docx.Parse(c.Doc())
+
 		o := &option{
-			value: c,
-			name:  after,
-			text:  "",
-			attrs: map[string]string{},
+			value:   c,
+			name:    suffix,
+			text:    doc.Title(c.Name()),
+			mapping: make(map[string]string),
+			extends: make(map[string]string),
 		}
 
-		doc := docx.Parse(c.Doc())
-		for key, annotations := range doc.Annotations() {
+		e.options = append(e.options, o)
+
+		if annotations, ok := doc.AnnotationsByName(identifier); ok {
 			for _, anno := range annotations {
-				switch key {
-				case "attr":
-					if k, v, found := strings.Cut(anno.Text(), "="); found {
-						o.attrs[k] = v
-						e.attrs[k] = struct{}{}
+				method, key, found := strings.Cut(anno.Key(), ".")
+				if !found {
+					continue
+				}
+				k := strings.ToLower(key)
+				if k == "string" || k == "value" || key == "text" {
+					continue
+				}
+				switch strings.ToLower(method) {
+				case "map":
+					if _, ok := e.mapping[key]; ok {
+						o.mapping[o.name] = anno.Value()
 					}
+				case "ext":
+					k = stringsx.UpperCamelCase(key)
+					e.extends[k] = true
+					o.extends[k] = anno.Value()
 				default:
 				}
 			}
 		}
-		o.text = doc.Title(c.Name())
-		e.values = append(e.values, o)
 	}
 }
 
 // Values generates code snippet of const value list
 func (e *Enum) Values(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
-	for _, v := range e.values {
+	for _, v := range e.options {
 		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
@@ -92,7 +111,7 @@ func (e *Enum) Values(ctx context.Context) s.Snippet {
 // ValueToStringCases generates code snippet cases from enum value to string
 func (e *Enum) ValueToStringCases(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
-	for _, v := range e.values {
+	for _, v := range e.options {
 		name := strings.TrimPrefix(
 			v.value.Name(),
 			stringsx.UpperSnakeCase(v.value.TypeName())+"__",
@@ -110,7 +129,7 @@ func (e *Enum) ValueToStringCases(ctx context.Context) s.Snippet {
 // StringToValueCases generates code snippet cases from string to const value
 func (e *Enum) StringToValueCases(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
-	for _, v := range e.values {
+	for _, v := range e.options {
 		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
@@ -124,7 +143,7 @@ func (e *Enum) StringToValueCases(ctx context.Context) s.Snippet {
 // ValueToTextCases generates code snippet cases from enum value to text
 func (e *Enum) ValueToTextCases(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
-	for _, v := range e.values {
+	for _, v := range e.options {
 		text := v.text
 		if len(text) == 0 || text == v.value.Name() {
 			text = v.name
@@ -139,47 +158,35 @@ func (e *Enum) ValueToTextCases(ctx context.Context) s.Snippet {
 	return s.Snippets(s.NewLine(1), ss...)
 }
 
-func (e *Enum) Attr(ctx context.Context, attr, option string) s.Snippet {
-	f := func(v string) s.Snippet {
-		switch option {
-		case "string", "text", "":
-			return s.BlockF("return %q", v)
-		default:
-			if len(v) == 0 {
-				return s.BlockF("return *new(%s)", option)
-			}
-			return s.BlockF("return %s(%s)", option, v)
-		}
-	}
+func (e *Enum) ExtendKeys() []string {
+	extends := slices.Collect(maps.Keys(e.extends))
+	sort.Strings(extends)
+	return extends
+}
 
-	if option == "" {
-		option = "string"
-	}
-
+func (e *Enum) ExtendAttributes(ctx context.Context, name string) s.Snippet {
 	ss := make([]s.Snippet, 0)
-
-	name := stringsx.UpperCamelCase(attr)
 
 	ss = append(
 		ss,
 		s.Comments(fmt.Sprintf("%s describes %s attribute", name, name)),
-		s.Compose(s.Block("func (v "), s.IdentTT(ctx, e.typ), s.BlockF(") %s() %s {", name, option)),
+		s.Compose(s.Block("func (v "), s.IdentTT(ctx, e.typ), s.BlockF(") %s() string {", name)),
 		s.Compose(s.Indent(1), s.Block("switch v {")),
 	)
 
-	for _, v := range e.values {
+	for _, v := range e.options {
 		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
 			s.Compose(s.Indent(1), s.Block("case "), expose, s.Block(":")),
-			s.Compose(s.Indent(2), f(v.attrs[attr])),
+			s.Compose(s.Indent(2), s.BlockF("return %q", v.extends[name])),
 		)
 	}
 
 	ss = append(
 		ss,
 		s.Compose(s.Indent(1), s.Block("default:")),
-		s.Compose(s.Indent(2), f("")),
+		s.Compose(s.Indent(2), s.BlockF("return %q", "")),
 		s.Compose(s.Indent(1), s.Block("}")),
 		s.Compose(s.Block("}\n")),
 	)
@@ -187,13 +194,48 @@ func (e *Enum) Attr(ctx context.Context, attr, option string) s.Snippet {
 	return s.Snippets(s.NewLine(1), ss...)
 }
 
-func (e *Enum) Attrs() []string {
-	attrs := make([]string, 0, len(e.attrs))
-	for attr := range e.attrs {
-		attrs = append(attrs, attr)
+func (e *Enum) MappingKeys() []string {
+	mappings := slices.Collect(maps.Keys(e.mapping))
+	sort.Strings(mappings)
+	return mappings
+}
+
+func (e *Enum) MappingAttributes(ctx context.Context, name string) s.Snippet {
+	f := func(kind, value string) s.Snippet {
+		if len(value) == 0 {
+			return s.BlockF("return *new(%s)", kind)
+		}
+		return s.BlockF("return %s(%s)", kind, value)
 	}
-	sort.Strings(attrs)
-	return attrs
+
+	ss := make([]s.Snippet, 0)
+	kind := e.mapping[name]
+
+	ss = append(
+		ss,
+		s.Comments(fmt.Sprintf("%s describes %s attribute", name, kind)),
+		s.Compose(s.Block("func (v "), s.IdentTT(ctx, e.typ), s.BlockF(") %s() %s {", name, kind)),
+		s.Compose(s.Indent(1), s.Block("switch v {")),
+	)
+
+	for _, v := range e.options {
+		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
+		ss = append(
+			ss,
+			s.Compose(s.Indent(1), s.Block("case "), expose, s.Block(":")),
+			s.Compose(s.Indent(2), f(kind, v.mapping[v.name])),
+		)
+	}
+
+	ss = append(
+		ss,
+		s.Compose(s.Indent(1), s.Block("default:")),
+		s.Compose(s.Indent(2), f(kind, "")),
+		s.Compose(s.Indent(1), s.Block("}")),
+		s.Compose(s.Block("}\n")),
+	)
+
+	return s.Snippets(s.NewLine(1), ss...)
 }
 
 func NewEnums(g genx.Context) *Enums {
@@ -216,24 +258,27 @@ func NewEnums(g genx.Context) *Enums {
 			v := &Enum{
 				typ:     typ,
 				key:     elem.TypeName(),
-				values:  make([]*option, 0),
-				attrs:   make(map[string]struct{}),
-				options: make(map[string]string),
+				options: make([]*option, 0),
+				mapping: make(map[string]string),
+				extends: make(map[string]bool),
 			}
 			es.e[typ] = v
 
 			x := es.p.TypeNames().ElementByName(elem.TypeName())
-			d := docx.Parse(x.Doc())
+			doc := docx.Parse(x.Doc())
 
-			if annotations, ok := d.AnnotationsByName("def"); ok {
+			if annotations, ok := doc.AnnotationsByName(identifier); ok {
 				for _, anno := range annotations {
-					if key := anno.Key(); len(key) > 0 {
-						if key == "storage" && len(v.storage) == 0 {
+					method, key, found := strings.Cut(anno.Key(), ".")
+					if found {
+						switch strings.ToLower(method) {
+						case "map":
+							v.mapping[key] = anno.Value()
+						}
+					} else {
+						switch method {
+						case "storage":
 							v.storage = strings.ToLower(anno.Value())
-						} else {
-							if option, ok := strings.CutPrefix(key, "attr."); ok {
-								v.options[option] = anno.Value()
-							}
 						}
 					}
 				}

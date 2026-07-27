@@ -1,8 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.2.9...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.0...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.3.0"></a>
+## [v0.3.0](https://github.com/xoctopus/genx/compare/v0.2.9...v0.3.0)
+
+> 2026-07-23
+
+### Fix
+
+* **devpkg:** generator version
 
 
 <a name="v0.2.9"></a>

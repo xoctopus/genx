@@ -109,3 +109,18 @@ func A() {}
 
 // FAlias alias of F
 type FAlias = F
+
+type UserProfile struct {
+	// Avatar URL
+	Avatar string
+}
+
+// User represents a system user.
+type User struct {
+	// Name is the user's full name.
+	Name string
+	// Age is the user's age in years.
+	Age int
+	// UserProfile user profile
+	UserProfile
+}

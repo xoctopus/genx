@@ -9,11 +9,15 @@ import (
 
 var gGenerators = syncx.NewXmap[string, Generator]()
 
+// Register registers a new Generator.
+// It panics if a generator with the same identifier has already been registered.
 func Register(g Generator) {
 	_, loaded := gGenerators.LoadOrStore(g.Identifier(), g)
 	must.BeTrueF(!loaded, "generator '%s' has been registered", g.Identifier())
 }
 
+// Get retrieves registered generators based on the provided identifiers.
+// If no identifiers are provided, it returns all registered generators.
 func Get(identifiers ...string) (gs []Generator) {
 	defer func() {
 		sort.Slice(gs, func(i, j int) bool {

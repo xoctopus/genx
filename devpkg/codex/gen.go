@@ -13,8 +13,12 @@ import (
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
 
-//go:embed codex.go.tpl
-var template []byte
+var (
+	//go:embed codex.go.tpl
+	template []byte
+
+	identifier = "code"
+)
 
 func init() {
 	genx.Register(&g{})
@@ -25,7 +29,7 @@ type g struct {
 }
 
 func (x *g) Identifier() string {
-	return "code"
+	return identifier
 }
 
 func (x *g) Version() string {
@@ -61,7 +65,7 @@ func (x *g) generate(c genx.Context, e *Error) {
 		// @def CodeMessageCases
 		s.Arg(ctx, "CodeMessageCases", e.CodeMessageCases(ctx)),
 		// @def UnknownCodeFormat
-		s.Arg(ctx, "UnknownCodeFormat", s.BlockRaw("["+e.def+":%d] unknown")),
+		s.Arg(ctx, "UnknownCodeFormat", s.BlockRaw("["+e.domain+":%d] unknown")),
 	}
 
 	c.Render(s.Template(bytes.NewReader(template), args...))

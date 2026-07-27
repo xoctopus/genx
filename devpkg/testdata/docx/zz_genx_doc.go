@@ -129,3 +129,30 @@ func (v *G[V]) DocOf(names ...string) ([]string, bool) {
 	}
 	return []string{}, true
 }
+
+func (v *UserProfile) DocOf(names ...string) ([]string, bool) {
+	if len(names) > 0 {
+		switch names[0] {
+		case "Avatar":
+			return []string{"URL"}, true
+		}
+		return []string{}, false
+	}
+	return []string{}, true
+}
+
+func (v *User) DocOf(names ...string) ([]string, bool) {
+	if len(names) > 0 {
+		switch names[0] {
+		case "Name":
+			return []string{"is the user's full name."}, true
+		case "Age":
+			return []string{"is the user's age in years."}, true
+		}
+		if doc, ok := docx.Of(&v.UserProfile, "user profile", names...); ok {
+			return doc, true
+		}
+		return []string{}, false
+	}
+	return []string{"represents a system user."}, true
+}

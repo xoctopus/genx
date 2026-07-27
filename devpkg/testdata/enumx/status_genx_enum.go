@@ -87,18 +87,6 @@ func (v *Status) UnmarshalText(data []byte) error {
 	return nil
 }
 
-// Gender describes Gender attribute
-func (v Status) Gender() Gender {
-	switch v {
-	case STATUS__ENABLED:
-		return Gender(GENDER__FEMALE)
-	case STATUS__DISABLED:
-		return Gender(GENDER__MALE)
-	default:
-		return *new(Gender)
-	}
-}
-
 // Value implements driver.Valuer
 func (v Status) Value() (driver.Value, error) {
 	offset := 0

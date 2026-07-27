@@ -13,8 +13,12 @@ import (
 	s "github.com/xoctopus/genx/pkg/snippet"
 )
 
-//go:embed contextx.tpl
-var template []byte
+var (
+	//go:embed contextx.tpl
+	templateNormal []byte
+	//go:embed contextx.generic.tpl
+	templateGeneric []byte
+)
 
 func init() {
 	genx.Register(&g{})
@@ -25,7 +29,7 @@ type g struct {
 }
 
 func (g) Identifier() string {
-	return "ctx"
+	return "context"
 }
 
 func (x *g) Version() string {
@@ -56,46 +60,55 @@ func (x *g) Generate(c genx.Context, t types.Type) (err error) {
 }
 
 func (x *g) generate(c genx.Context, t *types.Named) (error, bool) {
-	// generic context is not supported
-	if t.TypeParams().Len() > 0 {
-		return nil, true
-	}
-
 	ctx := c.Context()
 
-	ident := s.IdentTT(ctx, t)
 	pkgid := "github.com/xoctopus/x/contextx"
+	template := templateNormal
 
-	// if tparams := t.TypeParams(); tparams.Len() > 0 {
-	// 	e := c.Package().TypeNames().ElementByName(t.Obj().Name())
-	// 	must.BeTrue(e != nil)
-	// 	d := docx.Parse(e.Doc())
-	// 	annotations := make(map[string]string)
-	// 	for key, anno := range d.Annotations() {
-	// 		if strings.HasPrefix(key, "arg") {
-	// 			annotations[key] = anno[0].Text()
-	// 		}
-	// 	}
-	// 	must.BeTrueF(len(annotations) == tparams.Len(), "mismatch type arguments count")
-	// 	keys := slices.Collect(maps.Keys(annotations))
-	// 	slices.Sort(keys)
-	// 	for i, key := range keys {
-	// 		argi := annotations[key]
-	// 		must.BeTrueF(len(argi) > 0, "missing type argument %d", i)
-	// 		targs = append(targs, argi)
-	// 	}
-	// }
+	args := []*s.TArg{
+		s.ArgExposeUnsafe(ctx, pkgid, "From").WithName("contextx.From"),
+		s.ArgExposeUnsafe(ctx, pkgid, "With").WithName("contextx.With"),
+		s.ArgExposeUnsafe(ctx, pkgid, "Must").WithName("contextx.Must"),
+		s.ArgExposeUnsafe(ctx, pkgid, "Carry").WithName("contextx.Carry"),
+		s.ArgExpose(ctx, "context", "Context").WithName("context.Context"),
+	}
+
+	if n := t.TypeParams().Len(); n > 0 {
+		template = templateGeneric
+		tPkgPath := ""
+
+		if p := t.Obj().Pkg(); p != nil {
+			tPkgPath = p.Path()
+		}
+
+		params := make([]s.Snippet, 0, n)
+		names := make([]s.Snippet, 0, n)
+		for i := range n {
+			ti := t.TypeParams().At(i)
+			obj := ti.Obj()
+
+			params = append(
+				params,
+				s.Snippets(s.Block(" "), s.Block(obj.Name()), s.IdentTT(ctx, ti.Constraint())),
+			)
+
+			names = append(names, s.Block(obj.Name()))
+		}
+
+		args = append(
+			args,
+			s.ArgExposeUnsafe(ctx, pkgid, "Carrier").WithName("contextx.Carrier"),
+			s.Arg(ctx, "T", s.ExposeUnsafe(ctx, tPkgPath, t.Obj().Name())).WithName("T"),
+			s.Arg(ctx, "TParams", s.Snippets(s.Block(", "), params...)),
+			s.Arg(ctx, "TNames", s.Snippets(s.Block(", "), names...)),
+		)
+	} else {
+		args = append(args, s.Arg(ctx, "T", s.IdentTT(ctx, t)))
+	}
 
 	c.Render(s.Snippets(
 		s.NewLine(1),
-		s.Template(
-			bytes.NewReader(template),
-			s.ArgExposeUnsafe(ctx, pkgid, "From").WithName("contextx.From"),
-			s.ArgExposeUnsafe(ctx, pkgid, "With").WithName("contextx.With"),
-			s.ArgExposeUnsafe(ctx, pkgid, "Must").WithName("contextx.Must"),
-			s.ArgExposeUnsafe(ctx, pkgid, "Carry").WithName("contextx.Carry"),
-			s.Arg(ctx, "T", ident),
-		),
+		s.Template(bytes.NewReader(template), args...),
 	))
 	return nil, false
 }
