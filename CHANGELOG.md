@@ -1,8 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.0...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.1...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.3.1"></a>
+## [v0.3.1](https://github.com/xoctopus/genx/compare/v0.3.0...v0.3.1)
+
+> 2026-07-28
+
+### Feat
+
+* **devpkg:** use docx for annotation parsing and add agents
 
 
 <a name="v0.3.0"></a>
