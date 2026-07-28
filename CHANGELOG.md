@@ -2,7 +2,11 @@
 <a name="HEAD"></a>
 ## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.1...HEAD)
 
-> 0001-01-01
+> 2026-07-28
+
+### Test
+
+* add unit test
 
 
 <a name="v0.3.1"></a>

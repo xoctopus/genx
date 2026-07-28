@@ -22,6 +22,9 @@ var keywords = map[string]struct{}{
 	"REVIEW":   {},
 }
 
+// Parse parses a slice of comment lines into a Meta object.
+// It extracts descriptions, annotations, and directives, while skipping lines
+// that start with common keywords (like TODO, BUG, etc.).
 func Parse(lines []string) *Meta {
 	d := &Meta{
 		annotations: Annotations{},
@@ -63,16 +66,19 @@ func Parse(lines []string) *Meta {
 	return d
 }
 
+// Meta represents the parsed metadata from a comment block.
 type Meta struct {
 	description []string
 	annotations Annotations
 	directives  Directives
 }
 
+// Lines returns the raw description lines.
 func (m *Meta) Lines() []string {
 	return m.description
 }
 
+// Title returns the first line of the description.
 func (m *Meta) Title(prefix string) string {
 	lines := m.Lines()
 	if len(lines) == 0 {
@@ -87,10 +93,13 @@ func (m *Meta) Title(prefix string) string {
 	return strings.TrimPrefix(lines[0], prefix+" ")
 }
 
+// Description returns the description lines joined by the given separator.
+// If prefix is provided, it trims the prefix from each line.
 func (m *Meta) Description(prefix string, sep string) string {
 	return strings.Join(m.Descriptions(prefix), sep)
 }
 
+// Descriptions returns the description lines.
 func (m *Meta) Descriptions(prefix string) []string {
 	return slicex.FilterMapping(m.description, func(line string) (string, bool) {
 		if len(prefix) > 0 {
@@ -104,71 +113,87 @@ func (m *Meta) Descriptions(prefix string) []string {
 	})
 }
 
+// Annotations returns all parsed annotations.
 func (m *Meta) Annotations() Annotations {
 	return m.annotations
 }
 
+// AnnotationsByName returns annotations matching the given name.
 func (m *Meta) AnnotationsByName(name string) ([]Annotation, bool) {
 	annotations, ok := m.annotations[name]
 	return annotations, ok
 }
 
+// Directives returns all parsed directives.
 func (m *Meta) Directives() map[string]Directive {
 	return m.directives
 }
 
+// Directive returns a directive by its name.
 func (m *Meta) Directive(name string) (Directive, bool) {
 	d, ok := m.directives[name]
 	return d, ok
 }
 
+// Annotation represents a parsed annotation (e.g., @name text).
 type Annotation struct {
 	name string
 	text string
 }
 
+// Name returns the name of the annotation.
 func (a *Annotation) Name() string {
 	return a.name
 }
 
+// Text returns the raw text following the annotation name.
 func (a *Annotation) Text() string {
 	return a.text
 }
 
+// Key returns the key part if the annotation text is in key=value format.
 func (a *Annotation) Key() string {
 	k, _, _ := strings.Cut(a.text, "=")
 	return k
 }
 
+// Value returns the value part if the annotation text is in key=value format.
 func (a *Annotation) Value() string {
 	_, v, _ := strings.Cut(a.text, "=")
 	return v
 }
 
+// Annotations represents a collection of annotations grouped by name.
 type Annotations map[string][]Annotation
 
 func (as Annotations) add(name, text string) {
 	as[name] = append(as[name], Annotation{name: name, text: text})
 }
 
+// Directive represents a parsed directive (e.g., +genx:name=parameter).
 type Directive struct {
 	name      string
 	parameter string
 	enabled   bool
 }
 
+// Name returns the name of the directive.
 func (d *Directive) Name() string {
 	return d.name
 }
 
+// Parameter returns the parameter string of the directive.
 func (d *Directive) Parameter() string {
 	return d.parameter
 }
 
+// Enabled returns true if the directive is enabled.
+// Directives are enabled by default unless the parameter is "false" or it is explicitly ignored.
 func (d *Directive) Enabled() bool {
 	return d.enabled
 }
 
+// Directives represents a collection of directives keyed by name.
 type Directives map[string]Directive
 
 func (ds Directives) add(name, parameter string) {

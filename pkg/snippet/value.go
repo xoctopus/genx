@@ -9,7 +9,6 @@ import (
 	"strconv"
 )
 
-// less only for order map key value
 func less(x, y reflect.Value) bool {
 	for x.Kind() == reflect.Interface && x.IsValid() {
 		x = x.Elem()
@@ -35,6 +34,7 @@ func less(x, y reflect.Value) bool {
 	return fmt.Sprintf("%#v", x.Interface()) < fmt.Sprintf("%#v", y.Interface())
 }
 
+// Value returns a Snippet that generates the Go code representation of the given value.
 func Value(ctx context.Context, x any) Snippet {
 	v, ok := x.(reflect.Value)
 	if !ok {

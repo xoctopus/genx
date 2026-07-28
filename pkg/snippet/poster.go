@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Poster creates a Snippet that generates the standard "Code generated" header and package declaration.
 func Poster(pkg string, generator, version string) Snippet {
 	// https://pkg.go.dev/cmd/go#hdr-Generate_Go_files_by_processing_source
 	// Code generated .* DO NOT EDIT\.$

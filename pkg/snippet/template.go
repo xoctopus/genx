@@ -10,6 +10,7 @@ import (
 	"github.com/xoctopus/x/misc/must"
 )
 
+// Arg creates a template argument with the given name and snippet.
 func Arg(ctx context.Context, name string, s Snippet) *TArg {
 	return &TArg{
 		name:    name,
@@ -17,6 +18,7 @@ func Arg(ctx context.Context, name string, s Snippet) *TArg {
 	}
 }
 
+// ArgFor creates a template argument using the type identifier of T.
 func ArgFor[T any](ctx context.Context, name string) *TArg {
 	return &TArg{
 		name:    name,
@@ -24,6 +26,7 @@ func ArgFor[T any](ctx context.Context, name string) *TArg {
 	}
 }
 
+// ArgT creates a template argument using the type identifier of T, with the name defaulting to the type string.
 func ArgT[T any](ctx context.Context) *TArg {
 	id := IdentFor[T](ctx).(*ident)
 	return &TArg{
@@ -137,6 +140,8 @@ func (s *segment) Fragments(ctx context.Context) iter.Seq[string] {
 	}
 }
 
+// Template parses a text template from the reader and returns a Snippet.
+// It replaces macros in the format `#name#` with the corresponding TArg snippets.
 func Template(r io.Reader, args ...*TArg) Snippet {
 	tpl := &template{args: make(map[string]*TArg)}
 

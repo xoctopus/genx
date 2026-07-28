@@ -39,6 +39,37 @@ func main() {
 - 生成目标: `Entrypoint` 指定需要生成的包目录或包路径
 - 输出目标: 如果实现 `genx.AggregationGeneratorMarker` 每个包的生成文件, 统一输出到 `zz_genx_{identifier}.go`; 否则按每个类型输出到 `{typename}_genx_{identifier}.go`
 
+## 内置生成器
+
+- `codex`: 错误码. 参见 [generator-codex.spec.md](references/generator-codex.spec.md)
+- `contextx`: 上下文注入. 参见 [generator-contextx.spec.md](references/generator-contextx.spec.md)
+- `docx`: 运行时文档. 参见 [generator-docx.spec.md](references/generator-docx.spec.md)
+- `enumx`: 枚举. 参见 [generator-enumx.spec.md](references/generator-enumx.spec.md)
+- `uintstr`: 无符号整型序列号反序列化. 参见 [generator-uintstr.spec.md](references/generator-uintstr.spec.md)
+
+## 实现参考
+
+参见
+
+- `github.com/xoctopus/genx/devpkg/codex`
+- `github.com/xoctopus/genx/devpkg/contextx`
+- `github.com/xoctopus/genx/devpkg/docx`
+- `github.com/xoctopus/genx/devpkg/enumx`
+- `github.com/xoctopus/genx/devpkg/uintstr`
+
+## 代码生成底座
+
+- 如果是与类型无关纯文本代码生成可以考虑使用无参数模版 `snippet.Template`
+- 如果是与类型相关的代码生成, 不强制使用 `snippet` 包, 但是需要基于语法分析.
+- 文档的`描述`, `标注`, `指令` 需要遵循 `github.com/xoctopus/genx/pkg/docx` 规则
+
+## 问题排查
+
+- 是否导入生成器. 比如: `import _ pkg/to/your/generator`
+- 入口是否配置 `Entrypoint`. `Entrypoint` 指定需要生成的包目录或包路径
+- 生成器是否注册. 是否在 `init()` 调用了 `genx.Register`
+- 生成目标是否已经定义在了包注释或类型定义注释中.
+
 ## 更多信息
 
 参见 [genx.spec.md](references/genx.spec.md) 

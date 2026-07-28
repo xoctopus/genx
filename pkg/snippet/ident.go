@@ -11,22 +11,27 @@ import (
 	"github.com/xoctopus/genx/internal/dumper"
 )
 
+// IdentFor returns a Snippet representing the identifier for the generic type T.
 func IdentFor[T any](ctx context.Context) Snippet {
 	return _ident(ctx, typx.LitType(reflect.TypeFor[T]()))
 }
 
+// IdentOf returns a Snippet representing the identifier for the type of the given value v.
 func IdentOf(ctx context.Context, v any) Snippet {
 	return _ident(ctx, typx.LitType(reflect.TypeOf(v)))
 }
 
+// Ident returns a Snippet representing the identifier for the given typx.Type.
 func Ident(ctx context.Context, t typx.Type) Snippet {
 	return _ident(ctx, typx.LitType(t.Unwrap()))
 }
 
+// IdentRT returns a Snippet representing the identifier for the given reflect.Type.
 func IdentRT(ctx context.Context, t reflect.Type) Snippet {
 	return _ident(ctx, typx.LitType(t))
 }
 
+// IdentTT returns a Snippet representing the identifier for the given types.Type.
 func IdentTT(ctx context.Context, t types.Type) Snippet {
 	return _ident(ctx, typx.LitType(t))
 }

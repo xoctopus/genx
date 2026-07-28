@@ -5,15 +5,20 @@ import (
 	"iter"
 )
 
+// IsNil checks if a Snippet is nil or its underlying implementation reports as nil.
 func IsNil(s Snippet) bool {
 	return s == nil || s.IsNil()
 }
 
+// Snippet represents a reusable code fragment generator.
 type Snippet interface {
+	// IsNil returns true if the snippet has no content to generate.
 	IsNil() bool
+	// Fragments yields a sequence of string fragments that make up the snippet.
 	Fragments(ctx context.Context) iter.Seq[string]
 }
 
+// Snippets joins multiple Snippets together, separated by the given sep Snippet.
 func Snippets(sep Snippet, ss ...Snippet) Snippet {
 	return &snippets{
 		sep: sep,
@@ -21,12 +26,16 @@ func Snippets(sep Snippet, ss ...Snippet) Snippet {
 	}
 }
 
+// Compose combines multiple Snippets sequentially without any separator.
 func Compose(ss ...Snippet) Snippet {
 	return &snippets{
 		ss: ss,
 	}
 }
 
+// Strings creates a Snippet from a list of strings.
+// Each string is appended with the specified tail, and the resulting blocks
+// are joined together using the given separator.
 func Strings(tail string, sep string, list ...string) Snippet {
 	if len(list) == 0 {
 		return &Placeholder{}

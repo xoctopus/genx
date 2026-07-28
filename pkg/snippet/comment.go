@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// Document creates a Snippet for a documentation comment block.
+// If name is provided, it prefixes the first line with the name.
 func Document(name string, lines ...string) Snippet {
 	c := Comments(lines...).(*comment)
 	name = strings.TrimSpace(name)
@@ -16,6 +18,7 @@ func Document(name string, lines ...string) Snippet {
 	return c
 }
 
+// InlineComment creates a Snippet for an inline comment.
 func InlineComment(line string) Snippet {
 	c := Comments(strings.Split(line, "\n")...).(*comment)
 	if len(c.lines) > 0 {
@@ -24,6 +27,8 @@ func InlineComment(line string) Snippet {
 	return c
 }
 
+// Comments creates a Snippet for a block of comments.
+// It cleans up existing comment markers (//, /*, */) and trims whitespace.
 func Comments(lines ...string) Snippet {
 	c := &comment{}
 	for _, line := range lines {
@@ -45,6 +50,7 @@ func Comments(lines ...string) Snippet {
 	return c
 }
 
+// Directive creates a Snippet for a Go compiler directive (e.g., //go:directive args).
 func Directive(directive string, args ...string) Snippet {
 	final := []string{directive}
 	for _, arg := range args {

@@ -93,10 +93,12 @@ func ExposeUnsafe(ctx context.Context, path, name string) Snippet {
 	}
 }
 
+// ExposeObject creates an exposer Snippet from a types.Object, validating the package and type arguments.
 func ExposeObject(ctx context.Context, o types.Object, targs ...Snippet) Snippet {
 	return Expose(ctx, o.Pkg().Path(), o.Name(), targs...)
 }
 
+// ExposeObjectUnsafe creates an exposer Snippet from a types.Object without validating the package or type arguments.
 func ExposeObjectUnsafe(ctx context.Context, o types.Object) Snippet {
 	return ExposeUnsafe(ctx, o.Pkg().Path(), o.Name())
 }

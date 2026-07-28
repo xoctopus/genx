@@ -7,14 +7,17 @@ import (
 	"strconv"
 )
 
+// Block creates a Snippet from a raw string block.
 func Block(v string) Snippet {
 	return block(v)
 }
 
+// BlockF creates a Snippet from a formatted string block.
 func BlockF(v string, args ...any) Snippet {
 	return Block(fmt.Sprintf(v, args...))
 }
 
+// BlockRaw creates a Snippet from a string, quoting it automatically.
 func BlockRaw(v string) Snippet {
 	return block(strconv.Quote(v))
 }

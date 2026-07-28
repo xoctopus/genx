@@ -6,10 +6,12 @@ import (
 	"strings"
 )
 
+// Indent creates a Snippet that generates n tab characters.
 func Indent(n int) Snippet {
 	return &separator{repeats: n, sep: '\t'}
 }
 
+// NewLine creates a Snippet that generates n newline characters.
 func NewLine(n int) Snippet {
 	return &separator{repeats: n, sep: '\n'}
 }

@@ -8,6 +8,9 @@ import (
 	"github.com/xoctopus/genx/internal/dumper"
 )
 
+// Imports returns a Snippet that generates the Go import declaration block.
+// It categorizes imports into standard library, project-local, and general
+// third-party modules.
 func Imports(ctx context.Context) Snippet {
 	tracker := dumper.From(ctx)
 	// when write import segment. invoke Init to finish tracking
