@@ -12,6 +12,10 @@
 
 * **agent:** add agent skills installation
 
+### Fix
+
+* **agent:** GOMODCACHE default value
+
 ### Test
 
 * add unit test

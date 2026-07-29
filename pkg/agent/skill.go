@@ -3,6 +3,7 @@ package agent
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -15,14 +16,10 @@ var GOMODCACHE string
 
 func init() {
 	GOMODCACHE = strings.TrimSpace(os.Getenv("GOMODCACHE"))
-
 	if len(GOMODCACHE) == 0 {
-		GOPATH := strings.TrimSpace(os.Getenv("GOPATH"))
-		if paths := filepath.SplitList(GOPATH); len(paths) > 0 && len(paths[0]) > 0 {
-			GOMODCACHE = filepath.Join(paths[0], "pkg", "mod")
-		}
+		out, _ := exec.Command("go", "env", "GOMODCACHE").Output()
+		GOMODCACHE = strings.TrimSpace(string(out))
 	}
-
 	must.BeTrueF(len(GOMODCACHE) > 0, "failed to solve GOMODCACHE, got empty")
 }
 
