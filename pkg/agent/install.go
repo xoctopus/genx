@@ -14,7 +14,7 @@ func SkillInstallationPlan(root, gomodcache string, skills []SkillDef) (*Plan, e
 
 	plan := &Plan{
 		SkillsDir:     dir,
-		GitIgnorePath: filepath.Join(root, ".gitignore"),
+		GitIgnorePath: filepath.Join(root, ".agents", ".gitignore"),
 		GitIgnores:    make([]string, 0, len(skills)),
 		Skills:        make([]SkillInstall, 0, len(skills)),
 	}

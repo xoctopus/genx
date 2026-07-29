@@ -47,7 +47,7 @@ func TestSkillInstallationPlan(t *testing.T) {
 				bdd.Succeed(err),
 				bdd.NotBeNil[*agent.Plan](plan),
 				bdd.Equal(skillsDir, plan.SkillsDir),
-				bdd.Equal(filepath.Join(root, ".gitignore"), plan.GitIgnorePath),
+				bdd.Equal(filepath.Join(root, ".agents", ".gitignore"), plan.GitIgnorePath),
 				bdd.HaveLen(plan.GitIgnores, 2),
 				bdd.Equal("skills/foo", plan.GitIgnores[0]),
 				bdd.Equal("skills/bar", plan.GitIgnores[1]),
@@ -227,7 +227,7 @@ replace github.com/b/bar => ./local-bar
 			barLink := filepath.Join(skillsDir, "bar")
 			fooTarget, fooErr := os.Readlink(fooLink)
 			barTarget, barErr := os.Readlink(barLink)
-			ignoreData, ignoreErr := os.ReadFile(filepath.Join(root, ".gitignore"))
+			ignoreData, ignoreErr := os.ReadFile(filepath.Join(root, ".agents", ".gitignore"))
 
 			t.Then(
 				"it should walk up to go.mod root and install skills",
@@ -296,7 +296,7 @@ replace github.com/b/bar => ./local-bar
 
 			barLink := filepath.Join(root, ".agents", "skills", "bar")
 			barTarget, barErr := os.Readlink(barLink)
-			ignoreData, ignoreErr := os.ReadFile(filepath.Join(root, ".gitignore"))
+			ignoreData, ignoreErr := os.ReadFile(filepath.Join(root, ".agents", ".gitignore"))
 
 			t.Then(
 				"it should install skills from the working directory project",

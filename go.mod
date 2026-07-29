@@ -2,12 +2,16 @@ module github.com/xoctopus/genx
 
 go 1.26.5
 
-tool github.com/xoctopus/genx/internal/cmd/example
+tool (
+	github.com/xoctopus/genx/internal/cmd/example
+	github.com/xoctopus/genx/internal/cmd/skill-install
+)
 
 require (
 	github.com/xoctopus/pkgx v0.4.3
 	github.com/xoctopus/typx v0.4.4
-	github.com/xoctopus/x v0.5.4
+	// +skill:testx
+	github.com/xoctopus/x v0.5.5
 	golang.org/x/mod v0.38.0
 	golang.org/x/tools v0.48.0
 )
