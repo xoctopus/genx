@@ -34,9 +34,7 @@ func mustAppendSkillsGitIgnore(path string, names []string) {
 
 	for line := range strings.SplitSeq(string(data), "\n") {
 		trimmed := strings.TrimSpace(line)
-		if _, exists := skills[trimmed]; exists {
-			delete(skills, trimmed)
-		}
+		delete(skills, trimmed)
 	}
 
 	if len(skills) == 0 {

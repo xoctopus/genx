@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/xoctopus/genx/pkg/agent"
 	"github.com/xoctopus/x/testx/bdd"
+
+	"github.com/xoctopus/genx/pkg/agent"
 )
 
 func TestExtractSkillRefsFromGoMod(t *testing.T) {

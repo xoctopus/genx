@@ -2,7 +2,15 @@
 <a name="HEAD"></a>
 ## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.1...HEAD)
 
-> 2026-07-28
+> 2026-07-30
+
+### Doc
+
+* skills and more documents
+
+### Feat
+
+* **agent:** add agent skills installation
 
 ### Test
 
