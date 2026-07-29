@@ -15,3 +15,10 @@
 使用 `@code domain=...` 自定义领域码
 
 参见 `github.com/xoctopus/genx/devpkg/testdata/codex/domain_code.go`
+
+在需要生成的类型上方添加 `// +genx:code` 指令:
+
+```go
+// +genx:code
+type MyErrorCode int
+```

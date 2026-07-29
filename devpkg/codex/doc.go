@@ -9,7 +9,7 @@
 //
 // # Code Definition Conventions
 //
-//  1. Add `// +genx:codex` comment to your error code type.
+//  1. Add `// +genx:code` comment to your error code type.
 //  2. Define a custom `int` type and use the `@code` annotation in its comment
 //     to configure the domain of error (e.g., `// @code domain="OUR_DOMAIN`).
 //  3. Define constants for your type following the naming conventions below.

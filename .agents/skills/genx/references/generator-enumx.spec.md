@@ -16,11 +16,14 @@ go doc github.com/xoctopus/genx/devpkg/enumx
 
 ### 存储类型
 
-如果数据库存储时如果是根据文本或枚举存储需要标注 `storage` 类型
+如果 DB 按文本存储, 需要标注 `storage`
 
 参见 `github.com/xoctopus/genx/devpkg/testdata/enumx/gender.go`
 
 `@enum storage=...` 会影响数据库值的序列化和反序列化.
+
+storage 默认: `int`
+storage 可选: `text`, `string`, `varchar`, `enum`
 
 ### 枚举类型的映射关系
 
@@ -36,15 +39,15 @@ go doc github.com/xoctopus/genx/devpkg/enumx
 
 ### 枚举类型的扩展方法
 
-如果需要枚举类型更多的映射方法, 则需要枚举值注释中标注具体的映射
+如果需要枚举类型更多的映射方法, 则需要枚举值注释中标注具体的映射值. (映射方法返回值仅支持 `string`)
 
-格式为 `@enum ext.{映射方法名}={映射类型名}`
+格式为 `@enum ext.{映射方法名}={字符串}`
 
-并在需要的枚举值注释中标注具体的映射关系.
-
-格式为 `@enum ext.{映射方法名}={映射值变量名}`
-
-注意 `string`, `text`, `value` 为保留字, 不会生成.
+注意 `string`, `text`, `value` 是 `@enum ext.` 保留字, 不会生成.
 
 参见 `github.com/xoctopus/genx/devpkg/testdata/enumx/gender.go`
 
+注意
+
+- `@enum map.` 映射其他枚举类型
+- `@enum ext.` 映射文本(string)
