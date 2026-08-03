@@ -1,11 +1,13 @@
 // Package contextx provides a generator for creating type-safe context injection and extraction functions.
 //
-// # How to Integrate
+// # How to Integrate Generator
 //
-//  1. Add the `// +genx:context` directive to the types you want to inject into
-//     or extract from `context.Context`.
-//  2. The generator will create type-safe wrapper functions for your types based
-//     on `github.com/xoctopus/x/contextx`.
+//	import _ "github.com/xoctopus/genx/devpkg/contextx"
+//
+//	ctx := genx.NewContext(&genx.Args{
+//		Entrypoint: []string{entry},
+//	})
+//	_ = ctx.Execute(context.Background(), genx.Get()...)
 //
 // # Code Definition Conventions
 //

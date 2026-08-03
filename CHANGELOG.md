@@ -1,8 +1,22 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.2...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.3...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.3.3"></a>
+## [v0.3.3](https://github.com/xoctopus/genx/compare/v0.3.2...v0.3.3)
+
+> 2026-07-30
+
+### Doc
+
+* update .agents
+
+### Fix
+
+* **agent:** .gitignore location
 
 
 <a name="v0.3.2"></a>

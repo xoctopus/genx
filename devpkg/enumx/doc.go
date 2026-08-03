@@ -2,10 +2,12 @@
 //
 // # How to Integrate
 //
+//	import _ "github.com/xoctopus/genx/devpkg/enumx"
+//
 //	ctx := genx.NewContext(&genx.Args{
 //		Entrypoint: []string{entry},
 //	})
-//	_ = ctx.Execute(context.Background(), genx.Get()...))
+//	_ = ctx.Execute(context.Background(), genx.Get()...)
 //
 // # Code Definition Conventions
 //
