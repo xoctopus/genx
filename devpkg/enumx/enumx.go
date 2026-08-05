@@ -8,6 +8,7 @@ import (
 	"maps"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/xoctopus/pkgx/pkg/pkgx"
@@ -20,11 +21,20 @@ import (
 
 type option struct {
 	name  string
+	enum  string
 	text  string
 	value *pkgx.Constant
 
 	mapping map[string]string
 	extends map[string]string
+}
+
+func (o *option) quotes() []string {
+	quotes := []string{strconv.Quote(o.name)}
+	if len(o.enum) > 0 {
+		quotes = append(quotes, strconv.Quote(o.enum))
+	}
+	return quotes
 }
 
 type Enum struct {
@@ -71,6 +81,10 @@ func (e *Enum) add(c *pkgx.Constant) {
 
 		if annotations, ok := doc.AnnotationsByName(identifier); ok {
 			for _, anno := range annotations {
+				if anno.Key() == "enum" {
+					o.enum = anno.Value()
+					continue
+				}
 				method, key, found := strings.Cut(anno.Key(), ".")
 				if !found {
 					continue
@@ -112,10 +126,10 @@ func (e *Enum) Values(ctx context.Context) s.Snippet {
 func (e *Enum) ValueToStringCases(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
 	for _, v := range e.options {
-		name := strings.TrimPrefix(
-			v.value.Name(),
-			stringsx.UpperSnakeCase(v.value.TypeName())+"__",
-		)
+		name := v.name
+		if len(v.enum) > 0 && e.storage == "enum" {
+			name = v.enum
+		}
 		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
 		ss = append(
 			ss,
@@ -129,14 +143,15 @@ func (e *Enum) ValueToStringCases(ctx context.Context) s.Snippet {
 // StringToValueCases generates code snippet cases from string to const value
 func (e *Enum) StringToValueCases(ctx context.Context) s.Snippet {
 	ss := make([]s.Snippet, 0)
-	for _, v := range e.options {
-		expose := s.ExposeObjectUnsafe(ctx, v.value.Exposer())
+
+	for _, o := range e.options {
 		ss = append(
 			ss,
-			s.Compose(s.Indent(1), s.BlockF("case %q:", v.name)),
-			s.Compose(s.Indent(2), s.Block("return "), expose, s.Block(", nil")),
+			s.Compose(s.Indent(1), s.BlockF("case %s:", strings.Join(o.quotes(), ", "))),
+			s.Compose(s.Indent(2), s.Block("return "), s.Block(o.value.Name()), s.Block(", nil")),
 		)
 	}
+
 	return s.Snippets(s.NewLine(1), ss...)
 }
 

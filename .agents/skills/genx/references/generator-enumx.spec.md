@@ -51,3 +51,5 @@ storage 可选: `text`, `string`, `varchar`, `enum`
 
 - `@enum map.` 映射其他枚举类型
 - `@enum ext.` 映射文本(string)
+- 如果 storage=enum, `@enum enum=...` 可以覆盖 `String` 方法的返回值.
+  + 参见 `github.com/xoctopus/genx/devpkg/testdata/enumx/enable_status.go`

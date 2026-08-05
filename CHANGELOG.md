@@ -1,8 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.3...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.4...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.3.4"></a>
+## [v0.3.4](https://github.com/xoctopus/genx/compare/v0.3.3...v0.3.4)
+
+> 2026-08-04
+
+### Doc
+
+* add generator documents
 
 
 <a name="v0.3.3"></a>
