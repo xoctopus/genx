@@ -210,7 +210,10 @@ func (x *genc) exec(ctx context.Context, p pkgx.Package, gs ...Generator) error 
 }
 
 func (x *genc) genpkg(ctx context.Context, g Generator, global bool) ([]*genc, error) {
-	generated := make([]*genc, 0)
+	var (
+		generated = make([]*genc, 0)
+		inst      Generator
+	)
 
 	for t := range x.curr.TypeNames().Elements() {
 		pos := t.Node().Pos()
@@ -252,7 +255,12 @@ func (x *genc) genpkg(ctx context.Context, g Generator, global bool) ([]*genc, e
 				return dumper.WithEntry(ctx, x.curr.Path())
 			}),
 		}
-		if err := xf.gen(x.New(g), t.Type()); err != nil {
+
+		if inst == nil {
+			inst = x.New(g)
+		}
+
+		if err := xf.gen(inst, t.Type()); err != nil {
 			return nil, err
 		}
 		if xf.file.IsNil() {

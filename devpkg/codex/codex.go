@@ -51,7 +51,7 @@ func (e *Error) CodeMessageCases(ctx context.Context) s.Snippet {
 		s.Compose(
 			s.Indent(1),
 			s.Block("case "),
-			s.ExposeObject(ctx, e.undefined.Exposer()),
+			s.ExposeObjectUnsafe(ctx, e.undefined.Exposer()),
 			s.Block(":"),
 		),
 		s.Compose(
@@ -71,7 +71,7 @@ func (e *Error) CodeMessageCases(ctx context.Context) s.Snippet {
 			s.Compose(
 				s.Indent(1),
 				s.Block("case "),
-				s.ExposeObject(ctx, v.Exposer()),
+				s.ExposeObjectUnsafe(ctx, v.Exposer()),
 				s.Block(": "),
 			),
 			s.Compose(

@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"go/types"
 	"log"
+	"reflect"
 
 	"github.com/xoctopus/x/enumx"
 	"github.com/xoctopus/x/misc/timer"
@@ -62,8 +63,12 @@ func (x *g) Generate(c genx.Context, t types.Type) error {
 func (x *g) generate(c genx.Context, e *Enum) {
 	ctx := c.Context()
 
-	ident := s.IdentTT(ctx, e.typ)
-	pkgid := "github.com/xoctopus/x/enumx"
+	var (
+		ident     = s.IdentTT(ctx, e.typ)
+		tDrvV     = reflect.TypeFor[driver.Value]()
+		tEnumxDvo = reflect.TypeFor[enumx.DriverValueOffset]()
+		pkgid     = tEnumxDvo.PkgPath()
+	)
 
 	args := []*s.TArg{
 		// @def bytes.ToUpper
@@ -84,12 +89,12 @@ func (x *g) generate(c genx.Context, e *Enum) {
 		// @def Type
 		s.Arg(ctx, "Type", ident),
 		// @def database/sql/driver.Value
-		s.ArgT[driver.Value](ctx),
+		s.ArgExposeUnsafe(ctx, tDrvV.PkgPath(), tDrvV.Name()),
 		// @def github.com/xoctopus/x/enumx.DriverValueOffset
-		s.ArgT[enumx.DriverValueOffset](ctx),
+		s.ArgExposeUnsafe(ctx, tEnumxDvo.PkgPath(), tEnumxDvo.Name()),
 
 		// @def UnknownValue
-		s.Arg(ctx, "UnknownValue", s.ExposeObject(ctx, e.unknown.Exposer())),
+		s.Arg(ctx, "UnknownValue", s.ExposeObjectUnsafe(ctx, e.unknown.Exposer())),
 		// @def EnumValues
 		s.Arg(ctx, "EnumValues", e.Values(ctx)),
 		// @def Values
