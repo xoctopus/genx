@@ -1,8 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.5...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.6...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.3.6"></a>
+## [v0.3.6](https://github.com/xoctopus/genx/compare/v0.3.5...v0.3.6)
+
+> 2026-08-18
+
+### Perf
+
+* **genx:** speed up codegen with reused generators and unsafe expose
 
 
 <a name="v0.3.5"></a>

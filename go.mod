@@ -9,7 +9,7 @@ tool (
 
 require (
 	github.com/xoctopus/pkgx v0.4.3
-	github.com/xoctopus/typx v0.4.4
+	github.com/xoctopus/typx v0.4.6
 	// +skill:testx
 	github.com/xoctopus/x v0.5.5
 	golang.org/x/mod v0.38.0
