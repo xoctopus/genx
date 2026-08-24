@@ -11,7 +11,7 @@ require (
 	github.com/xoctopus/pkgx v0.4.3
 	github.com/xoctopus/typx v0.4.6
 	// +skill:testx
-	github.com/xoctopus/x v0.5.5
+	github.com/xoctopus/x v0.5.6
 	golang.org/x/mod v0.40.0
 	golang.org/x/tools v0.49.0
 )
