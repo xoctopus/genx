@@ -1,6 +1,8 @@
 ---
 name: genx-guideline
-description: 封装 genx 的自定义生成器扩展方式与项目接入约定; 当任务涉及生成器扩展, 注册, 组装执行入口或排查 +genx 生成行为时使用; skills 安装.
+description: >-
+  封装 genx 的自定义生成器扩展方式与项目接入约定, 以及 skills 安装.
+  当任务涉及生成器扩展, 注册, 组装执行入口, 或排查 +genx 生成行为时使用.
 triggers:
   - "添加/扩展 genx 生成器"
   - "接入 genx 代码生成"
