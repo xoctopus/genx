@@ -12,7 +12,7 @@ require (
 	github.com/xoctopus/typx v0.4.7
 	// +skill:testx
 	github.com/xoctopus/x v0.5.8
-	golang.org/x/mod v0.40.0
+	golang.org/x/mod v0.41.0
 	golang.org/x/tools v0.49.0
 )
 
