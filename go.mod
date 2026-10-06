@@ -12,11 +12,11 @@ require (
 	github.com/xoctopus/typx v0.4.7
 	// +skill:testx
 	github.com/xoctopus/x v0.5.8
-	golang.org/x/mod v0.40.0
-	golang.org/x/tools v0.49.0
+	golang.org/x/mod v0.41.0
+	golang.org/x/tools v0.51.0
 )
 
 require (
 	github.com/google/go-cmp v0.7.0 // indirect
-	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
 )
