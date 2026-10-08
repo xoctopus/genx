@@ -2,8 +2,11 @@
 name: genx-guideline
 description: >-
   封装 genx 的自定义生成器扩展方式与项目接入约定, 以及 skills 安装.
-  当任务涉及生成器扩展, 注册, 组装执行入口, 或排查 +genx 生成行为时使用.
+  当任务涉及业务仓接入 internal/cmd/gen 与 skill-install, 生成器扩展, 注册, 组装执行入口, 或排查 +genx 生成行为时使用.
 triggers:
+  - "业务仓接入 gen"
+  - "internal/cmd/gen"
+  - "skill-install"
   - "添加/扩展 genx 生成器"
   - "接入 genx 代码生成"
   - "排查 genx 未生成"
@@ -14,7 +17,14 @@ triggers:
 
 按 `github.com/xoctopus/genx` 约定接入代码生成或扩展自定义生成器.
 
-## 接入项目
+## 业务仓接入
+
+业务仓库通过本仓 **`internal/cmd/gen`** 与 **`internal/cmd/skill-install`** 接入, 不是直接依赖 genx 的 `internal/cmd/*`.
+
+- **接入手册** (go.mod `tool` / `+skill`, 两个 main 模板, 命令与顺序): [manual.md](references/manual.md)
+- **Skill 安装协议**: [skills-installation.spec.md](references/skills-installation.spec.md)
+
+## 生成入口 (最小示例)
 
 ```go
 import (
@@ -92,8 +102,6 @@ func main() {
 
 ## 更多信息
 
-参见 [genx.spec.md](references/genx.spec.md)
-
-如果需要在项目中集成 skills 安装
-
-参见 [skills-installation.spec.md](references/skills-installation.spec.md)
+- 业务仓接入手册: [manual.md](references/manual.md)
+- 自定义生成器规范: [genx.spec.md](references/genx.spec.md)
+- Skill 安装协议: [skills-installation.spec.md](references/skills-installation.spec.md)

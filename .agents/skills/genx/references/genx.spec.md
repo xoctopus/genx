@@ -90,4 +90,5 @@ type Status int
 
 在包级别注释, 类型注释中添加生成指令. 如: `+genx:doc`
 导入生成器包, `import _ pkg/to/your/generator`
-运行侧参见 SKILL
+
+业务仓运行侧 (gen main, skill-install, go.mod tool): 参见 [manual.md](manual.md)
