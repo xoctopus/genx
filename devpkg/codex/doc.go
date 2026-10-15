@@ -7,38 +7,29 @@
 //	ctx := genx.NewContext(&genx.Args{
 //		Entrypoint: []string{entry},
 //	})
-//	_ = ctx.Execute(context.Background(), genx.Get()...)
+//	_ = ctx.Execute(context.Background(), genx.Get("code")...)
 //
 // # Code Definition Conventions
 //
-//  1. Add `// +genx:code` comment to your error code type.
-//  2. Define a custom `int` type and use the `@code` annotation in its comment
-//     to configure the domain of error (e.g., `// @code domain="OUR_DOMAIN`).
-//  3. Define constants for your type following the naming conventions below.
+//  1. Add `// +genx:code` on the error code type.
+//  2. Define constants with `<PREFIX>_UNDEFINED` and `<PREFIX>__<NAME>` (see genx skill generator-codex.spec.md).
+//  3. Optional HTTP mapping: on each constant doc, `// @code api=StatusBadRequest` or `// @code api=http=444`.
+//     Invalid api values log a warning and omit that constant from StatusCode(). Unannotated codes map to StatusCode() 0; types with no api omit StatusCode().
 //
-// Assuming your type is named `ErrorCode`, its prefix will be `ERROR_CODE` (UpperSnakeCase).
+// # Domain in Message()
 //
-//   - Undefined Error:
-//     Must be named exactly as `<PREFIX>_UNDEFINED`.
-//     Example: `ERROR_CODE_UNDEFINED`
-//
-//   - Specific Errors:
-//     Must be named as `<PREFIX>__<ERROR_NAME>` (using a double underscore `__`).
-//     Example: `ERROR_CODE__NOT_FOUND`
-//
-// The error message is extracted from the constant's comment. If no comment is
-// provided, the `<ERROR_NAME>` is used as the fallback message.
+// Default domain is UPPER(package)::UPPER(TypeName). Optional type doc override: `// @code domain=MYDOMAIN`.
+// Constant docs use only `api` for HTTP, not domain.
 //
 // Example:
 //
-//	// Code internal error code
 //	// +genx:code
 //	type Code int8
 //
 //	const (
 //		CODE_UNDEFINED Code = iota
-//		CODE__ERROR1        // error1 message
-//		CODE__ERROR2        // error2 message
-//		CODE__ERROR3
+//		// CODE__ERROR1 error1 message
+//		// @code api=StatusBadRequest
+//		CODE__ERROR1
 //	)
 package codex

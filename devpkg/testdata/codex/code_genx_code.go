@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Message presents error message
 func (e Code) Message() string {
 	switch e {
 	default:
@@ -17,5 +18,19 @@ func (e Code) Message() string {
 		return "[TESTDATA::CODE:2] error2 message"
 	case CODE__ERROR3:
 		return "[TESTDATA::CODE:3] ERROR3"
+	case CODE__ERROR4:
+		return "[TESTDATA::CODE:5] ERROR4"
+	}
+}
+
+// StatusCode http status describer
+func (e Code) StatusCode() int {
+	switch e {
+	default:
+		return 0
+	case CODE__ERROR1:
+		return 400
+	case CODE__ERROR2:
+		return 444
 	}
 }

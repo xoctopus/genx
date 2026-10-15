@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/constant"
 	"go/types"
+	"log"
 	"strings"
 
 	"github.com/xoctopus/pkgx/pkg/pkgx"
@@ -22,6 +23,7 @@ type Error struct {
 	domain    string
 	undefined *pkgx.Constant
 	list      []*pkgx.Constant
+	statuses  map[*pkgx.Constant]string
 }
 
 func (e *Error) IsValid() bool {
@@ -41,6 +43,27 @@ func (e *Error) add(c *pkgx.Constant) {
 		parts := strings.SplitN(name, "__", 2)
 		if len(parts) == 2 && parts[0] == prefix {
 			e.list = append(e.list, c)
+
+			doc := docx.Parse(c.Doc())
+			for annoName, annotations := range doc.Annotations() {
+				if annoName != "code" {
+					continue
+				}
+				for _, anno := range annotations {
+					switch key := strings.ToLower(anno.Key()); key {
+					case "api":
+						if code, ok := ResolveStatusAnnoValue(anno.Value()); ok {
+							e.statuses[c] = code
+							continue
+						}
+						log.Printf(
+							"[SkipErr] [genx:code]: invalid api annotation: [%s:@code api=%q]",
+							name,
+							anno.Value(),
+						)
+					}
+				}
+			}
 		}
 	}
 }
@@ -84,6 +107,30 @@ func (e *Error) CodeMessageCases(ctx context.Context) s.Snippet {
 	return s.Snippets(s.NewLine(1), ss...)
 }
 
+func (e *Error) StatusDescriberCases(ctx context.Context) s.Snippet {
+	ss := make([]s.Snippet, 0, len(e.statuses))
+
+	for _, c := range e.list {
+		if code, ok := e.statuses[c]; ok {
+			ss = append(
+				ss,
+				s.Compose(
+					s.Indent(1),
+					s.Block("case "),
+					s.ExposeObjectUnsafe(ctx, c.Exposer()),
+					s.Block(": "),
+				),
+				s.Compose(
+					s.Indent(2),
+					s.BlockF("return %s", code),
+				),
+			)
+		}
+	}
+
+	return s.Snippets(s.NewLine(1), ss...)
+}
+
 func NewErrors(g genx.Context) *Errors {
 	es := &Errors{
 		p: g.Package(),
@@ -113,16 +160,16 @@ func NewErrors(g genx.Context) *Errors {
 					switch strings.ToLower(anno.Key()) {
 					case "domain":
 						domain = anno.Value()
-					default:
 					}
 				}
 			}
 
 			es.e[typ] = &Error{
-				typ:    typ,
-				domain: domain,
-				name:   elem.TypeName(),
-				list:   make([]*pkgx.Constant, 0),
+				typ:      typ,
+				domain:   domain,
+				name:     elem.TypeName(),
+				list:     make([]*pkgx.Constant, 0),
+				statuses: make(map[*pkgx.Constant]string),
 			}
 		}
 		es.e[typ].add(elem)

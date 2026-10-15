@@ -5,7 +5,7 @@
 1. **代码生成器** (`internal/cmd/gen`, genx + 各库 `devpkg`)
 2. **Skill 安装器** (`internal/cmd/skill-install`, genx `pkg/agent`)
 
-工程脚手架 (Makefile, Docker, CI) 由 **devx** / `devgen` 负责, 不在本文范围.
+工程脚手架 (Makefile, Docker, CI 等) 不在本文范围; 各业务仓自行维护.
 
 ## 1. 总览
 
@@ -214,19 +214,22 @@ SKILL 中的最小示例逐个 `_ "…/devpkg/enumx"` 等价于 `_ "github.com/x
 ## 5. 推荐接入顺序 (新业务仓)
 
 1. `go.mod`: 声明 `require` + `// +skill:*`, 添加 `tool` 两个 internal cmd
-2. 编写 `internal/cmd/skill-install/main.go`, 执行 `go mod tidy` 后 `go run ./internal/cmd/skill-install`
+2. 编写 `internal/cmd/skill-install/main.go`, 执行 `go mod tidy` 后 **`go tool skill-install`**
 3. 编写 `internal/cmd/gen/main.go` (genx devpkg + 需要的 sqlx 等)
 4. 在业务代码添加 `+genx` / sqlx 指令
 5. `go run ./internal/cmd/gen`, 将生成文件纳入版本管理
-6. (可选) `devgen init` / `devgen all` 生成 Makefile 与 CI — 见 devx 文档
+
+改 `go.mod` 的 skill 依赖后: 重复步骤 2.
+
+若 IDE 需要从仓库外读取 skill, 自行将 `.agents/skills/<name>` 链到 Agent 配置目录 (本协议仅负责仓库内 symlink, 见 [skills-installation.spec.md](skills-installation.spec.md)).
 
 ## 6. 参考仓库文件
 
-| 仓库  | gen                        | skill-install                        |
-|-------|----------------------------|--------------------------------------|
-| confx | `internal/cmd/gen/main.go` | `internal/cmd/skill-install/main.go` |
-| sqlx  | `internal/cmd/gen/main.go` | `internal/cmd/skill-install/main.go` |
-| devx  | `internal/cmd/gen/main.go` | `internal/cmd/skill-install/main.go` |
+| 仓库  | gen                                            | skill-install                        |
+|-------|------------------------------------------------|--------------------------------------|
+| confx | `internal/cmd/gen/main.go`                     | `internal/cmd/skill-install/main.go` |
+| sqlx  | `internal/cmd/gen/main.go`                     | `internal/cmd/skill-install/main.go` |
+| genx  | `internal/cmd/example/main.go` (本仓 testdata) | `internal/cmd/skill-install/main.go` |
 
 ## 7. 相关文档
 

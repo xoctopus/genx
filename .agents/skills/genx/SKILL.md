@@ -71,7 +71,7 @@ func main() {
 
 ## 内置生成器
 
-- `code`: 错误码. 参见 [generator-codex.spec.md](references/generator-codex.spec.md)
+- `code`: 错误码 (`Message()`; 可选常量 `@code api=StatusXxx` 生成 `StatusCode()` 对齐 httpx). 参见 [generator-codex.spec.md](references/generator-codex.spec.md)
 - `context`: 上下文注入. 参见 [generator-contextx.spec.md](references/generator-contextx.spec.md)
 - `doc`: 运行时文档. 参见 [generator-docx.spec.md](references/generator-docx.spec.md)
 - `enum`: 枚举. 参见 [generator-enumx.spec.md](references/generator-enumx.spec.md)

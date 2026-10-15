@@ -1,8 +1,44 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.6...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.9...HEAD)
 
-> 0001-01-01
+> 2026-10-08
+
+### Chore
+
+* **deps:** bump github.com/xoctopus/x from 0.5.8 to 0.5.9
+* **deps:** bump golang.org/x/tools from 0.49.0 to 0.51.0
+
+### Docs
+
+* **skills:** add business-repo onboarding for gen and skill-install
+
+
+<a name="v0.3.9"></a>
+## [v0.3.9](https://github.com/xoctopus/genx/compare/v0.3.8...v0.3.9)
+
+> 2026-09-05
+
+### Docs
+
+* **skills:** genx SKILL.md description formating
+
+
+<a name="v0.3.8"></a>
+## [v0.3.8](https://github.com/xoctopus/genx/compare/v0.3.7...v0.3.8)
+
+> 2026-08-28
+
+### Chore
+
+* bump Go to 1.27.0
+* **deps:** bump golang.org/x/mod from 0.38.0 to 0.40.0 ([#23](https://github.com/xoctopus/genx/issues/23))
+
+
+<a name="v0.3.7"></a>
+## [v0.3.7](https://github.com/xoctopus/genx/compare/v0.3.6...v0.3.7)
+
+> 2026-08-20
 
 
 <a name="v0.3.6"></a>

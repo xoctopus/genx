@@ -14,8 +14,10 @@ import (
 )
 
 var (
-	//go:embed codex.go.tpl
+	//go:embed codex.message.tpl
 	template []byte
+	//go:embed codex.status-describer.tpl
+	templateDescriber []byte
 
 	identifier = "code"
 )
@@ -68,5 +70,18 @@ func (x *g) generate(c genx.Context, e *Error) {
 		s.Arg(ctx, "UnknownCodeFormat", s.BlockRaw("["+e.domain+":%d] unknown")),
 	}
 
-	c.Render(s.Template(bytes.NewReader(template), args...))
+	ss := []s.Snippet{
+		s.Template(bytes.NewReader(template), args...),
+	}
+
+	if len(e.statuses) > 0 {
+		args = append(
+			args,
+			// @def StatusDescriberCases
+			s.Arg(ctx, "StatusDescriberCases", e.StatusDescriberCases(ctx)),
+		)
+		ss = append(ss, s.Template(bytes.NewReader(templateDescriber), args...))
+	}
+
+	c.Render(s.Snippets(s.NewLine(1), ss...))
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Message presents error message
 func (e DomainCode) Message() string {
 	switch e {
 	default:
