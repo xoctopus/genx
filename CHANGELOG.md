@@ -1,8 +1,14 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.3.9...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.4.0...HEAD)
 
-> 2026-10-08
+> 0001-01-01
+
+
+<a name="v0.4.0"></a>
+## [v0.4.0](https://github.com/xoctopus/genx/compare/v0.3.9...v0.4.0)
+
+> 2026-10-15
 
 ### Chore
 
@@ -12,6 +18,10 @@
 ### Docs
 
 * **skills:** add business-repo onboarding for gen and skill-install
+
+### Feat
+
+* **codex:** generate StatusCode from [@code](https://github.com/code) api on error constants
 
 
 <a name="v0.3.9"></a>
