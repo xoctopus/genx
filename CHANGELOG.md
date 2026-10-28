@@ -2,7 +2,11 @@
 <a name="HEAD"></a>
 ## [HEAD](https://github.com/xoctopus/genx/compare/v0.4.0...HEAD)
 
-> 0001-01-01
+> 2026-10-15
+
+### Docs
+
+* update CHANGELOG
 
 
 <a name="v0.4.0"></a>

@@ -39,7 +39,7 @@ go run ./internal/cmd/skill-install →  symlink 各模块 skill
 ```go
 module example.com/myapp
 
-go 1.27.0
+go 1.27.3
 
 tool (
 	example.com/myapp/internal/cmd/gen
