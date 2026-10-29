@@ -2,11 +2,19 @@
 <a name="HEAD"></a>
 ## [HEAD](https://github.com/xoctopus/genx/compare/v0.4.0...HEAD)
 
-> 2026-10-15
+> 2026-10-29
+
+### Chore
+
+* bump go to 1.27.3 and refresh Makefile, CI and lint config
 
 ### Docs
 
 * update CHANGELOG
+
+### Feat
+
+* **codex:** generate CodeIdentifier, CodeHint and CodeValues
 
 
 <a name="v0.4.0"></a>
