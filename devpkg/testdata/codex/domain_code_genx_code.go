@@ -18,5 +18,47 @@ func (e DomainCode) Message() string {
 		return "[DOMAIN_NAME:2] handle failed"
 	case DOMAIN_CODE__PARAMETER:
 		return "[DOMAIN_NAME:3] invalid parameter"
+	case DOMAIN_CODE__INTERNAL:
+		return "[DOMAIN_NAME:4] INTERNAL"
+	}
+}
+
+// CodeIdentifier returns the unique identifier of the code
+func (e DomainCode) CodeIdentifier() string {
+	switch e {
+	default:
+		return ""
+	case DOMAIN_CODE_UNDEFINED:
+		return "DOMAIN_NAME__UNDEFINED"
+	case DOMAIN_CODE__PARSE:
+		return "DOMAIN_NAME__PARSE"
+	case DOMAIN_CODE__HANDLE:
+		return "DOMAIN_NAME__HANDLE"
+	case DOMAIN_CODE__PARAMETER:
+		return "DOMAIN_NAME__PARAMETER"
+	case DOMAIN_CODE__INTERNAL:
+		return "DOMAIN_NAME__INTERNAL"
+	}
+}
+
+// CodeHint returns the message which can be presented to users
+func (e DomainCode) CodeHint() string {
+	switch e {
+	default:
+		return ""
+	case DOMAIN_CODE__PARSE:
+		return "parse failed"
+	case DOMAIN_CODE__PARAMETER:
+		return "please check the input parameters"
+	}
+}
+
+// CodeValues implements codex.CanBeCode
+func (DomainCode) CodeValues() []any {
+	return []any{
+		DOMAIN_CODE__PARSE,
+		DOMAIN_CODE__HANDLE,
+		DOMAIN_CODE__PARAMETER,
+		DOMAIN_CODE__INTERNAL,
 	}
 }

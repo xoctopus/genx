@@ -34,3 +34,31 @@ func (e Code) StatusCode() int {
 		return 444
 	}
 }
+
+// CodeIdentifier returns the unique identifier of the code
+func (e Code) CodeIdentifier() string {
+	switch e {
+	default:
+		return ""
+	case CODE_UNDEFINED:
+		return "TESTDATA::CODE__UNDEFINED"
+	case CODE__ERROR1:
+		return "TESTDATA::CODE__ERROR1"
+	case CODE__ERROR2:
+		return "TESTDATA::CODE__ERROR2"
+	case CODE__ERROR3:
+		return "TESTDATA::CODE__ERROR3"
+	case CODE__ERROR4:
+		return "TESTDATA::CODE__ERROR4"
+	}
+}
+
+// CodeValues implements codex.CanBeCode
+func (Code) CodeValues() []any {
+	return []any{
+		CODE__ERROR1,
+		CODE__ERROR2,
+		CODE__ERROR3,
+		CODE__ERROR4,
+	}
+}

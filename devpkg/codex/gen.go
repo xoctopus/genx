@@ -18,6 +18,12 @@ var (
 	template []byte
 	//go:embed codex.status-describer.tpl
 	templateDescriber []byte
+	//go:embed codex.identifier.tpl
+	templateIdentifier []byte
+	//go:embed codex.hint.tpl
+	templateHint []byte
+	//go:embed codex.values.tpl
+	templateValues []byte
 
 	identifier = "code"
 )
@@ -82,6 +88,29 @@ func (x *g) generate(c genx.Context, e *Error) {
 		)
 		ss = append(ss, s.Template(bytes.NewReader(templateDescriber), args...))
 	}
+
+	args = append(
+		args,
+		// @def CodeIdentifierCases
+		s.Arg(ctx, "CodeIdentifierCases", e.CodeIdentifierCases(ctx)),
+	)
+	ss = append(ss, s.Template(bytes.NewReader(templateIdentifier), args...))
+
+	if len(e.hints) > 0 {
+		args = append(
+			args,
+			// @def CodeHintCases
+			s.Arg(ctx, "CodeHintCases", e.CodeHintCases(ctx)),
+		)
+		ss = append(ss, s.Template(bytes.NewReader(templateHint), args...))
+	}
+
+	args = append(
+		args,
+		// @def CodeValues
+		s.Arg(ctx, "CodeValues", e.CodeValues(ctx)),
+	)
+	ss = append(ss, s.Template(bytes.NewReader(templateValues), args...))
 
 	c.Render(s.Snippets(s.NewLine(1), ss...))
 }

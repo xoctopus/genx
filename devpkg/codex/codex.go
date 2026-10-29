@@ -24,6 +24,7 @@ type Error struct {
 	undefined *pkgx.Constant
 	list      []*pkgx.Constant
 	statuses  map[*pkgx.Constant]string
+	hints     map[*pkgx.Constant]string
 }
 
 func (e *Error) IsValid() bool {
@@ -61,6 +62,16 @@ func (e *Error) add(c *pkgx.Constant) {
 							name,
 							anno.Value(),
 						)
+					case "hint":
+						hint := strings.TrimSpace(anno.Value())
+						if len(hint) == 0 {
+							hint = doc.Title(name)
+						}
+						if len(hint) == 0 {
+							log.Printf("[SkipErr] [genx:code]: empty hint: [%s:@code hint]", name)
+							continue
+						}
+						e.hints[c] = hint
 					}
 				}
 			}
@@ -131,6 +142,79 @@ func (e *Error) StatusDescriberCases(ctx context.Context) s.Snippet {
 	return s.Snippets(s.NewLine(1), ss...)
 }
 
+// CodeIdentifierCases generates code snippet for identifier cases: ${DOMAIN}__${SUFFIX}
+func (e *Error) CodeIdentifierCases(ctx context.Context) s.Snippet {
+	ss := []s.Snippet{
+		s.Compose(
+			s.Indent(1),
+			s.Block("case "),
+			s.ExposeObjectUnsafe(ctx, e.undefined.Exposer()),
+			s.Block(":"),
+		),
+		s.Compose(
+			s.Indent(2),
+			s.Block("return "),
+			s.BlockRaw(e.domain+"__UNDEFINED"),
+		),
+	}
+	prefix := stringsx.UpperSnakeCase(e.name) + "__"
+	for _, v := range e.list {
+		ss = append(
+			ss,
+			s.Compose(
+				s.Indent(1),
+				s.Block("case "),
+				s.ExposeObjectUnsafe(ctx, v.Exposer()),
+				s.Block(":"),
+			),
+			s.Compose(
+				s.Indent(2),
+				s.Block("return "),
+				s.BlockRaw(e.domain+"__"+strings.TrimPrefix(v.Name(), prefix)),
+			),
+		)
+	}
+	return s.Snippets(s.NewLine(1), ss...)
+}
+
+// CodeHintCases generates code snippet for hint cases of constants annotated by `@code hint`
+func (e *Error) CodeHintCases(ctx context.Context) s.Snippet {
+	ss := make([]s.Snippet, 0, len(e.hints))
+	for _, v := range e.list {
+		hint, ok := e.hints[v]
+		if !ok {
+			continue
+		}
+		ss = append(
+			ss,
+			s.Compose(
+				s.Indent(1),
+				s.Block("case "),
+				s.ExposeObjectUnsafe(ctx, v.Exposer()),
+				s.Block(":"),
+			),
+			s.Compose(
+				s.Indent(2),
+				s.Block("return "),
+				s.BlockRaw(hint),
+			),
+		)
+	}
+	return s.Snippets(s.NewLine(1), ss...)
+}
+
+// CodeValues generates code snippet of code value list, excluding undefined
+func (e *Error) CodeValues(ctx context.Context) s.Snippet {
+	ss := make([]s.Snippet, 0, len(e.list))
+	for _, v := range e.list {
+		ss = append(
+			ss,
+			s.Compose(s.Indent(2), s.ExposeObjectUnsafe(ctx, v.Exposer()), s.Block(",")),
+		)
+	}
+	return s.Snippets(s.NewLine(1), ss...)
+}
+
 func NewErrors(g genx.Context) *Errors {
 	es := &Errors{
 		p: g.Package(),
@@ -170,6 +254,7 @@ func NewErrors(g genx.Context) *Errors {
 				name:     elem.TypeName(),
 				list:     make([]*pkgx.Constant, 0),
 				statuses: make(map[*pkgx.Constant]string),
+				hints:    make(map[*pkgx.Constant]string),
 			}
 		}
 		es.e[typ].add(elem)
