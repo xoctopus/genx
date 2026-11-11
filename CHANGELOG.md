@@ -1,8 +1,19 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.4.1...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.4.2...HEAD)
 
 > 0001-01-01
+
+
+<a name="v0.4.2"></a>
+## [v0.4.2](https://github.com/xoctopus/genx/compare/v0.4.1...v0.4.2)
+
+> 2026-11-11
+
+### BREAKING CHANGE
+
+
+generated identifiers change from <domain>__<NAME> to <DOMAIN>::<KEY>, e.g. TESTDATA::CODE__ERROR1 -> TESTDATA::ERROR1 and USER__NOT_FOUND -> USER::NOT_FOUND
 
 
 <a name="v0.4.1"></a>
