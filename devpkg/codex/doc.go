@@ -17,19 +17,28 @@
 //     Invalid api values log a warning and omit that constant from StatusCode(). Unannotated codes map to StatusCode() 0; types with no api omit StatusCode().
 //  4. Optional hint: on each constant doc, `// @code hint=...` uses the given text, `// @code hint` uses the doc title.
 //     Unannotated codes map to CodeHint() ""; types with no hint omit CodeHint().
+//  5. Optional offset: start the constants from an offset, such as `CODE_UNDEFINED Code = iota + DomainOffset`,
+//     to keep code values apart from other packages. Offsets are managed by the project. The underlying type
+//     must hold the offset, and the offset constant must not be named `<PREFIX>__<NAME>`.
 //
 // # Generated Methods
 //
 //   - Message() string: `[<domain>:<value>] <doc title or NAME>`.
 //   - StatusCode() int: only if any constant has `@code api`.
-//   - CodeIdentifier() string: `<domain>__<NAME>`, `<domain>__UNDEFINED` for the undefined constant.
+//   - CodeIdentifier() string: `<KEY_DOMAIN>::<NAME>`, `<KEY_DOMAIN>::UNDEFINED` for the undefined constant.
 //   - CodeHint() string: only if any constant has `@code hint`.
 //   - CodeValues() []any: all constants except the undefined one, implementing codex.CanBeCode.
 //
 // # Domain
 //
-// Default domain is UPPER(package)::UPPER(TypeName). Optional type doc override: `// @code domain=MYDOMAIN`.
-// It is used by both Message() and CodeIdentifier().
+// Optional type doc override: `// @code domain=MYDOMAIN`. Without it:
+//
+//   - Message() uses UPPER(package)::UPPER(TypeName).
+//   - CodeIdentifier() uses UPPER(package), so that keys read as `<PACKAGE>::<NAME>`.
+//
+// A package is expected to define one code type for its domain. Multiple code
+// types in a package are allowed but not recommended: their identifiers share
+// the same domain.
 //
 // Example:
 //

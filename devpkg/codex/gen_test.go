@@ -34,15 +34,15 @@ func TestG_Generate(t *testing.T) {
 
 func TestGeneratedCode(t *testing.T) {
 	var (
-		_ codex.ErrorMessage = testdata.CODE__ERROR1
-		_ codex.CanBeCode    = testdata.CODE__ERROR1
-		_ codex.CanBeCode    = testdata.DOMAIN_CODE__PARSE
+		_ codex.HasMessageCode = testdata.CODE__ERROR1
+		_ codex.CanBeCode      = testdata.CODE__ERROR1
+		_ codex.CanBeCode      = testdata.DOMAIN_CODE__PARSE
 	)
 
 	t.Run("CodeIdentifier", func(t *testing.T) {
-		testx.Expect(t, testdata.CODE_UNDEFINED.CodeIdentifier(), testx.Equal("TESTDATA::CODE__UNDEFINED"))
-		testx.Expect(t, testdata.CODE__ERROR1.CodeIdentifier(), testx.Equal("TESTDATA::CODE__ERROR1"))
-		testx.Expect(t, testdata.DOMAIN_CODE__PARSE.CodeIdentifier(), testx.Equal("DOMAIN_NAME__PARSE"))
+		testx.Expect(t, testdata.CODE_UNDEFINED.CodeIdentifier(), testx.Equal("TESTDATA::UNDEFINED"))
+		testx.Expect(t, testdata.CODE__ERROR1.CodeIdentifier(), testx.Equal("TESTDATA::ERROR1"))
+		testx.Expect(t, testdata.DOMAIN_CODE__PARSE.CodeIdentifier(), testx.Equal("DOMAIN_NAME::PARSE"))
 		testx.Expect(t, testdata.Code(100).CodeIdentifier(), testx.Equal(""))
 	})
 
@@ -55,6 +55,13 @@ func TestGeneratedCode(t *testing.T) {
 		testx.Expect(t, testdata.DOMAIN_CODE__HANDLE.CodeHint(), testx.Equal(""))
 		testx.Expect(t, testdata.DOMAIN_CODE__INTERNAL.CodeHint(), testx.Equal(""))
 		testx.Expect(t, testdata.DOMAIN_CODE_UNDEFINED.CodeHint(), testx.Equal(""))
+	})
+
+	t.Run("Offset", func(t *testing.T) {
+		testx.Expect(t, int(testdata.CODE_UNDEFINED), testx.Equal(int(testdata.DomainOffset)))
+		testx.Expect(t, int(testdata.CODE__ERROR1), testx.Equal(100001))
+		testx.Expect(t, testdata.CODE__ERROR1.Message(), testx.Equal("[TESTDATA::CODE:100001] error1 message"))
+		testx.Expect(t, testdata.CODE__ERROR1.CodeIdentifier(), testx.Equal("TESTDATA::ERROR1"))
 	})
 
 	t.Run("CodeValues", func(t *testing.T) {

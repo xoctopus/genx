@@ -20,7 +20,8 @@ import (
 type Error struct {
 	name      string
 	typ       types.Type
-	domain    string
+	domain    string // prefix of Message: `@code domain` if annotated, else UPPER(package)::UPPER(TypeName)
+	keyDomain string // prefix of CodeIdentifier: `@code domain` if annotated, else UPPER(package)
 	undefined *pkgx.Constant
 	list      []*pkgx.Constant
 	statuses  map[*pkgx.Constant]string
@@ -142,7 +143,7 @@ func (e *Error) StatusDescriberCases(ctx context.Context) s.Snippet {
 	return s.Snippets(s.NewLine(1), ss...)
 }
 
-// CodeIdentifierCases generates code snippet for identifier cases: ${DOMAIN}__${SUFFIX}
+// CodeIdentifierCases generates code snippet for identifier cases: ${DOMAIN}::${KEY}
 func (e *Error) CodeIdentifierCases(ctx context.Context) s.Snippet {
 	ss := []s.Snippet{
 		s.Compose(
@@ -154,7 +155,7 @@ func (e *Error) CodeIdentifierCases(ctx context.Context) s.Snippet {
 		s.Compose(
 			s.Indent(2),
 			s.Block("return "),
-			s.BlockRaw(e.domain+"__UNDEFINED"),
+			s.BlockRaw(e.keyDomain+"::UNDEFINED"),
 		),
 	}
 	prefix := stringsx.UpperSnakeCase(e.name) + "__"
@@ -170,7 +171,7 @@ func (e *Error) CodeIdentifierCases(ctx context.Context) s.Snippet {
 			s.Compose(
 				s.Indent(2),
 				s.Block("return "),
-				s.BlockRaw(e.domain+"__"+strings.TrimPrefix(v.Name(), prefix)),
+				s.BlockRaw(e.keyDomain+"::"+strings.TrimPrefix(v.Name(), prefix)),
 			),
 		)
 	}
@@ -234,9 +235,8 @@ func NewErrors(g genx.Context) *Errors {
 			te := es.p.TypeNames().ElementByName(elem.TypeName())
 			must.BeTrue(te != nil)
 
-			domain := stringsx.UpperSnakeCase(es.p.Unwrap().Name()) +
-				"::" +
-				stringsx.UpperSnakeCase(elem.TypeName())
+			keyDomain := stringsx.UpperSnakeCase(es.p.Unwrap().Name())
+			domain := keyDomain + "::" + stringsx.UpperSnakeCase(elem.TypeName())
 
 			doc := docx.Parse(te.Doc())
 			if annotations, ok := doc.AnnotationsByName(identifier); ok {
@@ -244,17 +244,19 @@ func NewErrors(g genx.Context) *Errors {
 					switch strings.ToLower(anno.Key()) {
 					case "domain":
 						domain = anno.Value()
+						keyDomain = domain
 					}
 				}
 			}
 
 			es.e[typ] = &Error{
-				typ:      typ,
-				domain:   domain,
-				name:     elem.TypeName(),
-				list:     make([]*pkgx.Constant, 0),
-				statuses: make(map[*pkgx.Constant]string),
-				hints:    make(map[*pkgx.Constant]string),
+				typ:       typ,
+				domain:    domain,
+				keyDomain: keyDomain,
+				name:      elem.TypeName(),
+				list:      make([]*pkgx.Constant, 0),
+				statuses:  make(map[*pkgx.Constant]string),
+				hints:     make(map[*pkgx.Constant]string),
 			}
 		}
 		es.e[typ].add(elem)

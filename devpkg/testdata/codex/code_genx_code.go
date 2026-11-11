@@ -11,15 +11,15 @@ func (e Code) Message() string {
 	default:
 		return fmt.Sprintf("[TESTDATA::CODE:%d] unknown", e)
 	case CODE_UNDEFINED:
-		return "[TESTDATA::CODE:0] undefined"
+		return "[TESTDATA::CODE:100000] undefined"
 	case CODE__ERROR1:
-		return "[TESTDATA::CODE:1] error1 message"
+		return "[TESTDATA::CODE:100001] error1 message"
 	case CODE__ERROR2:
-		return "[TESTDATA::CODE:2] error2 message"
+		return "[TESTDATA::CODE:100002] error2 message"
 	case CODE__ERROR3:
-		return "[TESTDATA::CODE:3] ERROR3"
+		return "[TESTDATA::CODE:100003] ERROR3"
 	case CODE__ERROR4:
-		return "[TESTDATA::CODE:5] ERROR4"
+		return "[TESTDATA::CODE:100005] ERROR4"
 	}
 }
 
@@ -41,15 +41,15 @@ func (e Code) CodeIdentifier() string {
 	default:
 		return ""
 	case CODE_UNDEFINED:
-		return "TESTDATA::CODE__UNDEFINED"
+		return "TESTDATA::UNDEFINED"
 	case CODE__ERROR1:
-		return "TESTDATA::CODE__ERROR1"
+		return "TESTDATA::ERROR1"
 	case CODE__ERROR2:
-		return "TESTDATA::CODE__ERROR2"
+		return "TESTDATA::ERROR2"
 	case CODE__ERROR3:
-		return "TESTDATA::CODE__ERROR3"
+		return "TESTDATA::ERROR3"
 	case CODE__ERROR4:
-		return "TESTDATA::CODE__ERROR4"
+		return "TESTDATA::ERROR4"
 	}
 }
 

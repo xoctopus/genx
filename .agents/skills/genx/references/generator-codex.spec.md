@@ -4,15 +4,15 @@
 
 为带 `// +genx:code` 的整型错误码类型生成:
 
-| 方法                      | 生成条件                  | 说明                                                    |
-|---------------------------|---------------------------|---------------------------------------------------------|
-| `Message() string`        | 总是                      | 满足 `codex.ErrorMessage`, 用作错误信息                 |
-| `StatusCode() int`        | 任一常量标注 `@code api`  | 供 HTTP 层映射                                          |
-| `CodeIdentifier() string` | 总是                      | 错误标识: `<domain>__<NAME>`                            |
-| `CodeHint() string`       | 任一常量标注 `@code hint` | 可展示给用户的提示文案                                  |
-| `CodeValues() []any`      | 总是                      | 满足 `codex.CanBeCode`, 列出除 `UNDEFINED` 外的全部常量 |
+| 方法                      | 生成条件                  | 说明                                                       |
+|---------------------------|---------------------------|------------------------------------------------------------|
+| `Message() string`        | 总是                      | 满足 `codex.HasMessageCode`, 用作错误信息                  |
+| `StatusCode() int`        | 任一常量标注 `@code api`  | 错误码的 HTTP 状态码语义                                   |
+| `CodeIdentifier() string` | 总是                      | 满足 `codex.HasIdentifierCode`, 错误标识 `<DOMAIN>::<KEY>` |
+| `CodeHint() string`       | 任一常量标注 `@code hint` | 满足 `codex.HasHintCode`, 可展示给用户的提示文案           |
+| `CodeValues() []any`      | 总是                      | 满足 `codex.CanBeCode`, 列出除 `UNDEFINED` 外的全部常量    |
 
-运行时用 `codex.New` / `codex.Wrap` 等包装枚举值. 生成的代码不 import `x/codex` 或 httpx 的接口, 只生成签名匹配的方法.
+运行时用 `codex.New` / `codex.Wrap` 等包装枚举值. 生成的代码不 import 任何接口定义, 只生成签名匹配的方法.
 
 ## 接入
 
@@ -45,6 +45,34 @@ ERROR__NOT_FOUND // user not found
 )
 ```
 
+### 数值偏移 (offset)
+
+错误码数值只在本类型内唯一, 不同包的错误码数值可能相同 (都从 `1` 开始). 需要数值在项目内也唯一时, 给常量加上偏移:
+
+```go
+// DomainOffset 由项目集中分配, 保证各包不重叠
+const DomainOffset = Error(100000)
+
+// +genx:code
+type Error int
+
+const (
+	ERROR_UNDEFINED Error = iota + DomainOffset // 100000
+	ERROR__NOT_FOUND                            // 100001
+)
+```
+
+| 约束             | 说明                                                     |
+|------------------|----------------------------------------------------------|
+| 偏移值由项目管理 | 生成器不分配, 也不检查跨包重叠                           |
+| 底层类型要够宽   | 如 `int8` 放不下 `100000`, 需改为 `int` / `int32`        |
+| 偏移常量的命名   | 不能符合 `<PREFIX>__<NAME>`, 否则会被当作错误码生成      |
+| 生成结果         | `Message()` 数值带偏移, 如 `[<domain>:100001]`; 标识不变 |
+
+偏移只解决数值重叠; 错误标识 (`CodeIdentifier()`) 由 domain 区分, 不依赖数值.
+
+参见 `genx/devpkg/testdata/codex/code.go`.
+
 ## `Message()` 文案
 
 - 优先取常量 doc 的标题行 (`// ERROR__X human text`)
@@ -53,22 +81,29 @@ ERROR__NOT_FOUND // user not found
 
 ### 领域码 (`domain`)
 
-- 默认: `UPPER(包名)::UPPER(类型名)`, 例如 `VALIDATION::ERROR`
-- 可选在 **类型** doc 上覆盖: `// @code domain=CONFWS` (与 `Message` 前缀和 `CodeIdentifier` 有关, **不是** HTTP)
+| 场景                      | `Message()` 前缀             | `CodeIdentifier()` 的 domain |
+|---------------------------|------------------------------|------------------------------|
+| 默认                      | `UPPER(包名)::UPPER(类型名)` | `UPPER(包名)`                |
+| 类型 doc `@code domain=X` | `X`                          | `X`                          |
+
+- 例如包 `validation` 中的 `Error`: 前缀 `VALIDATION::ERROR`, 标识 domain `VALIDATION`
+- 覆盖只写在 **类型** doc 上: `// @code domain=CONFWS` (与 HTTP 无关)
 - 常量 doc 上 **不要** 写 `domain`; 常量侧 codex 注解只使用 `api` 和 `hint` (见下)
+- 推荐一个包只定义一个错误码类型 (包即领域). 多个类型可以生成, 但不推荐: 它们的标识共用同一个 domain
 
 参见 `genx/devpkg/testdata/codex/domain_code.go`.
 
 ## 错误标识: `CodeIdentifier()`
 
-- 生成规则: `<domain>__<NAME>`, `<NAME>` 为常量名 `__` 之后的部分
-- 未定义常量: `<domain>__UNDEFINED`
+- 生成规则: `<DOMAIN>::<KEY>`, `<KEY>` 为常量名 `<PREFIX>__` 之后的部分, `<DOMAIN>` 见上表
+- 未定义常量: `<DOMAIN>::UNDEFINED`
 - 未知值: 返回 `""`
 
-| domain                   | 常量                      | 标识                                  |
-|--------------------------|---------------------------|---------------------------------------|
-| 默认 `VALIDATION::ERROR` | `ERROR__MISSING_REQUIRED` | `VALIDATION::ERROR__MISSING_REQUIRED` |
-| `@code domain=USER`      | `ERROR__NOT_FOUND_BY_ID`  | `USER__NOT_FOUND_BY_ID`               |
+| 包 / 注解                      | 常量                      | 标识                           |
+|--------------------------------|---------------------------|--------------------------------|
+| 包 `validation`, 无 `domain`   | `ERROR__MISSING_REQUIRED` | `VALIDATION::MISSING_REQUIRED` |
+| 包 `user`, `@code domain=USER` | `ERROR__NOT_FOUND_BY_ID`  | `USER::NOT_FOUND_BY_ID`        |
+| 包 `user`, `@code domain=USER` | `ERROR_UNDEFINED`         | `USER::UNDEFINED`              |
 
 ## 提示文案: `@code hint`
 
@@ -88,14 +123,14 @@ ERROR__NOT_FOUND // user not found
 type Error int8
 
 const (
-ERROR_UNDEFINED Error = iota
-// ERROR__NOT_FOUND user not found
-// @code hint
-ERROR__NOT_FOUND
-// ERROR__INVALID_NAME invalid name
-// @code hint=name must be 8-16 letters or digits
-ERROR__INVALID_NAME
-ERROR__INTERNAL // internal error
+	ERROR_UNDEFINED Error = iota
+	// ERROR__NOT_FOUND user not found
+	// @code hint
+	ERROR__NOT_FOUND
+	// ERROR__INVALID_NAME invalid name
+	// @code hint=name must be 8-16 letters or digits
+	ERROR__INVALID_NAME
+	ERROR__INTERNAL // internal error
 )
 ```
 
@@ -124,7 +159,7 @@ ERROR__CLIENT_CLOSED
 | 未写 `api`                | 该常量不参与 HTTP 映射; `StatusCode()` 的 `switch` 走 `default` → **`0`** |
 | 整型无任何 `api`          | **不生成** `StatusCode()` 方法                                            |
 
-`0` 表示 "此码不声明 HTTP 语义"; httpx 侧应继续用 Location/Position 或其它规则.
+`0` 表示 "此码不声明 HTTP 语义", 如何处理由使用方决定.
 
 ### 校验
 
@@ -140,11 +175,10 @@ ERROR__CLIENT_CLOSED
 
 示例见 `genx/devpkg/testdata/codex/code.go` 与生成结果 `code_genx_code.go`.
 
-## 与 httpx 的关系
+## 运行时使用
 
-- `codex.New(ERROR__X)` **本身**不实现 `StatusCode()` 等方法; httpx 对错误链节点断言 `codex.Valuer`, 取出 code 后再断言 `StatusCode()` / `CodeIdentifier()` / `CodeHint()`
-- 生成的 code 类型 **不实现** `error`, 不能直接作为 error 返回, 需经 `codex.New` 等包装
-- 业务复合响应码 (如 `400000001`) 与 `@code api` 无关, 见 `httpx/internal/status.Response`
+- 生成的 code 类型 **不实现** `error`, 需经 `codex.New` / `codex.Errorf` / `codex.Wrap` / `codex.Wrapf` 包装后作为 error 返回
+- 不知道 code 类型的使用方, 对错误链节点断言 `codex.Error`, 用 `Error.As` 把节点视为 code, 再断言上述方法 (如 `StatusCode()`, `codex.HasIdentifierCode`)
 
 ## 参考
 

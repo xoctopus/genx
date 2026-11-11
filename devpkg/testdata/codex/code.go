@@ -1,11 +1,15 @@
 package testdata
 
+// DomainOffset shifts the values of Code to keep them apart from codes of other
+// packages. It does not follow `CODE__<NAME>`, so it is not generated as a code.
+const DomainOffset = int(100000)
+
 // Code internal error code
 // +genx:code
-type Code int8
+type Code int
 
 const (
-	CODE_UNDEFINED Code = iota
+	CODE_UNDEFINED Code = iota + Code(DomainOffset)
 	// CODE__ERROR1 error1 message
 	// @code api=StatusBadRequest
 	CODE__ERROR1

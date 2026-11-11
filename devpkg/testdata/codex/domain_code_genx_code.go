@@ -29,15 +29,15 @@ func (e DomainCode) CodeIdentifier() string {
 	default:
 		return ""
 	case DOMAIN_CODE_UNDEFINED:
-		return "DOMAIN_NAME__UNDEFINED"
+		return "DOMAIN_NAME::UNDEFINED"
 	case DOMAIN_CODE__PARSE:
-		return "DOMAIN_NAME__PARSE"
+		return "DOMAIN_NAME::PARSE"
 	case DOMAIN_CODE__HANDLE:
-		return "DOMAIN_NAME__HANDLE"
+		return "DOMAIN_NAME::HANDLE"
 	case DOMAIN_CODE__PARAMETER:
-		return "DOMAIN_NAME__PARAMETER"
+		return "DOMAIN_NAME::PARAMETER"
 	case DOMAIN_CODE__INTERNAL:
-		return "DOMAIN_NAME__INTERNAL"
+		return "DOMAIN_NAME::INTERNAL"
 	}
 }
 

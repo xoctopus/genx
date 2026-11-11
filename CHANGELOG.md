@@ -1,11 +1,18 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/genx/compare/v0.4.0...HEAD)
+## [HEAD](https://github.com/xoctopus/genx/compare/v0.4.1...HEAD)
+
+> 0001-01-01
+
+
+<a name="v0.4.1"></a>
+## [v0.4.1](https://github.com/xoctopus/genx/compare/v0.4.0...v0.4.1)
 
 > 2026-10-29
 
 ### Chore
 
+* update CHANGELOG
 * bump go to 1.27.3 and refresh Makefile, CI and lint config
 
 ### Docs
